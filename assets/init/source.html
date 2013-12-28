@@ -1,0 +1,58 @@
+{table padding=10 width=100% mobile="hide"}
+  {td font=default align=center}This preheader will disappear on a mobile device.{/td}
+{/table}
+
+{table padding=10 width={width} float=center mobile="fill"}
+  {td align=left font=default}
+
+    {img src=logo.gif height=50 width=200 alt="Company Logo"}<br>
+
+    {lorem sentences=3}<br><br>
+
+    {img src=billboard.jpg height=180 width={width} mobile="fill"}<br>
+
+    {lorem sentences=10}<br><br>
+
+    {button id="call-to-action" href="http://inkceptional.com"}Call To Action{/button}<br>
+
+  {/td}
+{/table}
+
+{table width={width} padding=10 float=center valign=top mobile="stack"}
+  {td width=50%}
+
+    {img src=kittens.jpg width=250 height=150 mobile="fill"}<br>
+
+    {big}{lorem type=headline}{/big}
+
+    {lorem sentences=8}<br><br>
+
+    {button id="call-to-action2" href="http://inkceptional.com"}Create &amp; Send{/button}
+
+  {/td}
+  {td width=50% bgcolor=#eeeeee font=default}
+
+    {big}{lorem type=headline}{/big}
+    {lorem sentences=3}<br><br>
+
+    {big}{lorem type=headline}{/big}
+    {lorem sentences=3}<br><br>
+
+    {big color=#990000}{lorem type=headline}{/big}
+    {lorem sentences=3}
+
+  {/td}
+{/table}
+
+{table padding=10 width={width} float=center mobile="fill"}
+  {td align=left font=small}
+
+    {img src=footer.jpg height=100 width={width} mobile="hide"}<br>
+
+    <% if email? %>
+      This email was sent to [email].  {a id="unsubscribe" href=#}Click here to unsubscribe{/a}.
+      Using ERB, this unsubscribe notice will only appear in the 'email' format of this project.
+    <% end %>
+
+  {/td}
+{/table}
