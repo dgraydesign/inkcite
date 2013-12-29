@@ -15,10 +15,16 @@ module Inkcite
 
       rule = ""
       rule << tag
-      rule << "[class=\"#{klass}\"]"
+      rule << "[class~=#{quote(klass)}]"
       rule << " #{selector}" unless selector.blank?
       rule << " { "
-      rule << (declarations.is_a?(Array) ? declarations.join(' ') : declarations.to_s)
+      if declarations.is_a?(Hash)
+        rule << render_styles(declarations)
+      elsif declarations.is_a?(Array)
+        rule << declarations.join(' ')
+      else
+        rule << declarations.to_s
+      end
       rule << " }"
 
       rule
