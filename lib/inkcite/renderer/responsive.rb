@@ -6,7 +6,6 @@ module Inkcite
     DROP    = 'drop'
     FILL    = 'fill'
     HIDE    = 'hide'
-    SWAP    = 'swap'
 
     # Attribute names
     ON_MOBILE = :'on-mobile'
@@ -73,17 +72,12 @@ module Inkcite
 
     end
 
-    def swap? att
-      matches? att, SWAP_MODES
-    end
-
     private
 
     # Variants, aliases for convenience.
     DROP_MODES = Set.new [ DROP, 'stack' ]
     FILL_MODES = Set.new [ FILL, 'stretch' ]
     HIDE_MODES = Set.new [ HIDE, 'hidden' ]
-    SWAP_MODES = Set.new [ SWAP, 'replace' ]
 
   end
 end
