@@ -60,6 +60,7 @@ module Inkcite
           :like         => Inkcite::Renderer::Like.new,
           :litmus       => Inkcite::Renderer::Litmus.new,
           :lorem        => Inkcite::Renderer::Lorem.new,
+          :'mobile-img' => Inkcite::Renderer::MobileImage.new,
           :'outlook-bg' => Inkcite::Renderer::OutlookBackground.new,
           :table        => Inkcite::Renderer::Table.new,
           :td           => Inkcite::Renderer::Td.new
@@ -79,6 +80,7 @@ require_relative 'renderer/like'
 require_relative 'renderer/link'
 require_relative 'renderer/litmus'
 require_relative 'renderer/lorem'
+require_relative 'renderer/mobile_image'
 require_relative 'renderer/outlook_background'
 require_relative 'renderer/property'
 require_relative 'renderer/table'

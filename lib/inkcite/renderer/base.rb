@@ -27,14 +27,12 @@ module Inkcite
     # CSS Directions
     DIRECTIONS          = [ :top, :right, :bottom, :left ]
 
+    # Attribute and CSS dimensions
+    DIMENSIONS = [ :width, :height ]
+
     # Common value declarations
     POUND_SIGN = '#'
     NONE       = 'none'
-
-    # Mobile style and pattern constants.
-    MOBILE_HIDE = 'hide'
-    MOBILE_FILL = 'fill'
-    MOBILE_DROP = 'drop'
 
     def render tag, opt, ctx
       raise "Not implemented: #{tag} #{opts}"

@@ -72,7 +72,7 @@ module Inkcite
           # As a convenience, replace missing images with placehold.it as long as they
           # meet the minimum dimensions.  No need to spam the design with tiny, tiny
           # placeholders.
-          src = "http://placehold.it/#{att[:width]}x#{att[:height]}.#{File.extname(src)}" if DIMENSIONS.all? { |dim| att[dim] > 25 }
+          src = "http://placehold.it/#{att[:width]}x#{att[:height]}.#{File.extname(src)}" if DIMENSIONS.all? { |dim| att[dim] > MINIMUM_DIMENSION_FOR_PLACEHOLDER }
 
         end
 
@@ -96,42 +96,19 @@ module Inkcite
       valign = opt[:valign] || ('middle' if inline)
       sty[VERTICAL_ALIGN] = valign unless valign.blank?
 
-      html = ''
-
       mobile = responsive_mode(opt)
+      if !mobile
+
+        # Check to see if this image is inside of a mobile image declaration.
+        # If so, the image defaults to hide on mobile.
+        parent = ctx.tag_stack(:mobile_image).opts
+        mobile = HIDE unless parent.nil?
+
+      end
+
       if mobile
 
-        if mobile == SWAP
-
-          mobile_src = opt[ON_MOBILE_SRC] || opt[MOBILE_SRC]
-          if mobile_src
-
-            # Create a custom klass from the mobile image source name.
-            klass = mobile_src.downcase.gsub(/[^a-z0-9]/, '')
-
-            mobile_width = opt[MOBILE_WIDTH].to_i
-            mobile_height = opt[MOBILE_HEIGHT].to_i
-
-            html << render_tag('span', { :class => klass })
-
-            # Placeholder the mobile image if it doesn't exists.
-            mobile_src = "http://placehold.it/#{mobile_width}x#{mobile_height}.#{File.extname(mobile_src)}" unless ctx.assert_image_exists(mobile_src)
-
-            ctx.responsive_styles << css_rule('span', klass, render_styles({
-                :display => 'block',
-                :width => '100% important!',
-                :height => "#{(mobile_height / mobile_width * 100).round.to_i}% important!",
-                BACKGROUND_IMAGE => "url(#{ctx.image_url(mobile_src)})",
-                BACKGROUND_SIZE  => '100% auto !important'
-            }))
-
-          else
-            ctx.error 'Responsive image missing mobile src', { :src => src, :mobile_src => mobile_src }
-          end
-
-        end
-
-        # Hide this image on mobile.
+        # Scale the image to fill available space.
         if mobile == FILL
 
           att[:class] = FILL
@@ -139,7 +116,8 @@ module Inkcite
           # Override the inline attributes with scalable width and height.
           ctx.responsive_styles << css_rule(tag, FILL, 'width: 100% !important; height: auto !important;')
 
-        elsif mobile == HIDE || mobile == SWAP
+        # Hide this image on mobile.
+        elsif mobile == HIDE
 
           att[:class] = HIDE
 
@@ -154,12 +132,7 @@ module Inkcite
 
       end
 
-      html << render_tag(tag, att, sty)
-
-      # Close the wrapper around the mobile image swapper.
-      html << render_tag('/span') if mobile == SWAP
-
-      html
+      render_tag(tag, att, sty)
     end
 
     private
@@ -175,17 +148,6 @@ module Inkcite
     # to get a placehold.it automatically inserted.  Otherwise only an error
     # is raised for missing images.
     MINIMUM_DIMENSION_FOR_PLACEHOLDER = 25
-
-    # Convenient.
-    DIMENSIONS = [ :width, :height ]
-
-    # Mobile styles
-    HIDE = 'hide'
-
-    ON_MOBILE_SRC = :'on-mobile-src'
-    MOBILE_SRC = :'mobile-src'
-    MOBILE_WIDTH = :'mobile-width'
-    MOBILE_HEIGHT = :'mobile-height'
 
   end
 end
