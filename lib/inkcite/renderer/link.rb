@@ -174,7 +174,7 @@ module Inkcite
 
       def add_button_style ctx
 
-        cfg = Renderer::Button::Config.new(ctx)
+        cfg = Button::Config.new(ctx)
 
         sty = {
             :color => "#{cfg.color} !important",

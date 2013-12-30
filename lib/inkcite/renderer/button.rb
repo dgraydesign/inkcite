@@ -12,7 +12,7 @@ module Inkcite
         end
 
         def bgcolor
-          hex(@opt[:bgcolor] || @ctx[BUTTON_BACKGROUND_COLOR] || @ctx[Renderer::Base::LINK_COLOR])
+          hex(@opt[:bgcolor] || @ctx[BUTTON_BACKGROUND_COLOR] || @ctx[Base::LINK_COLOR])
         end
 
         def border
@@ -20,7 +20,7 @@ module Inkcite
         end
 
         def border_radius
-          (@opt[Renderer::Base::BORDER_RADIUS] || @ctx[BUTTON_BORDER_RADIUS]).to_i
+          (@opt[Base::BORDER_RADIUS] || @ctx[BUTTON_BORDER_RADIUS]).to_i
         end
 
         def color
@@ -36,7 +36,7 @@ module Inkcite
         end
 
         def font_weight
-          @opt[Renderer::Base::FONT_WEIGHT] || @ctx[BUTTON_FONT_WEIGHT]
+          @opt[Base::FONT_WEIGHT] || @ctx[BUTTON_FONT_WEIGHT]
         end
 
         def height
@@ -44,11 +44,11 @@ module Inkcite
         end
 
         def line_height
-          (@opt[Renderer::Base::LINE_HEIGHT] || @ctx[BUTTON_LINE_HEIGHT] || height).to_i
+          (@opt[Base::LINE_HEIGHT] || @ctx[BUTTON_LINE_HEIGHT] || height).to_i
         end
 
         def margin_top
-          (@opt[Renderer::Base::MARGIN_TOP] || @ctx[BUTTON_MARGIN_TOP]).to_i
+          (@opt[Base::MARGIN_TOP] || @ctx[BUTTON_MARGIN_TOP]).to_i
         end
 
         def padding
@@ -56,7 +56,7 @@ module Inkcite
         end
 
         def text_shadow
-          ts = @opt[Renderer::Base::TEXT_SHADOW] || @ctx[BUTTON_TEXT_SHADOW]
+          ts = @opt[Base::TEXT_SHADOW] || @ctx[BUTTON_TEXT_SHADOW]
           unless ts
             ts = Util::brightness_value(bgcolor) > 382.5 ? Util::lighten(bgcolor, 0.25) : Util::darken(bgcolor)
           end
@@ -85,7 +85,7 @@ module Inkcite
 
         # Convenient
         def hex color
-          Renderer::hex(color)
+          Renderer.hex(color)
         end
 
       end

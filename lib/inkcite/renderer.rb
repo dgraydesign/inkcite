@@ -61,25 +61,25 @@ module Inkcite
     SLASH = '/'
 
     def self.default_renderer
-      @default_renderer ||= Renderer::Property.new
+      @default_renderer ||= Property.new
     end
 
     def self.renderers
 
       # Dynamic renderers for custom behavior and tags.
       @renderers ||= {
-          :a            => Renderer::Link.new,
-          :button       => Renderer::Button.new, #Renderer::Button.new,
-          :google       => Renderer::GoogleAnalytics.new,
-          :img          => Renderer::Image.new,
-          :'in-browser' => Renderer::InBrowser.new,
-          :like         => Renderer::Like.new,
-          :litmus       => Renderer::Litmus.new,
-          :lorem        => Renderer::Lorem.new,
-          :'mobile-img' => Renderer::MobileImage.new,
-          :'outlook-bg' => Renderer::OutlookBackground.new,
-          :table        => Renderer::Table.new,
-          :td           => Renderer::Td.new
+          :a            => Link.new,
+          :button       => Button.new,
+          :google       => GoogleAnalytics.new,
+          :img          => Image.new,
+          :'in-browser' => InBrowser.new,
+          :like         => Like.new,
+          :litmus       => Litmus.new,
+          :lorem        => Lorem.new,
+          :'mobile-img' => MobileImage.new,
+          :'outlook-bg' => OutlookBackground.new,
+          :table        => Table.new,
+          :td           => Td.new
       }
 
     end

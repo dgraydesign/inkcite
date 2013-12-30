@@ -17,7 +17,6 @@ module Inkcite
       LINE_HEIGHT         = :'line-height'
       LINK_COLOR          = :'#link'
       MARGIN_TOP          = :'margin-top'
-      ON_MOBILE           = :'on-mobile'
       PADDING_X           = :'padding-x'
       PADDING_Y           = :'padding-y'
       TEXT_ALIGN          = :'text-align'
