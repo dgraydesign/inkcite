@@ -85,12 +85,12 @@ module Inkcite
 
         if mobile == HIDE
 
-          att[:class] = mobile
+          att[:class] = HIDE
           ctx.responsive_styles << css_rule(tag, HIDE, 'display: none;')
 
         elsif mobile == FILL
 
-          att[:class] = mobile
+          att[:class] = FILL
           ctx.responsive_styles << css_rule(tag, FILL, 'width: 100% !important; background-size: 100% auto;')
 
         else
