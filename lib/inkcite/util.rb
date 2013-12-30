@@ -1,9 +1,31 @@
-# Symbolize keys!
-require 'active_support/core_ext/hash/keys.rb'
-require 'yaml'
-
+# Includes hex color manipulation from
+# http://www.redguava.com.au/2011/10/lighten-or-darken-a-hexadecimal-color-in-ruby-on-rails/
 module Inkcite
   module Util
+
+    def self.brightness_value color
+      (color.gsub('#', '').scan(/../).map { |c| c.hex }).inject { |sum, c| sum + c }
+    end
+
+    def self.darken color, amount=0.4
+      rgb = color.gsub('#', '').scan(/../).map { |color| color.hex }
+      rgb[0] = (rgb[0].to_i * amount).round
+      rgb[1] = (rgb[1].to_i * amount).round
+      rgb[2] = (rgb[2].to_i * amount).round
+      "#%02x%02x%02x" % rgb
+    end
+
+    def self.lighten color, amount=0.6
+      rgb = color.gsub('#', '').scan(/../).map { |color| color.hex }
+      rgb[0] = [(rgb[0].to_i + 255 * amount).round, 255].min
+      rgb[1] = [(rgb[1].to_i + 255 * amount).round, 255].min
+      rgb[2] = [(rgb[2].to_i + 255 * amount).round, 255].min
+      "#%02x%02x%02x" % rgb
+    end
+
+    def self.contrasting_text_color color
+      brightness_value(color) > 382.5 ? darken(color) : lighten(color)
+    end
 
     def self.each_line path, fail_if_not_exists, &block
 

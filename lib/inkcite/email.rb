@@ -1,6 +1,3 @@
-require 'active_support/core_ext/object/blank'
-require 'active_support/core_ext/string/starts_ends_with'
-
 module Inkcite
   class Email
 
@@ -24,7 +21,7 @@ module Inkcite
     end
 
     def config
-      Inkcite::Util.read_yml(File.join(path, 'config.yml'), true)
+      Util.read_yml(File.join(path, 'config.yml'), true)
     end
 
     # Iterates through each of the original source images.
@@ -119,7 +116,7 @@ module Inkcite
 
       # Instantiate a new view of this email with the desired view and
       # format.
-      Inkcite::View.new(self, environment, format, version, opt)
+      View.new(self, environment, format, version, opt)
 
     end
 
@@ -155,7 +152,7 @@ module Inkcite
     TAB      = "\t"
 
     def meta_data
-      Inkcite::Util.read_yml(File.join(path, meta_file_name), false)
+      Util.read_yml(File.join(path, meta_file_name), false)
     end
 
     def meta_file_name
@@ -164,7 +161,7 @@ module Inkcite
 
     def read_properties into, file
 
-      Inkcite::Util.each_line(File.join(path, file), true) do |line|
+      Util.each_line(File.join(path, file), true) do |line|
         next if line.starts_with?(COMMENT)
 
         key, open, close = line.split(TAB)
@@ -182,6 +179,3 @@ module Inkcite
 
   end
 end
-
-require_relative 'util'
-require_relative 'view'

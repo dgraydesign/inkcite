@@ -29,6 +29,10 @@ module Inkcite
       rule
     end
 
+    def button? att
+      matches? att, BUTTON_MODES
+    end
+
     # Returns true if the attribute value corresponds to the
     # drop pattern.
     def drop? att
@@ -58,14 +62,14 @@ module Inkcite
     def responsive_mode opt
 
       att = opt[ON_MOBILE] || opt[:mobile]
-      if drop?(att)
+      if button?(att)
+        BUTTON
+      elsif drop?(att)
         DROP
       elsif fill?(att)
         FILL
       elsif hide?(att)
         HIDE
-      elsif swap?(att)
-        SWAP
       else
         nil
       end
@@ -75,9 +79,10 @@ module Inkcite
     private
 
     # Variants, aliases for convenience.
-    DROP_MODES = Set.new [ DROP, 'stack' ]
-    FILL_MODES = Set.new [ FILL, 'stretch' ]
-    HIDE_MODES = Set.new [ HIDE, 'hidden' ]
+    BUTTON_MODES = Set.new [ BUTTON ]
+    DROP_MODES   = Set.new [ DROP, 'stack' ]
+    FILL_MODES   = Set.new [ FILL, 'stretch' ]
+    HIDE_MODES   = Set.new [ HIDE, 'hidden' ]
 
   end
 end

@@ -1,4 +1,20 @@
-require 'active_support/core_ext/object/to_query'
+require_relative 'renderer/base'
+require_relative 'renderer/responsive'
+require_relative 'renderer/table_base'
+
+require_relative 'renderer/button'
+require_relative 'renderer/google_analytics'
+require_relative 'renderer/image'
+require_relative 'renderer/in_browser'
+require_relative 'renderer/like'
+require_relative 'renderer/link'
+require_relative 'renderer/litmus'
+require_relative 'renderer/lorem'
+require_relative 'renderer/mobile_image'
+require_relative 'renderer/outlook_background'
+require_relative 'renderer/property'
+require_relative 'renderer/table'
+require_relative 'renderer/td'
 
 module Inkcite
   module Renderer
@@ -52,36 +68,21 @@ module Inkcite
 
       # Dynamic renderers for custom behavior and tags.
       @renderers ||= {
-          :a            => Inkcite::Renderer::Link.new,
-          :button       => Inkcite::Renderer::Button.new, #Renderer::Button.new,
-          :google       => Inkcite::Renderer::GoogleAnalytics.new,
-          :img          => Inkcite::Renderer::Image.new,
-          :'in-browser' => Inkcite::Renderer::InBrowser.new,
-          :like         => Inkcite::Renderer::Like.new,
-          :litmus       => Inkcite::Renderer::Litmus.new,
-          :lorem        => Inkcite::Renderer::Lorem.new,
-          :'mobile-img' => Inkcite::Renderer::MobileImage.new,
-          :'outlook-bg' => Inkcite::Renderer::OutlookBackground.new,
-          :table        => Inkcite::Renderer::Table.new,
-          :td           => Inkcite::Renderer::Td.new
+          :a            => Renderer::Link.new,
+          :button       => Renderer::Button.new, #Renderer::Button.new,
+          :google       => Renderer::GoogleAnalytics.new,
+          :img          => Renderer::Image.new,
+          :'in-browser' => Renderer::InBrowser.new,
+          :like         => Renderer::Like.new,
+          :litmus       => Renderer::Litmus.new,
+          :lorem        => Renderer::Lorem.new,
+          :'mobile-img' => Renderer::MobileImage.new,
+          :'outlook-bg' => Renderer::OutlookBackground.new,
+          :table        => Renderer::Table.new,
+          :td           => Renderer::Td.new
       }
 
     end
 
   end
 end
-
-require_relative 'renderer/base'
-require_relative 'renderer/button'
-require_relative 'renderer/google_analytics'
-require_relative 'renderer/image'
-require_relative 'renderer/in_browser'
-require_relative 'renderer/like'
-require_relative 'renderer/link'
-require_relative 'renderer/litmus'
-require_relative 'renderer/lorem'
-require_relative 'renderer/mobile_image'
-require_relative 'renderer/outlook_background'
-require_relative 'renderer/property'
-require_relative 'renderer/table'
-require_relative 'renderer/td'

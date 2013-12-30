@@ -1,6 +1,6 @@
 // This file helps you keep your email code DRY (don't repeat yourself)
 // by allowing you to easily define constants and custom tags.
-// 
+//
 // The keys and values in this file are tab-delimited.
 
 // Palette
@@ -13,19 +13,16 @@ font-family	sans-serif
 font-size	15
 line-height	19
 
-// This is an example of a custom tag.  Tabs delimit the tag name, its open and 
+// This is an example of a custom tag.  Tabs delimit the tag name, its open and
 // close values.  Inkcite will replace instances of {big} and {/big} with these
-// values, respectively.  Notice that it allows its color, which defaults to 
+// values, respectively.  Notice that it allows its color, which defaults to
 // #444444, to be configured in your HTML as in {big color=#ff0000}.
 big	<div style="font-size: 18px; font-weight: bold; color: $color=#444444$">	</div>
 
 // Bullet-proof buttons
-button-background-color	{#link}
 button-border-radius	5
-button-color	#ffffff
 button-float	center
 button-padding	8
-button-text-shadow	#003366
 button-width	175
 
 // Dimensions

@@ -1,68 +1,135 @@
 module Inkcite
-  class Renderer::Button < Renderer::Base
+  module Renderer
+    class Button < Base
 
-    def render tag, opt, ctx
+      # Convenience class which makes it easy to retrieve the attributes
+      # for a button.
+      class Config
 
-      html = ''
+        def initialize ctx, opt={}
+          @opt = opt
+          @ctx = ctx
+        end
 
-      if tag == 'button'
+        def bgcolor
+          hex(@opt[:bgcolor] || @ctx[BUTTON_BACKGROUND_COLOR] || @ctx[Renderer::Base::LINK_COLOR])
+        end
 
-        float   = opt[:align] || opt[:float] || ctx[BUTTON_FLOAT]
-        width   = (opt[:width] || ctx[BUTTON_WIDTH]).to_i
-        height  = (opt[:height] || ctx[BUTTON_HEIGHT]).to_i
-        padding = (opt[:padding] || ctx[BUTTON_PADDING]).to_i
-        border  = (opt[:border] || ctx[BUTTON_BORDER])
-        radius  = (opt[BORDER_RADIUS] || ctx[BUTTON_BORDER_RADIUS]).to_i
-        bgcolor = hex(opt[:bgcolor] || ctx[BUTTON_BACKGROUND_COLOR])
+        def border
+          @opt[:border] || @ctx[BUTTON_BORDER]
+        end
 
-        font        = opt[:font] || ctx[BUTTON_FONT]
-        color       = hex(opt[:color] || ctx[BUTTON_COLOR])
-        text_shadow = hex(opt[TEXT_SHADOW] || ctx[BUTTON_TEXT_SHADOW])
-        line_height = (opt[LINE_HEIGHT] || ctx[BUTTON_LINE_HEIGHT]).to_i
+        def border_radius
+          (@opt[Renderer::Base::BORDER_RADIUS] || @ctx[BUTTON_BORDER_RADIUS]).to_i
+        end
 
-        id = opt[:id]
-        href = opt[:href]
+        def color
+          hex(@opt[:color] || @ctx[BUTTON_COLOR] || Util::contrasting_text_color(bgcolor))
+        end
 
-        # Wrap the table in a link to make the whole thing clickable.  Embed
-        # a second link inside the table a graceful trick to make the
-        html << "{a id=\"#{id}\" href=\"#{href}\" color=\"none\"}"
-        html << "{table bgcolor=#{bgcolor}"
-        html << " padding=#{padding}" if padding > 0
-        html << " border=#{border}" if border
-        html << " border-radius=#{radius}" if radius > 0
-        html << " width=#{width}" if width > 0
-        html << " float=#{float}" if float
-        html << " mobile=\"fill\"}"
-        html << "{td align=center"
-        html << " height=#{height} valign=middle" if height > 0
-        html << " font=\"#{font}\""
-        html << " shadow=\"#{text_shadow}\" shadow-offset=-1}"
-        html << "{a id=\"#{id}\" href=\"#{href}\" color=\"#{color}\"}"
+        def float
+          @opt[:align] || @opt[:float] || @ctx[BUTTON_FLOAT]
+        end
 
-      else
+        def font
+          @opt[:font] || @ctx[BUTTON_FONT]
+        end
 
-        html << "{/a}"
-        html << "{/td}\n"
-        html << "{/table}{/a}"
+        def font_weight
+          @opt[Renderer::Base::FONT_WEIGHT] || @ctx[BUTTON_FONT_WEIGHT]
+        end
+
+        def height
+          (@opt[:height] || @ctx[BUTTON_HEIGHT]).to_i
+        end
+
+        def line_height
+          (@opt[Renderer::Base::LINE_HEIGHT] || @ctx[BUTTON_LINE_HEIGHT] || height).to_i
+        end
+
+        def margin_top
+          (@opt[Renderer::Base::MARGIN_TOP] || @ctx[BUTTON_MARGIN_TOP]).to_i
+        end
+
+        def padding
+          (@opt[:padding] || @ctx[BUTTON_PADDING]).to_i
+        end
+
+        def text_shadow
+          ts = @opt[Renderer::Base::TEXT_SHADOW] || @ctx[BUTTON_TEXT_SHADOW]
+          unless ts
+            ts = Util::brightness_value(bgcolor) > 382.5 ? Util::lighten(bgcolor, 0.25) : Util::darken(bgcolor)
+          end
+          hex(ts)
+        end
+
+        def width
+          (@opt[:width] || @ctx[BUTTON_WIDTH]).to_i
+        end
+
+        private
+
+        BUTTON_BACKGROUND_COLOR = :'button-background-color'
+        BUTTON_BORDER = :'button-border'
+        BUTTON_BORDER_RADIUS = :'button-border-radius'
+        BUTTON_COLOR = :'button-color'
+        BUTTON_FLOAT = :'button-float'
+        BUTTON_FONT = :'button-font'
+        BUTTON_FONT_WEIGHT = :'button-font-weight'
+        BUTTON_HEIGHT = :'button-height'
+        BUTTON_LINE_HEIGHT = :'button-line-height'
+        BUTTON_MARGIN_TOP = :'button-margin-top'
+        BUTTON_PADDING = :'button-padding'
+        BUTTON_TEXT_SHADOW = :'button-text-shadow'
+        BUTTON_WIDTH = :'button-width'
+
+        # Convenient
+        def hex color
+          Renderer::hex(color)
+        end
 
       end
 
-      html
+      def render tag, opt, ctx
+
+        html = ''
+
+        if tag == 'button'
+
+          id = opt[:id]
+          href = opt[:href]
+
+          cfg = Config.new(ctx, opt)
+
+          # Wrap the table in a link to make the whole thing clickable.  Embed
+          # a second link inside the table a graceful trick to make the
+          html << "{a id=\"#{id}\" href=\"#{href}\" color=\"none\"}"
+          html << "{table bgcolor=#{cfg.bgcolor}"
+          html << " padding=#{cfg.padding}" if cfg.padding > 0
+          html << " border=#{cfg.border}" if cfg.border
+          html << " border-radius=#{cfg.border_radius}" if cfg.border_radius > 0
+          html << " margin-top=#{cfg.margin_top}" if cfg.margin_top > 0
+          html << " width=#{cfg.width}" if cfg.width > 0
+          html << " float=#{cfg.float}" if cfg.float
+          html << " mobile=\"fill\"}"
+          html << "{td align=center"
+          html << " height=#{cfg.height} valign=middle" if cfg.height > 0
+          html << " font=\"#{cfg.font}\""
+          html << " font-weight=\"#{cfg.font_weight}\"" unless cfg.font_weight.blank?
+          html << " shadow=\"#{cfg.text_shadow}\" shadow-offset=-1}"
+          html << "{a id=\"#{id}\" href=\"#{href}\" color=\"#{cfg.color}\"}"
+
+        else
+
+          html << "{/a}"
+          html << "{/td}\n"
+          html << "{/table}{/a}"
+
+        end
+
+        html
+      end
+
     end
-
-    private
-
-    BUTTON_BACKGROUND_COLOR = :'button-background-color'
-    BUTTON_BORDER           = :'button-border'
-    BUTTON_BORDER_RADIUS    = :'button-border-radius'
-    BUTTON_COLOR            = :'button-color'
-    BUTTON_FLOAT            = :'button-float'
-    BUTTON_FONT             = :'button-font'
-    BUTTON_HEIGHT           = :'button-height'
-    BUTTON_LINE_HEIGHT      = :'button-line-height'
-    BUTTON_PADDING          = :'button-padding'
-    BUTTON_TEXT_SHADOW      = :'button-text-shadow'
-    BUTTON_WIDTH            = :'button-width'
-
   end
 end

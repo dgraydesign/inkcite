@@ -1,35 +1,36 @@
-require 'faker'
-require 'active_support/core_ext/string/inflections'
-
 module Inkcite
-  class Renderer::Lorem < Renderer::Base
+  module Renderer
+    class Lorem < Base
 
-    def render(tag, opt, ctx)
+      def render(tag, opt, ctx)
 
-      type = (opt[:type] || :sentences).to_sym
+        require 'faker'
 
-      # Get the limit (e.g. the number of sentences )
-      limit = opt[:sentences] || opt[:size] || opt[:limit] || opt[:count]
+        type = (opt[:type] || :sentences).to_sym
 
-      ctx.error 'Email contains Lorem Ipsum'
+        # Get the limit (e.g. the number of sentences )
+        limit = opt[:sentences] || opt[:size] || opt[:limit] || opt[:count]
 
-      if type == :headline
+        ctx.error 'Email contains Lorem Ipsum'
 
-        words = (limit || 4).to_i
-        Faker::Lorem.words(words).join(SPACE).titlecase
+        if type == :headline
 
-      else
+          words = (limit || 4).to_i
+          Faker::Lorem.words(words).join(SPACE).titlecase
 
-        sentences = (limit || 3).to_i
-        Faker::Lorem.sentences(sentences).join(SPACE)
+        else
+
+          sentences = (limit || 3).to_i
+          Faker::Lorem.sentences(sentences).join(SPACE)
+
+        end
 
       end
 
+      private
+
+      SPACE = ' '
+
     end
-
-    private
-
-    SPACE = ' '
-
   end
 end

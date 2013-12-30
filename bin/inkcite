@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
-require "inkcite/cli"
+require 'inkcite'
+require 'inkcite/cli/base'
 
-Inkcite::Cli.start
+Inkcite::Cli::Base.start

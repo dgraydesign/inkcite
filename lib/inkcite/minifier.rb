@@ -1,4 +1,4 @@
-require "yui/compressor"
+require 'yui/compressor'
 
 module Inkcite
   class Minifier

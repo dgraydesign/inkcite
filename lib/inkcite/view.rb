@@ -1,11 +1,3 @@
-require 'active_support/core_ext/module/delegation.rb'
-require 'erubis'
-require 'set'
-
-require_relative 'minifier'
-require_relative 'parser'
-require_relative 'renderer'
-
 module Inkcite
   class View
 
@@ -147,7 +139,7 @@ module Inkcite
 
 
       # Need to render the name to convert embedded tags to actual values.
-      fn = Inkcite::Renderer.render(fn, self)
+      fn = Renderer.render(fn, self)
 
       # Sanity check to ensure there is an appropriate extension on the
       # file name.
@@ -163,16 +155,17 @@ module Inkcite
 
       # Prepend the image host onto the src if one is specified in the properties.
       # During local development, images are always expected in an images/ subdirectory.
-      image_host = development?? "#{Email::IMAGES}/" : self[Inkcite::Email::IMAGE_HOST]
+      image_host = development?? "#{Email::IMAGES}/" : self[Email::IMAGE_HOST]
       src_url << image_host unless image_host.blank?
 
       # Add the source of the image.
       src_url << src
 
       # Cache-bust the image if the caller is expecting it to be there.
-      src_url << "?#{Time.now.to_i}" if is_enabled?(Inkcite::Email::CACHE_BUST)
+      src_url << "?#{Time.now.to_i}" if is_enabled?(Email::CACHE_BUST)
 
-      src_url
+      # Transpose any embedded tags into actual values.
+      Renderer.render(src_url, self)
     end
 
     def is_enabled? key
@@ -195,7 +188,7 @@ module Inkcite
       fn << 'links.csv'
 
       # Need to render the name to convert embedded tags to actual values.
-      Inkcite::Renderer.render(fn, self)
+      Renderer.render(fn, self)
 
     end
 
@@ -366,7 +359,7 @@ module Inkcite
     end
 
     def subject
-      @subject ||= Inkcite::Renderer.render((self[:title] || self[:subject]), self)
+      @subject ||= Renderer.render((self[:title] || self[:subject] || 'Untitled Email'), self)
     end
 
     def tag_stack tag
@@ -384,7 +377,7 @@ module Inkcite
     end
 
     def track_links?
-      !self[Inkcite::Email::TRACK_LINKS].blank?
+      !self[Email::TRACK_LINKS].blank?
     end
 
     # Returns true if vml is enabled in this context.  This requires that the
@@ -508,7 +501,7 @@ module Inkcite
     def from_uri uri
       if uri.is_a?(URI)
         if uri.scheme == FILE_SCHEME # e.g. file://facebook-like.js
-          return Inkcite::Util.read(ASSETS, uri.host)
+          return Util.read(ASSETS, uri.host)
         else
           raise "Unsupported URI scheme: #{uri.to_s}"
         end
@@ -581,7 +574,7 @@ module Inkcite
       end
 
       # Reset the font on every cell to the default family.
-      reset << "td { font-family: #{self[Inkcite::Renderer::Base::FONT_FAMILY]}; }"
+      reset << "td { font-family: #{self[Renderer::Base::FONT_FAMILY]}; }"
 
       # Obviously VML-specific CSS needed only if VML was used in the issue.
       if vml_used?
@@ -599,12 +592,12 @@ module Inkcite
       html = []
 
       # Append the minified CSS
-      html << Inkcite::Minifier.css(reset.join(NEW_LINE), self)
+      html << Minifier.css(reset.join(NEW_LINE), self)
 
       # Iterate through the list of files or in-line CSS and embed them into the HTML.
       self.styles.each do |css|
         next if css.is_a?(URI::HTTP)
-        html << Inkcite::Minifier.css(from_uri(css), self)
+        html << Minifier.css(from_uri(css), self)
       end
 
       html.join(NEW_LINE)
@@ -666,7 +659,7 @@ module Inkcite
 
       # Retrieves the most recent set of options for this tag.
       def opts
-        @opts.last || {}
+        @opts.last
       end
 
       # Pops the most recent tag off of the stack.
