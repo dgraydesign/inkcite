@@ -16,7 +16,7 @@ module Inkcite
         rule << " #{selector}" unless selector.blank?
         rule << " { "
         if declarations.is_a?(Hash)
-          rule << render_styles(declarations)
+          rule << Renderer.render_styles(declarations)
         elsif declarations.is_a?(Array)
           rule << declarations.join(' ')
         else
@@ -77,10 +77,10 @@ module Inkcite
       private
 
       # Variants, aliases for convenience.
-      BUTTON_MODES = Set.new [ BUTTON ]
-      DROP_MODES   = Set.new [ DROP, 'stack' ]
-      FILL_MODES   = Set.new [ FILL, 'stretch' ]
-      HIDE_MODES   = Set.new [ HIDE, 'hidden' ]
+      BUTTON_MODES  = Set.new [ BUTTON ]
+      DROP_MODES    = Set.new [ DROP, 'stack' ]
+      FILL_MODES    = Set.new [ FILL, 'stretch' ]
+      HIDE_MODES    = Set.new [ HIDE, 'hidden' ]
 
     end
   end

@@ -32,6 +32,22 @@ module Inkcite
       color
     end
 
+    # Joins the key-value-pairs of the provided hash into a readable
+    # string destined for HTML or CSS style declarations.  For example,
+    # { :bgcolor => '"#fff"' } would become bgcolor="#fff" using the
+    # default equality and space delimiters.
+    def self.join_hash hash, equal=EQUAL, sep=SPACE
+
+      pairs = []
+
+      hash.keys.sort.each do |att|
+        val = hash[att]
+        pairs << "#{att}#{equal}#{val}" unless val.blank?
+      end
+
+      pairs.join(sep)
+    end
+
     def self.render str, context
 
       Parser.each(str) do |tag|
@@ -55,10 +71,17 @@ module Inkcite
 
     end
 
+    def self.render_styles styles
+      join_hash(styles, COLON, SEMI_COLON)
+    end
+
     private
 
-    SPACE = ' '
-    SLASH = '/'
+    COLON      = ':'
+    EQUAL      = '='
+    SEMI_COLON = ';'
+    SPACE      = ' '
+    SLASH      = '/'
 
     def self.default_renderer
       @default_renderer ||= Property.new

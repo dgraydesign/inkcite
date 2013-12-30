@@ -79,50 +79,23 @@ module Inkcite
         "\"#{val}\""
       end
 
-      def render_styles styles
-        join_hash(styles, COLON, SEMI_COLON)
-      end
-
       def render_tag tag, attributes=nil, styles=nil
 
         # Convert the style hash into CSS style attribute.
         unless styles.blank?
           attributes ||= {}
-          attributes[:style] = quote(render_styles(styles))
+          attributes[:style] = quote(Renderer.render_styles(styles))
         end
 
         # Check to see if this is a self-closing tag.
         self_close = attributes && attributes.delete(:self_close) == true
 
         html = "<#{tag}"
-        html << SPACE + join_hash(attributes) unless attributes.blank?
+        html << SPACE + Renderer.join_hash(attributes) unless attributes.blank?
         html << '/' if self_close
         html << '>'
 
         html
-      end
-
-      private
-
-      COLON      = ':'
-      EQUAL      = '='
-      SEMI_COLON = ';'
-      SPACE      = ' '
-
-      # Joins the key-value-pairs of the provided hash into a readable
-      # string destined for HTML or CSS style declarations.  For example,
-      # { :bgcolor => '"#fff"' } would become bgcolor="#fff" using the
-      # default equality and space delimiters.
-      def join_hash hash, equal=EQUAL, sep=SPACE
-
-        pairs = []
-
-        hash.keys.sort.each do |att|
-          val = hash[att]
-          pairs << "#{att}#{equal}#{val}" unless val.blank?
-        end
-
-        pairs.join(sep)
       end
 
     end
