@@ -1,24 +1,20 @@
 module Inkcite
   module Renderer
-    class Image < Base
-
-      include Responsive
+    class Image < ImageBase
 
       def render tag, opt, ctx
 
         sty = { }
         att = { :border => 0 }
 
-        # True if the image is missing it's dimensions.
-        missing_dimensions = false
+        # Ensure that height and width are defined in the image's attributes.
+        mix_dimensions opt, att
 
-        # Verify that both dimensions are populated.  Images should always have
-        # dimensions provided.
-        DIMENSIONS.each { |dim| missing_dimensions = true if (att[dim] = opt[dim].to_i) <= 0 }
+        # Get the fully-qualified URL to the image or placeholder image if it's
+        # missing from the images directory.
+        att[:src] = image_url(opt[:src], att, ctx)
 
-        # Background color of the image, if populated.
-        bgcolor = opt[:bgcolor] || opt[BACKGROUND_COLOR]
-        sty[BACKGROUND_COLOR] = hex(bgcolor) unless bgcolor.blank?
+        mix_background opt, sty
 
         # Check to see if there is alt text specified for this image.
         alt = opt[:alt]
@@ -47,53 +43,42 @@ module Inkcite
 
         end
 
-        src = opt[:src]
+        # Images default to block display to prevent unexpected margins in Gmail
+        # http://www.campaignmonitor.com/blog/post/3132/how-to-stop-gmail-from-adding-a-margin-to-your-images/
+        display = opt[:display] || BLOCK
+        sty[:display] = display unless display == DEFAULT
 
-        # Fully-qualify the image path for this version of the email unless it
-        # is already includes a full address.
-        unless src.include?('://')
-
-          # Verify that the image exists.
-          if ctx.assert_image_exists(src)
-            if missing_dimensions
-              # TODO read the image dimensions from the file and auto-populate
-              # the width and height fields.
-            end
-
-            # Convert the source (e.g. "cover.jpg") into a fully-qualified reference
-            # to the image.  In development this may be images/cover.jpg but in the
-            # other environments this would likely be a full URL to the image where it
-            # is being hosted.
-            src = ctx.image_url(src)
-
-          else
-
-            # As a convenience, replace missing images with placehold.it as long as they
-            # meet the minimum dimensions.  No need to spam the design with tiny, tiny
-            # placeholders.
-            src = "http://placehold.it/#{att[:width]}x#{att[:height]}#{File.extname(src)}" if DIMENSIONS.all? { |dim| att[dim] > MINIMUM_DIMENSION_FOR_PLACEHOLDER }
-
-          end
-
-        end
-
-        att[:src] = quote(src)
-
-        # Don't let an image go into production without dimensions.  Using the original
-        # opt[:src] so that we don't display the verbose qualified URL to the developer.
-        ctx.error('Missing image dimensions', { :src => opt[:src] }) if missing_dimensions
-
-        display = opt[:display] || 'block'
-        sty[:display] = display unless display == 'default'
-
-        # True if this image is being displayed inline.
-        inline = display == 'inline'
+        # True if the designer wants this image to flow inline.  When true it
+        # vertically aligns the image with the text.
+        inline = (display == INLINE)
 
         align = opt[:align] || ('absmiddle' if inline)
         att[:align] = align unless align.blank?
 
         valign = opt[:valign] || ('middle' if inline)
         sty[VERTICAL_ALIGN] = valign unless valign.blank?
+
+        klasses = []
+        klasses = []
+
+        mobile_src = opt[:'mobile-src']
+        unless mobile_src.blank?
+
+          # Get a unique CSS class name that will be used to swap in the alternate
+          # image on mobile.
+          klass = klass_name(mobile_src)
+          klasses << klass
+
+          # Fully-qualify the image URL.
+          mobile_src = image_url(mobile_src, att, ctx)
+
+          # Add a responsive rule that replaces the image with a different source
+          # with the same dimensions.  Warning, this isn't supported on earlier
+          # versions of iOS 6 and Android 4.
+          # http://www.emailonacid.com/forum/viewthread/404/
+          ctx.responsive_styles << css_rule(tag, klass, "content:url(#{mobile_src}) !important;")
+
+        end
 
         mobile = responsive_mode(opt)
         if !mobile
@@ -110,7 +95,7 @@ module Inkcite
           # Scale the image to fill available space.
           if mobile == FILL
 
-            att[:class] = FILL
+            klasses << FILL
 
             # Override the inline attributes with scalable width and height.
             ctx.responsive_styles << css_rule(tag, FILL, 'width: 100% !important; height: auto !important;')
@@ -118,7 +103,7 @@ module Inkcite
           # Hide this image on mobile.
           elsif mobile == HIDE
 
-            att[:class] = HIDE
+            klasses << HIDE
 
             # Images that hide on mobile need to have !important because most images get
             # "display: block" inline to properly display in email clients like Gmail.
@@ -131,22 +116,16 @@ module Inkcite
 
         end
 
+        att[:class] = quote(klasses.join(' ')) unless klasses.blank?
+
         render_tag(tag, att, sty)
       end
 
       private
 
-      # By default all images are display: block.
-      BLOCK = 'BLOCK'
-
       # Name of the property controlling whether or not the alt text should
       # be copied to the title field.
       COPY_ALT_TO_TITLE = :'copy-alt-to-title'
-
-      # Both the height and width of the image must exceed this amount in order
-      # to get a placehold.it automatically inserted.  Otherwise only an error
-      # is raised for missing images.
-      MINIMUM_DIMENSION_FOR_PLACEHOLDER = 25
 
     end
   end
