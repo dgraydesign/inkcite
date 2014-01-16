@@ -1,8 +1,6 @@
 module Inkcite
   module Renderer
-    class TableBase < Base
-
-      include Responsive
+    class TableBase < Responsive
 
       protected
 
@@ -77,25 +75,6 @@ module Inkcite
         if height > 0
           att[:height] = height
           #sty[:height] = px(height)
-        end
-
-      end
-
-      def mix_responsive tag, mobile, att, ctx
-
-        if mobile == HIDE
-
-          att[:class] = HIDE
-          ctx.responsive_styles << css_rule(tag, HIDE, 'display: none;')
-
-        elsif mobile == FILL
-
-          att[:class] = FILL
-          ctx.responsive_styles << css_rule(tag, FILL, 'width: 100% !important; background-size: 100% auto;')
-
-        else
-          invalid_mode tag, mobile, ctx
-
         end
 
       end

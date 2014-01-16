@@ -67,16 +67,12 @@ module Inkcite
 
       end
 
-      # Returns the provided integer value with a "px" extension unless
-      # the value is zero and the px extension can be excluded.
       def px val
-        val = val.to_i
-        val = "#{val}px" unless val == 0
-        val
+        Renderer.px(val)
       end
 
       def quote val
-        "\"#{val}\""
+        Renderer.quote(val)
       end
 
       def render_tag tag, attributes=nil, styles=nil
@@ -91,8 +87,18 @@ module Inkcite
         self_close = attributes && attributes.delete(:self_close) == true
 
         html = "<#{tag}"
-        html << SPACE + Renderer.join_hash(attributes) unless attributes.blank?
-        html << '/' if self_close
+
+        unless attributes.blank?
+
+          # Make sure multiple classes are handled properly.
+          classes = attributes[:class]
+          attributes[:class] = [*classes].join(' ') unless classes.blank?
+
+          html << SPACE + Renderer.join_hash(attributes)
+
+        end
+
+       html << '/' if self_close
         html << '>'
 
         html

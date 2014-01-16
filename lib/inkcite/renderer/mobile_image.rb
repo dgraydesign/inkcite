@@ -39,7 +39,7 @@ module Inkcite
         sty[VERTICAL_ALIGN] = valign unless valign.blank?
 
         # Create a custom klass from the mobile image source name.
-        klass = klass_name(opt[:src])
+        klass = klass_name(opt[:src], ctx)
 
         src = image_url(opt[:src], att, ctx)
         sty[BACKGROUND_IMAGE] = "url(#{src})"
@@ -50,7 +50,7 @@ module Inkcite
         # span assumes the exact dimensions of the image.
         DIMENSIONS.each { |dim| sty[dim] = px(att[dim]) }
 
-        mobile = responsive_mode(opt)
+        mobile = opt[:mobile]
 
         # For FILL-style mobile images, override the width.  The height (in px)
         # will ensure that the span displays at a desireable size and the
@@ -59,7 +59,7 @@ module Inkcite
         # http://www.campaignmonitor.com/guides/mobile/optimizing-images/
         sty[:width] = '100%' if mobile == FILL
 
-        ctx.responsive_styles << css_rule('span', klass, sty)
+        ctx.responsive_styles << Rule.new('span', klass, sty)
 
         render_tag('span', { :class => quote(klass) })
       end

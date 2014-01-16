@@ -44,16 +44,13 @@ module Inkcite
         margin_top = opt[MARGIN_TOP].to_i
         sty[MARGIN_TOP] = px(margin_top) if margin_top > 0
 
-        mobile = responsive_mode(opt)
-        if mobile
+        mobile = opt[:mobile]
 
-          # When a table's cells will drop (or stack) the parent table needs
-          # to fill the entire screen.
-          mobile = FILL if mobile == DROP
+        # When a table is configured to have it's cells DROP then the
+        # table itself needs to FILL.  Override the mobile klass
+        mobile = FILL if mobile == DROP
 
-          mix_responsive tag, mobile, att, ctx
-
-        end
+        mix_responsive tag, opt, att, sty, ctx, mobile
 
         render_tag(tag, att, sty) + '<tr>'
       end

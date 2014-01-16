@@ -1,7 +1,7 @@
 module Inkcite
   class View
 
-    # The base email object this is a view of
+    # The base Email object this is a view of
     attr_reader :email
 
     # The rendered html or content available after render! has been called.
@@ -15,6 +15,9 @@ module Inkcite
 
     # The format of the email (e.g. :email or :text)
     attr_reader :format
+
+    # The array of Responsive::Rules applied to this email view.
+    attr_reader :responsive_styles
 
     # Line number of the email file being processed
     attr_accessor :line
@@ -45,6 +48,10 @@ module Inkcite
 
       # True if VML is used during the preparation of this email.
       @vml_used = false
+
+      # Initialize the responsive styles used in this email.  This will hold
+      # an array of Responsive::Rule objects.
+      @responsive_styles = Renderer::Responsive.presets(self)
 
     end
 
@@ -173,11 +180,6 @@ module Inkcite
       !val.blank? && val != false && (val == true || val == true.to_s || val.to_i == 1)
     end
 
-    def link_increment link_id
-      @link_increments ||= Hash.new(0)
-      @link_increments[link_id] += 1
-    end
-
     def links_file_name
 
       # There is nothing to return if trackable links aren't enabled.
@@ -200,6 +202,12 @@ module Inkcite
     def meta key
       md = meta_data
       md.nil?? nil : md[key]
+    end
+
+    # Returns the opts for the parent matching the designated
+    # tag, if any are presently open.
+    def parent_opts tag
+      tag_stack(tag).opts
     end
 
     def preview?
@@ -276,7 +284,7 @@ module Inkcite
         html << html_declaration
 
         html << '<head>'
-        html << '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>'
+        html << '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>'
         html << '<meta name="viewport" content="width=device-width"/>'
 
         html << "<title>#{self.subject}</title>"
@@ -333,11 +341,7 @@ module Inkcite
     end
 
     def responsive?
-      !@responsive_styles.blank?
-    end
-
-    def responsive_styles
-      @responsive_styles ||= Set.new
+      @responsive_styles.any?(&:active?)
     end
 
     def scripts
@@ -378,6 +382,14 @@ module Inkcite
 
     def track_links?
       !self[Email::TRACK_LINKS].blank?
+    end
+
+    # Generates an incremental ID for the designated key.  The first time a
+    # key is used, it will return a 1.  Subsequent requests for said key will
+    # return 2, 3, etc.
+    def unique_id key
+      @unique_ids ||= Hash.new(0)
+      @unique_ids[key] += 1
     end
 
     # Returns true if vml is enabled in this context.  This requires that the
@@ -585,7 +597,7 @@ module Inkcite
       # Responsive styles.
       if responsive?
         reset << '@media only screen and (max-width: 480px) {'
-        reset += @responsive_styles.sort
+        reset += @responsive_styles.select(&:active?).collect(&:to_css)
         reset << "}"
       end
 

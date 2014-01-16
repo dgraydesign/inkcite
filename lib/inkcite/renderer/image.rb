@@ -58,16 +58,12 @@ module Inkcite
         valign = opt[:valign] || ('middle' if inline)
         sty[VERTICAL_ALIGN] = valign unless valign.blank?
 
-        klasses = []
-        klasses = []
-
         mobile_src = opt[:'mobile-src']
         unless mobile_src.blank?
 
           # Get a unique CSS class name that will be used to swap in the alternate
           # image on mobile.
-          klass = klass_name(mobile_src)
-          klasses << klass
+          att[:class] = klass = klass_name(mobile_src, ctx)
 
           # Fully-qualify the image URL.
           mobile_src = image_url(mobile_src, att, ctx)
@@ -76,47 +72,17 @@ module Inkcite
           # with the same dimensions.  Warning, this isn't supported on earlier
           # versions of iOS 6 and Android 4.
           # http://www.emailonacid.com/forum/viewthread/404/
-          ctx.responsive_styles << css_rule(tag, klass, "content:url(#{mobile_src}) !important;")
+          ctx.responsive_styles << Rule.new(tag, klass, "content:url(#{mobile_src}) !important;")
 
         end
 
-        mobile = responsive_mode(opt)
-        if !mobile
+        mobile = opt[:mobile]
 
-          # Check to see if this image is inside of a mobile image declaration.
-          # If so, the image defaults to hide on mobile.
-          parent = ctx.tag_stack(:mobile_image).opts
-          mobile = HIDE unless parent.nil?
+        # Check to see if this image is inside of a mobile-image declaration.
+        # If so, the image defaults to hide on mobile.
+        mobile = HIDE if mobile.blank? && !ctx.parent_opts(:mobile_image).blank?
 
-        end
-
-        if mobile
-
-          # Scale the image to fill available space.
-          if mobile == FILL
-
-            klasses << FILL
-
-            # Override the inline attributes with scalable width and height.
-            ctx.responsive_styles << css_rule(tag, FILL, 'width: 100% !important; height: auto !important;')
-
-          # Hide this image on mobile.
-          elsif mobile == HIDE
-
-            klasses << HIDE
-
-            # Images that hide on mobile need to have !important because most images get
-            # "display: block" inline to properly display in email clients like Gmail.
-            ctx.responsive_styles << css_rule(tag, HIDE, 'display: none !important;')
-
-          else
-            invalid_mode tag, mobile, ctx
-
-          end
-
-        end
-
-        att[:class] = quote(klasses.join(' ')) unless klasses.blank?
+        mix_responsive tag, opt, att, sty, ctx, mobile
 
         render_tag(tag, att, sty)
       end

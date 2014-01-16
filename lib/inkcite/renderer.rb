@@ -49,6 +49,18 @@ module Inkcite
       pairs.join(sep)
     end
 
+    # Returns the provided integer value with a "px" extension unless
+    # the value is zero and the px extension can be excluded.
+    def self.px val
+      val = val.to_i
+      val = "#{val}px" unless val == 0
+      val
+    end
+
+    def self.quote val
+      "\"#{val}\""
+    end
+
     def self.render str, context
 
       Parser.each(str) do |tag|

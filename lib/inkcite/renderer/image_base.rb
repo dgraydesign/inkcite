@@ -1,8 +1,6 @@
 module Inkcite
   module Renderer
-    class ImageBase < Base
-
-      include Responsive
+    class ImageBase < Responsive
 
       protected
 
@@ -54,8 +52,8 @@ module Inkcite
         quote(src)
       end
 
-      def klass_name src
-        src.downcase.gsub(/[^a-z0-9]/, '')
+      def klass_name src, ctx
+        klass = "i%03d" % ctx.unique_id(:i)
       end
 
       def missing_dimensions? att

@@ -11,7 +11,7 @@ module Inkcite
 
           # Grab the attributes of the parent table so that the TD can inherit
           # specific values like padding, valign, responsiveness, etc.
-          parent = ctx.tag_stack(:table).opts
+          parent = ctx.parent_opts(:table)
 
           # Inherit base cell attributes - border, background color and image, etc.
           mix_all opt, att, sty, ctx
@@ -95,25 +95,13 @@ module Inkcite
           # Text shadowing
           mix_text_shadow opt, sty, ctx
 
-          mobile = responsive_mode(opt)
-
           # If the cell doesn't define it's own responsive behavior, check to
           # see if the parent table was declared DROP.  If so, this cell needs
           # to inherit specific behavior.
-          mobile = DROP if mobile.nil? && responsive_mode(parent) == DROP
-          if mobile == DROP
+          mobile = opt[:mobile]
+          mobile = DROP if mobile.blank? && parent[:mobile] == DROP
 
-            att[:class] = DROP
-
-            # Briant Graves' Column Drop Pattern
-            # http://briangraves.github.io/ResponsiveEmailPatterns/
-            # Table goes to 100% width, cells within stack.
-            ctx.responsive_styles << css_rule(tag, DROP, 'display: block; width: 100% !important; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;')
-
-          elsif mobile
-            mix_responsive tag, mobile, att, ctx
-
-          end
+          mix_responsive tag, opt, att, sty, ctx
 
           #outlook-bg	<!-&#45;&#91;if gte mso 9]>[n]<v:rect style="width:%width%px;height:%height%px;" strokecolor="none"><v:fill type="tile" src="%src%" /></v:fill></v:rect><v:shape id="theText[rnd]" style="position:absolute;width:%width%px;height:%height%px;margin:0;padding:0;%style%">[n]<!&#91;endif]&#45;->
           #/outlook-bg	<!-&#45;&#91;if gte mso 9]></v:shape><!&#91;endif]&#45;->

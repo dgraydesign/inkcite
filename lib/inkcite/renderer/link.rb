@@ -1,13 +1,12 @@
 module Inkcite
   module Renderer
-    class Link < Base
-
-      include Responsive
+    class Link < Responsive
 
       def render tag, opt, ctx
 
         return '</a>' if tag == '/a'
 
+        att = { }
         sty = { }
 
         font_size = opt[FONT_SIZE]
@@ -20,37 +19,6 @@ module Inkcite
 
         color = opt[:color] || ctx[LINK_COLOR]
         sty[:color] = hex(color) if !color.blank? && color != NONE
-
-        mobile = responsive_mode(opt)
-        if mobile
-
-          if mobile == BUTTON
-
-            opt[:class] = BUTTON
-
-            # Links that turn into buttons should be displayed as block so that
-            # line breaks are not necessary to separate links.  Otherwise those
-            # breaks become unnecessary white-space in the mobile version.
-            sty[:display] = 'block'
-
-            # Install the responsive button styling.
-            add_button_style ctx
-
-          else
-            invalid_mode tag, mobile, ctx
-
-          end
-
-        end
-
-        render_link opt, sty, ctx
-      end
-
-      protected
-
-      def render_link opt, sty, ctx
-
-        att = { }
 
         id   = opt[:id]
         href = opt[:href]
@@ -79,7 +47,7 @@ module Inkcite
 
             # Check to see if we've encountered an auto-incrementing link ID (e.g. event++)
             # Replace the ++ with a unique count for this ID prefix.
-            id = id.gsub(PLUS_PLUS, ctx.link_increment(id).to_s) if id.end_with?(PLUS_PLUS)
+            id = id.gsub(PLUS_PLUS, ctx.unique_id(id).to_s) if id.end_with?(PLUS_PLUS)
 
           end
 
@@ -138,11 +106,16 @@ module Inkcite
         # Links never get any text decoration.
         sty[TEXT_DECORATION] = NONE
 
-        # Back-populate the href so the extending class can read the resulting HREF
-        # if necessary.
-        opt[:href] = att[:href]
-
         att[:class] = opt[:class]
+
+        mobile = opt[:mobile]
+
+        # Links that turn into buttons should be displayed as block so that
+        # line breaks are not necessary to separate links.  Otherwise those
+        # breaks become unnecessary white-space in the mobile version.
+        sty[:display] = opt[:display] || ('block' if mobile == BUTTON)
+
+        mix_responsive tag, opt, att, sty, ctx, mobile
 
         render_tag 'a', att, sty
       end
@@ -171,29 +144,6 @@ module Inkcite
 
       # Signifies an auto-incrementing link ID.
       PLUS_PLUS = '++'
-
-      def add_button_style ctx
-
-        cfg = Button::Config.new(ctx)
-
-        sty = {
-            :color => "#{cfg.color} !important",
-            BACKGROUND_COLOR => cfg.bgcolor,
-            TEXT_SHADOW => "0 -1px 0 #{cfg.text_shadow}"
-        }
-
-        sty[:border] = cfg.border unless cfg.border.blank?
-        sty[BORDER_RADIUS] = px(cfg.border_radius) if cfg.border_radius > 0
-        sty[FONT_WEIGHT] = cfg.font_weight unless cfg.font_weight.blank?
-        sty[:height] = px(cfg.height) if cfg.height > 0
-        sty[LINE_HEIGHT] = px(cfg.line_height) if cfg.line_height > 0
-        sty[MARGIN_TOP] = px(cfg.margin_top) if cfg.margin_top > 0
-        sty[:padding] = px(cfg.padding) if cfg.padding > 0
-        sty[TEXT_ALIGN] = 'center'
-
-        ctx.responsive_styles << css_rule('a', BUTTON, sty)
-
-      end
 
       def add_tagging id, href, ctx
 
