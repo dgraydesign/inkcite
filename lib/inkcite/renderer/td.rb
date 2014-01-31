@@ -101,7 +101,7 @@ module Inkcite
           mobile = opt[:mobile]
           mobile = DROP if mobile.blank? && parent[:mobile] == DROP
 
-          mix_responsive tag, opt, att, sty, ctx
+          mix_responsive tag, opt, att, sty, ctx, mobile
 
           #outlook-bg	<!-&#45;&#91;if gte mso 9]>[n]<v:rect style="width:%width%px;height:%height%px;" strokecolor="none"><v:fill type="tile" src="%src%" /></v:fill></v:rect><v:shape id="theText[rnd]" style="position:absolute;width:%width%px;height:%height%px;margin:0;padding:0;%style%">[n]<!&#91;endif]&#45;->
           #/outlook-bg	<!-&#45;&#91;if gte mso 9]></v:shape><!&#91;endif]&#45;->
