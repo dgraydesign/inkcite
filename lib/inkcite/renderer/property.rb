@@ -6,7 +6,7 @@ module Inkcite
 
         html = ctx[tag]
         if html.nil?
-          ctx.error 'Unknown tag or property', { :tag => tag, :opt => opt.to_query }
+          ctx.error 'Unknown tag or property', { :tag => tag, :opt => "[#{opt.to_query}]" }
           return nil
         end
 
@@ -24,6 +24,7 @@ module Inkcite
           (opt[variable.to_sym] || default).to_s
 
         end
+
       end
 
       private
