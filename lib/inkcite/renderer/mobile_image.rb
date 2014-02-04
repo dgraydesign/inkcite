@@ -61,7 +61,7 @@ module Inkcite
 
         ctx.responsive_styles << Rule.new('span', klass, sty)
 
-        render_tag('span', { :class => quote(klass) })
+        render_tag('span', { :class => klass })
       end
 
     end
