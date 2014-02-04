@@ -92,7 +92,7 @@ module Inkcite
 
           # Make sure multiple classes are handled properly.
           classes = attributes[:class]
-          attributes[:class] = [*classes].join(' ') unless classes.blank?
+          attributes[:class] = quote([*classes].join(' ')) unless classes.blank?
 
           html << SPACE + Renderer.join_hash(attributes)
 
