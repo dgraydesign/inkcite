@@ -22,7 +22,9 @@ module Inkcite
         # Optional call-to-action override - otherwise defaults to view in browser.
         cta = opt[:cta] || 'View in Browser'
 
-        html = "{a id=\"in_browser\" href=\"#{url}\""
+        id = opt[:id] || 'in-browser'
+
+        html = "{a id=\"#{id}\" href=\"#{url}\""
         html << " color=\"#{color}\"" unless color.blank?
         html << '}'
         html << cta
