@@ -183,9 +183,9 @@ module Inkcite
         # on mobile devices.
         styles << Rule.new(UNIVERSAL, HIDE, 'display: none !important;', false)
 
-        # Briant Graves' Column Drop Pattern: Table goes to 100% width by way of
+        # Brian Graves' Column Drop Pattern: Table goes to 100% width by way of
         # the FILL rule and its cells stack vertically.
-        # http://briangraves.github.io/ResponsiveEmailPatterns/
+        # http://briangraves.github.io/ResponsiveEmailPatterns/patterns/layouts/column-drop.html
         styles << Rule.new('td', DROP, 'display: block; width: 100% !important; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;', false)
 
         # FILL causes specific types of elements to expand to 100% of the available
