@@ -199,6 +199,7 @@ module Inkcite
 
         sty = {
             :color => "#{cfg.color} !important",
+            :display => 'block',
             BACKGROUND_COLOR => cfg.bgcolor,
             TEXT_SHADOW => "0 -1px 0 #{cfg.text_shadow}"
         }

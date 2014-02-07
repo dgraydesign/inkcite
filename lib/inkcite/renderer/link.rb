@@ -110,11 +110,6 @@ module Inkcite
 
         mobile = opt[:mobile]
 
-        # Links that turn into buttons should be displayed as block so that
-        # line breaks are not necessary to separate links.  Otherwise those
-        # breaks become unnecessary white-space in the mobile version.
-        sty[:display] = opt[:display] || ('block' if mobile == BUTTON)
-
         mix_responsive tag, opt, att, sty, ctx, mobile
 
         render_tag 'a', att, sty
