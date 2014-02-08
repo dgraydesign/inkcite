@@ -13,6 +13,7 @@ require_relative 'renderer/link'
 require_relative 'renderer/litmus'
 require_relative 'renderer/lorem'
 require_relative 'renderer/mobile_image'
+require_relative 'renderer/mobile_toggle'
 require_relative 'renderer/outlook_background'
 require_relative 'renderer/property'
 require_relative 'renderer/table'
@@ -115,6 +116,7 @@ module Inkcite
           :litmus       => Litmus.new,
           :lorem        => Lorem.new,
           :'mobile-img' => MobileImage.new,
+          :'mobile-toggle-on' => MobileToggleOn.new,
           :'outlook-bg' => OutlookBackground.new,
           :table        => Table.new,
           :td           => Td.new

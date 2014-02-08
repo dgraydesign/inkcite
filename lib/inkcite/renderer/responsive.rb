@@ -6,6 +6,8 @@ module Inkcite
       DROP    = 'drop'
       FILL    = 'fill'
       HIDE    = 'hide'
+      SHOW    = 'show'
+      TOGGLE  = 'toggle'
 
       class Rule
 
@@ -84,12 +86,47 @@ module Inkcite
 
       end
 
+      class ToggleRule < Rule
+
+        def initialize tag, klass
+          super tag, klass, '', true
+        end
+
+        def to_css
+          "#{@tag}[id=#{@klass}]:target { display: block !important; }"
+        end
+
+      end
+
       def mix_responsive tag, opt, att, sty, ctx, klass=nil
 
         # If a forced (override) klass was not provided by the caller then
         # check to see if a mobile klass name (e.g. hide) has been defined
         # on this element.
         klass ||= opt[:mobile]
+
+        # Special handling for TOGGLE-able elements which are made
+        # visible by another element being clicked.
+        if klass == TOGGLE
+
+          id = opt[:id]
+          if id.blank?
+            ctx.errors 'Mobile elements with toggle behavior require an ID attribute', { :tag => tag} if id.blank?
+
+          else
+
+            # Make sure the element's ID field is populated
+            att[:id] = id
+
+            # Add a rule which makes this element visible when the target
+            # field matches the identity.
+            ctx.responsive_styles << ToggleRule.new(tag, id)
+
+            # Toggle-able elements are HIDE on mobile by default.
+            klass = HIDE
+
+          end
+        end
 
         # Check to see if a mobile style (e.g. "mobile-style='background-color: #ff0;'")
         # has been declared for this element.
@@ -172,6 +209,12 @@ module Inkcite
 
         att[:class] = classes
 
+        # If the rule is SHOW (only on mobile) we need to restyle the element
+        # so it is hidden.
+        if klass == SHOW
+          sty[:display] = 'none'
+        end
+
         true
       end
 
@@ -182,6 +225,9 @@ module Inkcite
         # HIDE, which can be used on any responsive element, makes it disappear
         # on mobile devices.
         styles << Rule.new(UNIVERSAL, HIDE, 'display: none !important;', false)
+
+        # SHOW, which means the element is hidden on desktop but shown on mobile.
+        styles << Rule.new(UNIVERSAL, SHOW, 'display: block !important;', false)
 
         # Brian Graves' Column Drop Pattern: Table goes to 100% width by way of
         # the FILL rule and its cells stack vertically.
