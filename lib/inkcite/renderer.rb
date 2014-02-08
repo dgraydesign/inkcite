@@ -1,4 +1,5 @@
 require_relative 'renderer/base'
+require_relative 'renderer/element'
 require_relative 'renderer/responsive'
 require_relative 'renderer/image_base'
 require_relative 'renderer/table_base'

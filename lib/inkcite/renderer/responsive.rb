@@ -6,6 +6,7 @@ module Inkcite
       DROP    = 'drop'
       FILL    = 'fill'
       HIDE    = 'hide'
+      IMAGE   = 'img'
       SHOW    = 'show'
       TOGGLE  = 'toggle'
 
@@ -40,6 +41,24 @@ module Inkcite
           @active
         end
 
+        def att_selector_string
+          "[class~=#{Renderer.quote(@klass)}]"
+        end
+
+        def block?
+          declaration_string.downcase.include?('display: block')
+        end
+
+        def declaration_string
+          if @declarations.is_a?(Hash)
+            Renderer.render_styles(@declarations)
+          elsif @declarations.is_a?(Array)
+            @declarations.join(' ')
+          else
+            @declarations.to_s
+          end
+        end
+
         def include? tag
           universal? || @tags.include?(tag)
         end
@@ -48,7 +67,7 @@ module Inkcite
 
           rule = ""
 
-          att_selector = "[class~=#{Renderer.quote(@klass)}]"
+          att_selector = att_selector_string
 
           if universal?
 
@@ -68,13 +87,7 @@ module Inkcite
           end
 
           rule << " { "
-          if @declarations.is_a?(Hash)
-            rule << Renderer.render_styles(@declarations)
-          elsif @declarations.is_a?(Array)
-            rule << @declarations.join(' ')
-          else
-            rule << @declarations.to_s
-          end
+          rule << declaration_string
           rule << " }"
 
           rule
@@ -86,19 +99,22 @@ module Inkcite
 
       end
 
-      class ToggleRule < Rule
+      class TargetRule < Rule
 
         def initialize tag, klass
-          super tag, klass, '', true
+          super tag, klass, 'display: block !important;'
         end
 
-        def to_css
-          "#{@tag}[id=#{@klass}]:target { display: block !important; }"
+        def att_selector
+          "[id=#{@klass}]:target"
         end
 
       end
 
-      def mix_responsive tag, opt, att, sty, ctx, klass=nil
+      def mix_responsive element, opt, ctx, klass=nil
+
+        # Get the tag of the element being made responsive.
+        tag = element.tag
 
         # If a forced (override) klass was not provided by the caller then
         # check to see if a mobile klass name (e.g. hide) has been defined
@@ -116,11 +132,11 @@ module Inkcite
           else
 
             # Make sure the element's ID field is populated
-            att[:id] = id
+            element[:id] = id
 
             # Add a rule which makes this element visible when the target
             # field matches the identity.
-            ctx.responsive_styles << ToggleRule.new(tag, id)
+            ctx.responsive_styles << TargetRule.new(tag, id)
 
             # Toggle-able elements are HIDE on mobile by default.
             klass = HIDE
@@ -139,7 +155,7 @@ module Inkcite
         if klass.blank?
 
           # Nothing mobile-specific about this tag so quick abort.
-          return if declarations.blank?
+          return nil if declarations.blank?
 
           # If no klass was specified, check to see if any previously defined rule matches
           # the style declarations.  If so, we'll reuse that rule and apply the klass
@@ -167,7 +183,7 @@ module Inkcite
               # an unknown mobile behavior.
               if rule.nil?
                 ctx.error 'Undefined mobile behavior - are you missing a mobile-style declaration?', { :tag => tag, :mobile => klass }
-                return false
+                return nil
               end
 
             elsif rule && declarations != rule.declarations
@@ -197,25 +213,18 @@ module Inkcite
 
         end
 
+        # If the rule is SHOW (only on mobile) we need to restyle the element
+        # so it is hidden.
+        element.style[:display] = 'none' if klass == SHOW
+
         # Mark the rule as active in case it was one of the pre-defined rules
         # that can be activated on first use.
         rule.activate!
 
-        # Make sure classes is an array and prepopulate it with any existing
-        # class that was provided
-        classes = []
-        classes << att[:class] unless att[:class].blank?
-        classes << rule.klass
+        # Add the rule's klass to the element
+        element.classes << rule.klass
 
-        att[:class] = classes
-
-        # If the rule is SHOW (only on mobile) we need to restyle the element
-        # so it is hidden.
-        if klass == SHOW
-          sty[:display] = 'none'
-        end
-
-        true
+        rule
       end
 
       def self.presets ctx
@@ -239,27 +248,30 @@ module Inkcite
         styles << Rule.new('img', FILL, 'width: 100% !important; height: auto !important;', false)
         styles << Rule.new([ 'table', 'td' ], FILL, 'width: 100% !important; background-size: 100% auto !important;', false)
 
+        # For mobile-image tags.
+        styles << Rule.new('span', IMAGE, 'display: block; background-position: center; background-size: cover;', false)
+
         # BUTTON causes ordinary links to transform into buttons based
         # on the styles configured by the developer.
         cfg = Button::Config.new(ctx)
 
-        sty = {
+        button_styles = {
             :color => "#{cfg.color} !important",
             :display => 'block',
             BACKGROUND_COLOR => cfg.bgcolor,
             TEXT_SHADOW => "0 -1px 0 #{cfg.text_shadow}"
         }
 
-        sty[:border] = cfg.border unless cfg.border.blank?
-        sty[BORDER_RADIUS] = Renderer.px(cfg.border_radius) if cfg.border_radius > 0
-        sty[FONT_WEIGHT] = cfg.font_weight unless cfg.font_weight.blank?
-        sty[:height] = Renderer.px(cfg.height) if cfg.height > 0
-        sty[LINE_HEIGHT] = Renderer.px(cfg.line_height) if cfg.line_height > 0
-        sty[MARGIN_TOP] = Renderer.px(cfg.margin_top) if cfg.margin_top > 0
-        sty[:padding] = Renderer.px(cfg.padding) if cfg.padding > 0
-        sty[TEXT_ALIGN] = 'center'
+        button_styles[:border] = cfg.border unless cfg.border.blank?
+        button_styles[BORDER_RADIUS] = Renderer.px(cfg.border_radius) if cfg.border_radius > 0
+        button_styles[FONT_WEIGHT] = cfg.font_weight unless cfg.font_weight.blank?
+        button_styles[:height] = Renderer.px(cfg.height) if cfg.height > 0
+        button_styles[LINE_HEIGHT] = Renderer.px(cfg.line_height) if cfg.line_height > 0
+        button_styles[MARGIN_TOP] = Renderer.px(cfg.margin_top) if cfg.margin_top > 0
+        button_styles[:padding] = Renderer.px(cfg.padding) if cfg.padding > 0
+        button_styles[TEXT_ALIGN] = 'center'
 
-        styles << Rule.new('a', BUTTON, sty, false)
+        styles << Rule.new('a', BUTTON, button_styles, false)
 
         styles
       end

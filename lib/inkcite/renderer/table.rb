@@ -19,40 +19,39 @@ module Inkcite
         # available to its child TDs.
         tag_stack << opt
 
-        att = { :border => 0, :cellspacing => 0 }
-        sty = {}
+        table = Element.new(tag, { :border => 0, :cellspacing => 0 })
 
         # Inherit base cell attributes - border, background color and image, etc.
-        mix_all opt, att, sty, ctx
+        mix_all table, opt, ctx
 
         # Text shadowing
-        mix_text_shadow opt, sty, ctx
+        mix_text_shadow table, opt, ctx
 
-        # As a convenience to people used to typing 'cellpadding' on tables.
-        opt[:padding] ||= opt[:cellpadding]
-
-        padding = opt[:padding].to_i
-        att[:cellpadding] = padding
+        # Conveniently accept padding (easier to type and consistent with CSS)or
+        # cellpadding which must always be declared.
+        table[:cellpadding] = (opt[:padding] || opt[:cellpadding]).to_i
 
         # Conveniently accept both float and align to mean the same thing.
         align = opt[:align] || opt[:float]
-        att[:align] = align unless align.blank?
+        table[:align] = align unless align.blank?
 
         border_radius = opt[BORDER_RADIUS].to_i
-        sty[BORDER_RADIUS] = px(border_radius) if border_radius > 0
+        table.style[BORDER_RADIUS] = px(border_radius) if border_radius > 0
 
         margin_top = opt[MARGIN_TOP].to_i
-        sty[MARGIN_TOP] = px(margin_top) if margin_top > 0
+        table.style[MARGIN_TOP] = px(margin_top) if margin_top > 0
 
         mobile = opt[:mobile]
 
-        # When a table is configured to have it's cells DROP then the
-        # table itself needs to FILL.  Override the mobile klass
+        # When a Table is configured to have it's cells DROP then it
+        # actually needs to FILL on mobile and it's child Tds will
+        # be DROP'd.  Override the local mobile klass so the child Tds
+        # see the parent as DROP.
         mobile = FILL if mobile == DROP
 
-        mix_responsive tag, opt, att, sty, ctx, mobile
+        mix_responsive table, opt, ctx, mobile
 
-        render_tag(tag, att, sty) + '<tr>'
+        table.to_s + '<tr>'
       end
 
       private

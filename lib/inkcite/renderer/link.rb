@@ -6,19 +6,19 @@ module Inkcite
 
         return '</a>' if tag == '/a'
 
-        att = { }
-        sty = { }
+        a = Element.new('a')
 
         font_size = opt[FONT_SIZE]
-        sty[FONT_SIZE] = px(font_size) unless font_size.blank?
+        a.style[FONT_SIZE] = px(font_size) unless font_size.blank?
 
         line_height = opt[LINE_HEIGHT]
-        sty[LINE_HEIGHT] = px(line_height) unless line_height.blank?
+        a.style[LINE_HEIGHT] = px(line_height) unless line_height.blank?
 
-        mix_text_shadow opt, sty, ctx
+        mix_text_shadow a, opt, ctx
 
-        color = opt[:color] || ctx[LINK_COLOR]
-        sty[:color] = hex(color) if !color.blank? && color != NONE
+        color = opt[:color]
+        color = ctx[LINK_COLOR] if color.blank?
+        a.style[:color] = hex(color) if !color.blank? && color != NONE
 
         id   = opt[:id]
         href = opt[:href]
@@ -87,7 +87,7 @@ module Inkcite
           # URLs interfering with the links file.
           href = add_tracking(id, href, ctx)
 
-          att[:target] = BLANK
+          a[:target] = BLANK
 
           # Make sure that these types of links have quotes.
           href = quote(href)
@@ -95,24 +95,35 @@ module Inkcite
         end
 
         # Set the href attribute to the resolved href.
-        att[:href] = href
-
-        # Programmatically we can install onclick listeners for hosted versions.
-        # Check to see if one is specified and the Javascript is permitted in
-        # this version.
-        onclick = opt[:onclick]
-        att[:onclick] = quote(onclick) if !onclick.blank? && ctx.browser?
+        a[:href] = href
 
         # Links never get any text decoration.
-        sty[TEXT_DECORATION] = NONE
+        a.style[TEXT_DECORATION] = NONE
 
-        att[:class] = opt[:class]
+        if ctx.browser?
 
-        mobile = opt[:mobile]
+          # Programmatically we can install onclick listeners for hosted versions.
+          # Check to see if one is specified and the Javascript is permitted in
+          # this version.
+          onclick = opt[:onclick]
+          a[:onclick] = quote(onclick) unless onclick.blank?
 
-        mix_responsive tag, opt, att, sty, ctx, mobile
+        end
 
-        render_tag 'a', att, sty
+        klass = opt[:class]
+        a.classes << klass unless klass.blank?
+
+        rule = mix_responsive a, opt, ctx
+
+        html = a.to_s
+
+        # If the responsive rule requires the link to be displayed
+        # as a block, it needs to be treated as a block-style element
+        # but "display: block;" doesn't work in Outlook.  So, wrap
+        # it in <div>s instead.
+        html = "<div>#{html}</div>" if rule && rule.block?
+
+        html
       end
 
       private

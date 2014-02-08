@@ -9,12 +9,12 @@ module Inkcite
       DEFAULT = 'default'
       INLINE  = 'inline'
 
-      def image_url _src, att, ctx
+      def image_url _src, opt, ctx
 
         src = _src
 
         # True if dimensions are missing.
-        missing_dimensions = missing_dimensions?(att)
+        missing_dimensions = missing_dimensions?(opt)
 
         # Fully-qualify the image path for this version of the email unless it
         # is already includes a full address.
@@ -39,7 +39,7 @@ module Inkcite
             # As a convenience, replace missing images with placehold.it as long as they
             # meet the minimum dimensions.  No need to spam the design with tiny, tiny
             # placeholders.
-            src = "http://placehold.it/#{att[:width]}x#{att[:height]}#{File.extname(src)}" if DIMENSIONS.all? { |dim| att[dim] > MINIMUM_DIMENSION_FOR_PLACEHOLDER }
+            src = "http://placehold.it/#{opt[:width]}x#{opt[:height]}#{File.extname(src)}" if DIMENSIONS.all? { |dim| opt[dim].to_i > MINIMUM_DIMENSION_FOR_PLACEHOLDER }
 
           end
 
@@ -57,21 +57,11 @@ module Inkcite
       end
 
       def missing_dimensions? att
-        DIMENSIONS.any? { |dim| att[dim] <= 0 }
+        DIMENSIONS.any? { |dim| att[dim].to_i <= 0 }
       end
 
-      def mix_background opt, sty
-
-        # Background color of the image, if populated.
-        bgcolor = opt[:bgcolor] || opt[BACKGROUND_COLOR]
-        sty[BACKGROUND_COLOR] = hex(bgcolor) unless bgcolor.blank?
-
-      end
-
-      def mix_dimensions opt, att
-
-        DIMENSIONS.each { |dim| att[dim] = opt[dim].to_i }
-
+      def mix_dimensions img, opt
+        DIMENSIONS.each { |dim| img[dim] = opt[dim].to_i }
       end
 
       private

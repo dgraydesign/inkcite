@@ -7,31 +7,15 @@ module Inkcite
 
       def render tag, opt, ctx
 
-        return '</a>' if tag == '/mobile-toggle-on'
-
-        # Mobile toggles use anchors to link to specific
-        # targets (e.g. #menu).
-        tag = 'a'
+        return '{/a}' if tag == '/mobile-toggle-on'
 
         id = opt[:id]
         if id.blank?
           ctx.error('The mobile-toggle-on requires an id')
 
         else
+          "{a href=\"##{id}\" mobile=\"show\"}"
 
-          att = {
-              :href => "##{id}"
-          }
-
-          sty = { }
-
-          float = opt[:float] || opt[:align]
-          sty[:float] = float unless float.blank?
-
-          # Force the link to only display during mobile.
-          mix_responsive tag, opt, att, sty, ctx, SHOW
-
-          render_tag tag, att, sty
         end
 
       end

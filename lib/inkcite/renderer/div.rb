@@ -6,12 +6,13 @@ module Inkcite
 
         return '</div>' if tag == '/div'
 
-        att = { }
-        sty = { }
+        div = Element.new('div')
 
-        mix_responsive tag, opt, att, sty, ctx
+        mix_background div, opt
 
-        render_tag tag, att, sty
+        mix_responsive div, opt, ctx
+
+        div.to_s
       end
 
     end

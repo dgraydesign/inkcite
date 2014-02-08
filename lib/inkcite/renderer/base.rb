@@ -47,7 +47,17 @@ module Inkcite
         Renderer.hex(color)
       end
 
-      def mix_text_shadow opt, sty, ctx
+      # Sets the element's in-line bgcolor style if it has been defined
+      # in the provided options.
+      def mix_background element, opt
+
+        # Background color of the image, if populated.
+        bgcolor = opt[:bgcolor] || opt[BACKGROUND_COLOR]
+        element.style[BACKGROUND_COLOR] = hex(bgcolor) unless bgcolor.blank?
+
+      end
+
+      def mix_text_shadow element, opt, ctx
 
         shadow = opt[:shadow] || opt[TEXT_SHADOW]
         return if shadow.blank?
@@ -56,12 +66,14 @@ module Inkcite
         # image within a cell or an entire cell within a table) wants to disable
         # the shadowing forced by a parent.
         if shadow == NONE
-          sty[TEXT_SHADOW] = shadow
+          element.style[TEXT_SHADOW] = shadow
 
         else
+
           shadow_offset = opt[TEXT_SHADOW_OFFSET] || 1
           shadow_blur = opt[TEXT_SHADOW_BLUR] || 0
-          sty[TEXT_SHADOW] = "0 #{px(shadow_offset)} #{px(shadow_blur)} #{hex(shadow)}"
+
+          element.style[TEXT_SHADOW] = "0 #{px(shadow_offset)} #{px(shadow_blur)} #{hex(shadow)}"
 
         end
 

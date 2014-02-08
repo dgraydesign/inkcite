@@ -16,39 +16,30 @@ module Inkcite
 
         tag_stack << opt
 
-        sty = {}
-        att = {}
+        # This is a transient, wrapper Element that we're going to use to
+        # style the attributes of the object that will appear when the
+        # email is viewed on a mobile device.
+        img = Element.new('mobile-img')
 
-        mix_dimensions opt, att
+        mix_dimensions img, opt
 
-        mix_background opt, sty
+        mix_background img, opt
 
-        # Check to see if there is alt text specified for this image.
-        # TODO Mobile-only images don't support alt text, yet.
-        alt = opt[:alt]
-
-        # Images default to block display to prevent unexpected margins in Gmail
-        # http://www.campaignmonitor.com/blog/post/3132/how-to-stop-gmail-from-adding-a-margin-to-your-images/
-        display = opt[:display] || BLOCK
-        sty[:display] = "#{display} !important" unless display == DEFAULT
+        display = opt[:display]
+        img.style[:display] = "#{display}" if display && display != BLOCK && display != DEFAULT
 
         align = opt[:align]
-        sty[:float] = align unless align.blank?
-
-        valign = opt[:valign] || ('middle' if display == INLINE)
-        sty[VERTICAL_ALIGN] = valign unless valign.blank?
+        img.style[:float] = align unless align.blank?
 
         # Create a custom klass from the mobile image source name.
         klass = klass_name(opt[:src], ctx)
 
-        src = image_url(opt[:src], att, ctx)
-        sty[BACKGROUND_IMAGE] = "url(#{src})"
-        sty[BACKGROUND_POSITION] = 'center'
-        sty[BACKGROUND_SIZE] = 'cover'
+        src = image_url(opt[:src], opt, ctx)
+        img.style[BACKGROUND_IMAGE] = "url(#{src})"
 
         # Initially, copy the height and width into the CSS so that the
         # span assumes the exact dimensions of the image.
-        DIMENSIONS.each { |dim| sty[dim] = px(att[dim]) }
+        DIMENSIONS.each { |dim| img.style[dim] = px(opt[dim]) }
 
         mobile = opt[:mobile]
 
@@ -57,11 +48,19 @@ module Inkcite
         # 'cover' attribute will ensure that the image fills the available
         # space ala responsive web design.
         # http://www.campaignmonitor.com/guides/mobile/optimizing-images/
-        sty[:width] = '100%' if mobile == FILL
+        img.style[:width] = '100%' if mobile == FILL
 
-        ctx.responsive_styles << Rule.new('span', klass, sty)
+        ctx.responsive_styles << Rule.new('span', klass, img.style)
 
-        render_tag('span', { :class => klass })
+        # Now visualize a span element
+        span = Element.new('span')
+
+        mix_responsive span, opt, ctx, IMAGE
+
+        # Add the class that handles inserting the correct background image.
+        span.classes << klass
+
+        span.to_s
       end
 
     end
