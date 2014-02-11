@@ -105,7 +105,7 @@ module Inkcite
           super tag, klass, 'display: block !important;'
         end
 
-        def att_selector
+        def att_selector_string
           "[id=#{@klass}]:target"
         end
 
