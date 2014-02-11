@@ -260,6 +260,12 @@ module Inkcite
 
       else
 
+        # Minify the content of the email.
+        minified = Minifier.html(lines, self)
+
+        # Some last-minute fixes before we assemble the wrapping content.
+        prevent_ios_date_detection minified
+
         # Prepare a copy of the HTML for saving as the file.
         html = []
         html << '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'
@@ -295,8 +301,7 @@ module Inkcite
         # setting it, links created sans-helper should be visually distinct.
         html << Renderer.render("<body bgcolor=\"#{bgcolor}\" style=\"background-color: #{bgcolor}; width: 100% !important; margin: 0; padding: 0; -webkit-text-size-adjust: none; -ms-text-size-adjust: none;\">", self)
 
-        # Add the minified content of the email.
-        html << Minifier.html(lines, self)
+        html << minified
 
         # Append any arbitrary footer content
         html << inline_footer
@@ -571,6 +576,9 @@ module Inkcite
         reset << 'table { border-spacing: 0; }'
         reset << 'table, td { border-collapse: collapse; }'
 
+        # Ensure that telephone numbers are displayed using the same style as links.
+        reset << "a[href^=tel] { color: #{self[Renderer::Base::LINK_COLOR]}; text-decoration:none;}"
+
       end
 
       # Reset the font on every cell to the default family.
@@ -606,6 +614,29 @@ module Inkcite
     # Retrieves the version-specific meta data for this view.
     def meta_data
       @email.meta version
+    end
+
+    def prevent_ios_date_detection raw
+
+      # Currently always performed in email but may want a configuration setting
+      # that allows a creator to disable this default functionality.
+      enabled = email?
+      if enabled
+
+        # Prevent dates (e.g. "February 28") from getting turned into unsightly blue
+        # links on iOS by putting non-rendering whitespace within.
+        # http://www.industrydive.com/blog/how-to-fix-email-marketing-for-iphone-ipad/
+        Date::MONTHNAMES.select { |mon| !mon.blank? }.each do |mon|
+
+          # Look for full month names (e.g. February) and add a zero-width space
+          # afterwards which prevents iOS from detecting said date.
+          raw.gsub!(/#{mon}/, "#{mon}#{Renderer::Base::ZERO_WIDTH_SPACE}")
+
+        end
+
+      end
+
+      enabled
     end
 
     def render_each filtered

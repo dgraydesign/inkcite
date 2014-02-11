@@ -36,6 +36,9 @@ module Inkcite
       POUND_SIGN = '#'
       NONE       = 'none'
 
+      # Zero-width space character
+      ZERO_WIDTH_SPACE = '&#8203;'
+
       def render tag, opt, ctx
         raise "Not implemented: #{tag} #{opts}"
       end
