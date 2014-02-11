@@ -242,8 +242,6 @@ module Inkcite
         filtered.gsub!(/™/, '(tm)')
         filtered.gsub!(/®/, '(r)')
 
-        @content = filtered
-
       else
 
         filtered.gsub!(/[–—]/, '&#8211;')
@@ -251,27 +249,16 @@ module Inkcite
         filtered.gsub!(/™/, '{sup}&trade;{/sup}')
         filtered.gsub!(/®/, '{sup}&reg;{/sup}')
 
-        lines = []
+      end
 
-        # Read the content file (e.g. insider/201308/source.html) line-by-line and perform
-        # rendering as we go.  This allows for informed error messages including the line
-        # numbers.
-        filtered.split("\n").each do |line|
+      # Filter each of the lines of text and push them onto the stack of lines
+      # that we be written into the text or html file.
+      lines = render_each(filtered)
 
-          # Increment the line number as we read the file.
-          @line += 1
+      @content = if text?
+        lines.join(NEW_LINE)
 
-          begin
-            line = Renderer.render(line, self)
-          rescue Exception => e
-            error e.message, { :trace => e.backtrace.first.gsub(/%2F/, '/') }
-          end
-
-          # Sometimes the renderer inserts additional new-lines so we need to split them out
-          # into individual lines if necessary.  Push all of the lines onto the issue's line array.
-          lines += line.split(NEW_LINE)
-
-        end
+      else
 
         # Prepare a copy of the HTML for saving as the file.
         html = []
@@ -319,13 +306,14 @@ module Inkcite
 
         html << '</body></html>'
 
-        @content = html.select { |l| !l.blank? }.join(NEW_LINE)
+        # Remove all blank lines and assemble the wrapped content into a
+        # a single string.
+        html.select { |l| !l.blank? }.join(NEW_LINE)
 
       end
 
       # Ensure that all failsafes pass
       assert_failsafes
-
 
       # Verify that the tag stack is open which indicates all opened tags were
       # properly closed - e.g. all {table}s have matching {/table}s.
@@ -618,6 +606,40 @@ module Inkcite
     # Retrieves the version-specific meta data for this view.
     def meta_data
       @email.meta version
+    end
+
+    def render_each filtered
+
+      lines = []
+
+      filtered.split("\n").each do |line|
+
+        # Increment the line number as we read the file.
+        @line += 1
+
+        begin
+          line = Renderer.render(line, self)
+        rescue Exception => e
+          error e.message, { :trace => e.backtrace.first.gsub(/%2F/, '/') }
+        end
+
+        if text?
+
+          # No additional splitting should be performed on the text version of the email.
+          # Otherwise blank lines are lost.
+          lines << line
+
+        else
+
+          # Sometimes the renderer inserts additional new-lines so we need to split them out
+          # into individual lines if necessary.  Push all of the lines onto the issue's line array.
+          lines += line.split(NEW_LINE)
+
+        end
+
+      end
+
+      lines
     end
 
     # Private class used to convey view attributes to the Erubis rendering
