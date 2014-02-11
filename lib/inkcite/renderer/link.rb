@@ -4,7 +4,7 @@ module Inkcite
 
       def render tag, opt, ctx
 
-        return '</a>' if tag == '/a'
+        return (ctx.text?? '' : '</a>') if tag == '/a'
 
         a = Element.new('a')
 
@@ -90,7 +90,7 @@ module Inkcite
           a[:target] = BLANK
 
           # Make sure that these types of links have quotes.
-          href = quote(href)
+          href = quote(href) unless ctx.text?
 
         end
 
@@ -117,13 +117,7 @@ module Inkcite
 
         html = a.to_s
 
-        # If the responsive rule requires the link to be displayed
-        # as a block, it needs to be treated as a block-style element
-        # but "display: block;" doesn't work in Outlook.  So, wrap
-        # it in <div>s instead.
-        html = "<div>#{html}</div>" if rule && rule.block?
-
-        html
+        ctx.text?? a[:href] : html
       end
 
       private
