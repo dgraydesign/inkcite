@@ -43,10 +43,6 @@ module Inkcite
           (@opt[:height] || @ctx[BUTTON_HEIGHT]).to_i
         end
 
-        def line_height
-          (@opt[Base::LINE_HEIGHT] || @ctx[BUTTON_LINE_HEIGHT] || height).to_i
-        end
-
         def margin_top
           (@opt[Base::MARGIN_TOP] || @ctx[BUTTON_MARGIN_TOP]).to_i
         end

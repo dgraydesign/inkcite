@@ -266,7 +266,6 @@ module Inkcite
         button_styles[BORDER_RADIUS] = Renderer.px(cfg.border_radius) if cfg.border_radius > 0
         button_styles[FONT_WEIGHT] = cfg.font_weight unless cfg.font_weight.blank?
         button_styles[:height] = Renderer.px(cfg.height) if cfg.height > 0
-        button_styles[LINE_HEIGHT] = Renderer.px(cfg.line_height) if cfg.line_height > 0
         button_styles[MARGIN_TOP] = Renderer.px(cfg.margin_top) if cfg.margin_top > 0
         button_styles[:padding] = Renderer.px(cfg.padding) if cfg.padding > 0
         button_styles[TEXT_ALIGN] = 'center'
