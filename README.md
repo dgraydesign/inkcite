@@ -78,7 +78,7 @@ The best way to get quick responses to your issues and swift fixes to your bugs 
 
 ## License
 
-Copyright (c) 2013 Jeffrey D. Hoffman. MIT Licensed, see [LICENSE] for details.
+Copyright (c) 2014 Jeffrey D. Hoffman. MIT Licensed, see [LICENSE] for details.
 
 [Middleman]: http://middlemanapp.com
 [Litmus]: http://litmus.com
