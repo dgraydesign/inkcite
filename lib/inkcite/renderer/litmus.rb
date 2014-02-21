@@ -26,7 +26,7 @@ module Inkcite
 
       private
 
-      MERGE_TAG = :'litmus-merge-tag'
+      MERGE_TAG = :'merge-tag'
 
     end
   end
