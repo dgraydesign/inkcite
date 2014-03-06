@@ -4,7 +4,7 @@ module Inkcite
 
       def render tag, opt, ctx
 
-        img = Element.new('img', { :border => 0, :self_close => true })
+        img = Element.new('img', { :border => 0 })
 
         # Ensure that height and width are defined in the image's attributes.
         mix_dimensions img, opt
