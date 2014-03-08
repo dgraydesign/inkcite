@@ -731,10 +731,9 @@ module Inkcite
       def pop
         if @opts.empty?
           @ctx.error 'Attempt to close an unopened tag', { :tag => tag }
-          false
+          nil
         else
           @opts.pop
-          true
         end
       end
 
