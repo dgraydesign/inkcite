@@ -46,7 +46,7 @@ module Inkcite
         end
 
         def block?
-          declaration_string.downcase.include?('display: block')
+          declaration_string.downcase.include?('block')
         end
 
         def declaration_string

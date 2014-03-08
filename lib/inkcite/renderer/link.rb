@@ -4,7 +4,33 @@ module Inkcite
 
       def render tag, opt, ctx
 
-        return (ctx.text?? '' : '</a>') if tag == '/a'
+        tag_stack = ctx.tag_stack(:a)
+
+        if tag == '/a'
+
+          # Grab the attributes of the opening tag.
+          opening = tag_stack.pop
+
+          # Nothing to do in the
+          return '' if ctx.text?
+
+          html = '</a>'
+
+          # Check to see if the declaration has been marked as a block
+          # element and if so, close the div.
+          html << '</div>' if opening[:block]
+
+          return html
+        end
+
+        # Push the link's options onto the tag stack so that we can have
+        # access to its attributes when we close it.
+        tag_stack << opt
+
+        # Get the currently open table cell and see if link color is
+        # overridden in there.
+        td_parent = ctx.tag_stack(:td).opts
+        table_parent = ctx.tag_stack(:table).opts
 
         a = Element.new('a')
 
@@ -16,8 +42,7 @@ module Inkcite
 
         mix_text_shadow a, opt, ctx
 
-        color = opt[:color]
-        color = ctx[LINK_COLOR] if color.blank?
+        color = detect(opt[:color], td_parent[:link], table_parent[:link], ctx[LINK_COLOR])
         a.style[:color] = hex(color) if !color.blank? && color != NONE
 
         id   = opt[:id]
@@ -110,14 +135,36 @@ module Inkcite
 
         end
 
-        klass = opt[:class]
-        a.classes << klass unless klass.blank?
+        html = ''
 
-        rule = mix_responsive a, opt, ctx
+        if ctx.text?
+          html << a[:href]
 
-        html = a.to_s
+        else
 
-        ctx.text?? a[:href] : html
+          klass = opt[:class]
+          a.classes << klass unless klass.blank?
+
+          rule = mix_responsive a, opt, ctx
+
+          # Some responsive modes (e.g. button) change the display type from in-line
+          # to block.  This change can cause unexpected whitespace or other unexpected
+          # layout changes.  Outlook doesn't support block display on link elements
+          # so the best workaround is simply to wrap the element in <div> tags.
+          if rule && rule.block?
+            html << '<div>'
+
+            # Remember that we made this element block-display so that we can append
+            # the extra div when we close the tag.
+            opt[:block] = true
+
+          end
+
+          html << a.to_s
+
+        end
+
+        html
       end
 
       private
