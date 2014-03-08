@@ -4,7 +4,16 @@ module Inkcite
 
       def render tag, opt, ctx
 
-        return '</td>' if tag == CLOSE_TD
+        tag_stack = ctx.tag_stack(:td)
+
+        if tag == CLOSE_TD
+          tag_stack.pop
+          return '</td>'
+        end
+
+        # Push this tag onto the stack so that child elements (e.g. links)
+        # can have access to its attributes.
+        tag_stack << opt
 
         # Grab the attributes of the parent table so that the TD can inherit
         # specific values like padding, valign, responsiveness, etc.
