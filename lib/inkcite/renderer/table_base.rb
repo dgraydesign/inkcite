@@ -15,39 +15,41 @@ module Inkcite
       def mix_background element, opt, ctx
 
         bgcolor = opt[:bgcolor]
-        if !bgcolor.blank? && bgcolor != NONE
-          bgcolor = hex(bgcolor)
+        bgcolor = nil if bgcolor == NONE
 
-          element[:bgcolor] = bgcolor
-          element.style[BACKGROUND_COLOR] = bgcolor
-
-        end
+        # Set the bgcolor attribute of the element as a fallback if
+        # css isn't supported.
+        element[:bgcolor] = bgcolor unless bgcolor.blank?
 
         # Assisted background image handling for maximum compatibility.
-        bgimage = opt[:background]
-        unless bgimage.blank?
-          if ctx.assert_image_exists(bgimage)
+        bgimage  = opt[:background]
 
-            # Fully-qualify the image path
-            bgimage = ctx.image_url(bgimage)
+        background_css(element.style, bgcolor, bgimage, opt[BACKGROUND_POSITION], opt[BACKGROUND_REPEAT], false, ctx)
 
-            repeat = opt[BACKGROUND_REPEAT]
-            position = opt[BACKGROUND_POSITION]
+        m_bgcolor = opt[MOBILE_BACKGROUND_COLOR]
+        m_bgimage = opt[MOBILE_BACKGROUND_IMAGE]
 
-            # Default to no-repeat if a position has been supplied or replace
-            # 'none' as a convenience (cause none is easier to type than no-repeat).
-            repeat = 'no-repeat' if (repeat.blank? && !position.blank?) || repeat == NONE
+        mobile_background = background_css(
+            {},
+            m_bgcolor,
+            m_bgimage,
+            opt[MOBILE_BACKGROUND_POSITION],
+            opt[MOBILE_BACKGROUND_REPEAT],
+            (m_bgcolor && bgcolor) || (m_bgimage && bgimage),
+            ctx
+        )
 
-            # Style up the background image.
-            element.style[BACKGROUND_IMAGE] = "url('#{bgimage}')"
-            element.style[BACKGROUND_REPEAT] = repeat unless repeat.blank?
-            element.style[BACKGROUND_POSITION] = position unless position.blank?
+        unless mobile_background.blank?
 
-            # Can't gracefully degrade if anything other than repeat is specified
-            # for the background image.
-            element[:background] = quote(bgimage) if repeat.blank?
+          # Add the responsive rule that applies to this element.
+          rule = Rule.new(element.tag, unique_klass(ctx), mobile_background)
 
-          end
+          # Add the rule to the view
+          ctx.responsive_styles << rule
+
+          # Add the responsive klass to the
+          element.classes << rule.klass
+
         end
 
       end
@@ -77,6 +79,43 @@ module Inkcite
         height = opt[:height].to_i
         element[:height] = height if height > 0
 
+      end
+
+      private
+
+      def background_css into, bgcolor, img, position, repeat, important, ctx
+        unless bgcolor.blank? && img.blank?
+
+          bgcolor = hex(bgcolor) unless bgcolor.blank?
+
+          # There is only a background color so set that explicitly.
+          if img.blank?
+            bgcolor = "#{bgcolor} !important" if important
+            into[BACKGROUND_COLOR] = bgcolor
+
+          else
+
+            # Default to no-repeat if a position has been supplied or replace
+            # 'none' as a convenience (cause none is easier to type than no-repeat).
+            repeat = 'no-repeat' if (repeat.blank? && !position.blank?) || repeat == NONE
+
+            sty = []
+            sty << bgcolor unless bgcolor.blank?
+
+            if ctx.assert_image_exists(img)
+              sty << "url(#{ctx.image_url(img)})"
+              sty << position unless position.blank?
+              sty << repeat unless repeat.blank?
+            end
+
+            sty << '!important' if important
+
+            into[:background] = sty.join(' ')
+          end
+
+        end
+
+        into
       end
 
     end

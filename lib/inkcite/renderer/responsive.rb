@@ -10,6 +10,14 @@ module Inkcite
       SHOW    = 'show'
       TOGGLE  = 'toggle'
 
+      # For elements that take on different background properties
+      # when they go responsive
+      MOBILE_BACKGROUND_COLOR    = :'mobile-background-color'
+      MOBILE_BACKGROUND_IMAGE    = :'mobile-background-image'
+      MOBILE_BACKGROUND_REPEAT   = :'mobile-background-repeat'
+      MOBILE_BACKGROUND_POSITION = :'mobile-background-position'
+      MOBILE_BACKGROUND_SIZE     = :'mobile-background-size'
+
       class Rule
 
         attr_reader :declarations
@@ -165,7 +173,7 @@ module Inkcite
           # Generate a unique class name for this style if it has not already been declared.
           # These are of the form m001, etc.  Redability is not important because it's
           # dynamically generated and referenced.
-          klass = "m%03d" % ctx.unique_id(:m)
+          klass = unique_klass(ctx)
 
         else
 
@@ -273,6 +281,12 @@ module Inkcite
         styles << Rule.new('a', BUTTON, button_styles, false)
 
         styles
+      end
+
+      protected
+
+      def unique_klass ctx
+        "m%03d" % ctx.unique_id(:m)
       end
 
       private
