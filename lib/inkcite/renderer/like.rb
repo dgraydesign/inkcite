@@ -4,11 +4,11 @@ module Inkcite
 
       def render tag, opt, ctx
 
-        return '{/a}' if tag == '/like'
-
         # Handle the case where we're building the hosted version of the email and
         # JavaScript is used to trigger the Facebook like dialog.
         if ctx.browser?
+
+          return '{/a}' if tag == '/like'
 
           page = opt[:page]
           if page.blank?
@@ -51,6 +51,8 @@ module Inkcite
 
           url = ctx[Inkcite::Email::VIEW_IN_BROWSER_URL]
           unless url.blank?
+
+            return '{/a}' if tag == '/like'
 
             # Otherwise, link to the hosted version of the email with the like hash tag
             # to trigger like automatically on arrival.
