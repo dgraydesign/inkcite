@@ -45,6 +45,13 @@ module Inkcite
 
       protected
 
+      # Iterates through the list of possible options and returns the
+      # first non-blank value.
+      def detect *opts
+        opts.each { |o| return(o) unless o.blank? }
+        nil
+      end
+
       # Convenience pass-thru to Renderer's static helper method.
       def hex color
         Renderer.hex(color)
