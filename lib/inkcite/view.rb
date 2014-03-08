@@ -25,6 +25,12 @@ module Inkcite
     # The configuration hash for the view
     attr_accessor :config
 
+    # Will be populated with the css and js compressor objects
+    # after first use.  Ensures we can reset the compressors
+    # after a rendering is complete.
+    attr_accessor :css_compressor
+    attr_accessor :js_compressor
+
     def initialize email, environment, format, version, config
       @email = email
       @environment = environment

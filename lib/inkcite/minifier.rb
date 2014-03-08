@@ -4,7 +4,7 @@ module Inkcite
   class Minifier
 
     def self.css code, ctx
-      minify?(ctx) ? css_compressor.compress(code) : code
+      minify?(ctx) ? css_compressor(ctx).compress(code) : code
     end
 
     def self.html lines, ctx
@@ -57,7 +57,7 @@ module Inkcite
     end
 
     def self.js code, ctx
-      minify?(ctx) ? js_compressor.compress(code) : code
+      minify?(ctx) ? js_compressor(ctx).compress(code) : code
     end
 
     private
@@ -73,12 +73,12 @@ module Inkcite
       ctx.is_enabled?(:minify)
     end
 
-    def self.js_compressor
-      @yui_js ||= YUI::JavaScriptCompressor.new(:munge => true)
+    def self.js_compressor ctx
+      ctx.js_compressor ||= YUI::JavaScriptCompressor.new(:munge => true)
     end
 
-    def self.css_compressor
-      @yui_css ||= YUI::CssCompressor.new
+    def self.css_compressor ctx
+      ctx.css_compressor ||= YUI::CssCompressor.new(:line_break => (ctx.email?? MAXIMUM_LINE_LENGTH : null))
     end
 
   end
