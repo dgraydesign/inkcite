@@ -78,7 +78,7 @@ module Inkcite
     end
 
     def self.css_compressor ctx
-      ctx.css_compressor ||= YUI::CssCompressor.new(:line_break => (ctx.email?? MAXIMUM_LINE_LENGTH : null))
+      ctx.css_compressor ||= YUI::CssCompressor.new(:line_break => (ctx.email?? MAXIMUM_LINE_LENGTH : nil))
     end
 
   end
