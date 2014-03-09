@@ -19,6 +19,19 @@ module Inkcite
           @opt[:border] || @ctx[BUTTON_BORDER]
         end
 
+        def border_bottom
+          "#{Renderer.px(bevel)} solid #{bevel_color}" if bevel > 0
+        end
+
+        def bevel
+          (@opt[:bevel] || @ctx[BUTTON_BEVEL]).to_i
+        end
+
+        def bevel_color
+          bc = @opt[BEVEL_COLOR] || @ctx[BUTTON_BEVEL_COLOR]
+          !bc.blank?? hex(bc) : text_shadow
+        end
+
         def border_radius
           (@opt[Base::BORDER_RADIUS] || @ctx[BUTTON_BORDER_RADIUS]).to_i
         end
@@ -65,7 +78,11 @@ module Inkcite
 
         private
 
+        BEVEL_COLOR = :'bevel-color'
+
         BUTTON_BACKGROUND_COLOR = :'button-background-color'
+        BUTTON_BEVEL = :'button-bevel'
+        BUTTON_BEVEL_COLOR = :'button-bevel-color'
         BUTTON_BORDER = :'button-border'
         BUTTON_BORDER_RADIUS = :'button-border-radius'
         BUTTON_COLOR = :'button-color'
@@ -73,7 +90,6 @@ module Inkcite
         BUTTON_FONT = :'button-font'
         BUTTON_FONT_WEIGHT = :'button-font-weight'
         BUTTON_HEIGHT = :'button-height'
-        BUTTON_LINE_HEIGHT = :'button-line-height'
         BUTTON_MARGIN_TOP = :'button-margin-top'
         BUTTON_PADDING = :'button-padding'
         BUTTON_TEXT_SHADOW = :'button-text-shadow'
@@ -104,13 +120,14 @@ module Inkcite
           html << " padding=#{cfg.padding}" if cfg.padding > 0
           html << " border=#{cfg.border}" if cfg.border
           html << " border-radius=#{cfg.border_radius}" if cfg.border_radius > 0
+          html << " border-bottom=\"#{cfg.border_bottom}\" border-collapse=separate" if cfg.bevel > 0
           html << " margin-top=#{cfg.margin_top}" if cfg.margin_top > 0
           html << " width=#{cfg.width}" if cfg.width > 0
           html << " float=#{cfg.float}" if cfg.float
           html << " mobile=\"fill\"}"
           html << "{td align=center"
           html << " height=#{cfg.height} valign=middle" if cfg.height > 0
-          html << " font=\"#{cfg.font}\""
+          html << " font=\"#{cfg.font}\" line-height=auto"
           html << " font-weight=\"#{cfg.font_weight}\"" unless cfg.font_weight.blank?
           html << " shadow=\"#{cfg.text_shadow}\" shadow-offset=-1}"
           html << "{a id=\"#{id}\" href=\"#{href}\" color=\"#{cfg.color}\"}"

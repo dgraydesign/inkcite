@@ -271,6 +271,7 @@ module Inkcite
         }
 
         button_styles[:border] = cfg.border unless cfg.border.blank?
+        button_styles[BORDER_BOTTOM] = cfg.border_bottom if cfg.bevel > 0
         button_styles[BORDER_RADIUS] = Renderer.px(cfg.border_radius) if cfg.border_radius > 0
         button_styles[FONT_WEIGHT] = cfg.font_weight unless cfg.font_weight.blank?
         button_styles[:height] = Renderer.px(cfg.height) if cfg.height > 0

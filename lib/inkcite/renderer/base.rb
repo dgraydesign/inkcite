@@ -8,6 +8,8 @@ module Inkcite
       BACKGROUND_REPEAT   = :'background-repeat'
       BACKGROUND_POSITION = :'background-position'
       BACKGROUND_SIZE     = :'background-size'
+      BORDER_BOTTOM       = :'border-bottom'
+      BORDER_COLLAPSE     = :'border-collapse'
       BORDER_RADIUS       = :'border-radius'
       BORDER_SPACING      = :'border-spacing'
       BOX_SHADOW          = :'box-shadow'
