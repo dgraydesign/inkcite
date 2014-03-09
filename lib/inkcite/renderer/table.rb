@@ -38,6 +38,9 @@ module Inkcite
         border_radius = opt[BORDER_RADIUS].to_i
         table.style[BORDER_RADIUS] = px(border_radius) if border_radius > 0
 
+        border_collapse = opt[BORDER_COLLAPSE]
+        table.style[BORDER_COLLAPSE] = border_collapse unless border_collapse.blank?
+
         margin_top = opt[MARGIN_TOP].to_i
         table.style[MARGIN_TOP] = px(margin_top) if margin_top > 0
 

@@ -70,7 +70,9 @@ module Inkcite
 
         line_height = opt[LINE_HEIGHT] || parent[LINE_HEIGHT]
         line_height ||= (ctx["#{font}-line-height"] || ctx[LINE_HEIGHT]) unless font.blank?
-        td.style[LINE_HEIGHT] = px(line_height) if !line_height.blank? && line_height != NONE
+        unless line_height.blank? || line_height == NONE
+          td.style[LINE_HEIGHT] = (line_height == 'auto' ? line_height : px(line_height))
+        end
 
         font_weight = opt[FONT_WEIGHT]
         unless font.blank?
