@@ -730,7 +730,7 @@ module Inkcite
 
       # Retrieves the most recent set of options for this tag.
       def opts
-        @opts.last
+        @opts.last || {}
       end
 
       # Pops the most recent tag off of the stack.
