@@ -4,10 +4,11 @@ module Inkcite
   module Util
 
     def self.brightness_value color
-      (color.gsub('#', '').scan(/../).map { |c| c.hex }).inject { |sum, c| sum + c }
+      color.nil?? 0 : (color.gsub('#', '').scan(/../).map { |c| c.hex }).inject { |sum, c| sum + c }
     end
 
     def self.darken color, amount=0.4
+      return BLACK if color.nil?
       rgb = color.gsub('#', '').scan(/../).map { |color| color.hex }
       rgb[0] = (rgb[0].to_i * amount).round
       rgb[1] = (rgb[1].to_i * amount).round
@@ -16,6 +17,7 @@ module Inkcite
     end
 
     def self.lighten color, amount=0.6
+      return WHITE if color.nil?
       rgb = color.gsub('#', '').scan(/../).map { |color| color.hex }
       rgb[0] = [(rgb[0].to_i + 255 * amount).round, 255].min
       rgb[1] = [(rgb[1].to_i + 255 * amount).round, 255].min
@@ -58,6 +60,9 @@ module Inkcite
     end
 
     private
+
+    BLACK = '#000000'
+    WHITE = '#111111'
 
     # Recursive key symbolization for the provided Hash.
     def self.symbolize_keys hash
