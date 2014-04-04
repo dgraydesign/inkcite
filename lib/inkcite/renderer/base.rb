@@ -50,8 +50,7 @@ module Inkcite
       # Iterates through the list of possible options and returns the
       # first non-blank value.
       def detect *opts
-        opts.each { |o| return(o) unless o.blank? }
-        nil
+        opts.detect { |o| !o.blank? }
       end
 
       # Convenience pass-thru to Renderer's static helper method.
@@ -59,31 +58,65 @@ module Inkcite
         Renderer.hex(color)
       end
 
+      def none? val
+        val.blank? || val == NONE
+      end
+
       # Sets the element's in-line bgcolor style if it has been defined
       # in the provided options.
       def mix_background element, opt
 
         # Background color of the image, if populated.
-        bgcolor = opt[:bgcolor] || opt[BACKGROUND_COLOR]
-        element.style[BACKGROUND_COLOR] = hex(bgcolor) unless bgcolor.blank?
+        bgcolor = detect(opt[:bgcolor], opt[BACKGROUND_COLOR])
+        element.style[BACKGROUND_COLOR] = hex(bgcolor) unless none?(bgcolor)
+
+      end
+
+      def mix_font element, opt, ctx, default_font=nil, parent=nil
+
+        # Always ensure we have a parent to inherit from.
+        parent ||= {}
+
+        # Check for a font in either the element's specified options or inherit a setting from
+        # from the parent if provided.
+        font = detect(opt[:font], parent[:font])
+
+        # Fonts can be disabled on individual cells if the parent table
+        # has set one for the entire table.
+        font = nil if none?(font)
+
+        font_family = detect_font(FONT_FAMILY, font, opt, parent, ctx)
+        element.style[FONT_FAMILY] = font_family unless font_family.blank? || font_family == default_font
+
+        font_size = detect_font(FONT_SIZE, font, opt, parent, ctx)
+        element.style[FONT_SIZE] = px(font_size) unless font_size.blank?
+
+        color = detect_font(:color, font, opt, parent, ctx)
+        element.style[:color] = hex(color) unless color.blank?
+
+        line_height = detect_font(LINE_HEIGHT, font, opt, parent, ctx)
+        element.style[LINE_HEIGHT] = (line_height == 'auto' ? line_height : px(line_height)) unless line_height.blank?
+
+        font_weight = detect_font(FONT_WEIGHT, font, opt, parent, ctx)
+        element.style[FONT_WEIGHT] = font_weight unless font_weight.blank?
 
       end
 
       def mix_text_shadow element, opt, ctx
 
-        shadow = opt[:shadow] || opt[TEXT_SHADOW]
+        shadow = detect(opt[:shadow], opt[TEXT_SHADOW])
         return if shadow.blank?
 
         # Allow shadows to be disabled because sometimes a child element (like an
         # image within a cell or an entire cell within a table) wants to disable
         # the shadowing forced by a parent.
-        if shadow == NONE
+        if none?(shadow)
           element.style[TEXT_SHADOW] = shadow
 
         else
 
-          shadow_offset = opt[TEXT_SHADOW_OFFSET] || 1
-          shadow_blur = opt[TEXT_SHADOW_BLUR] || 0
+          shadow_offset = detect(opt[TEXT_SHADOW_OFFSET], ctx[TEXT_SHADOW_OFFSET], 1)
+          shadow_blur = detect(opt[TEXT_SHADOW_BLUR], ctx[TEXT_SHADOW_BLUR], 0)
 
           element.style[TEXT_SHADOW] = "0 #{px(shadow_offset)} #{px(shadow_blur)} #{hex(shadow)}"
 
@@ -122,10 +155,18 @@ module Inkcite
 
         end
 
-       html << '/' if self_close
+        html << '/' if self_close
         html << '>'
 
         html
+      end
+
+      private
+
+      def detect_font att, font, opt, parent, ctx
+        val = detect(opt[att], ctx["#{font}-#{att}"], parent[att])
+        val = nil if none?(val)
+        val
       end
 
     end
