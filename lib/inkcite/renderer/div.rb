@@ -8,6 +8,9 @@ module Inkcite
 
         div = Element.new('div')
 
+        mix_font div, opt, ctx
+        mix_text_shadow div, opt, ctx
+
         mix_background div, opt
 
         mix_responsive div, opt, ctx
