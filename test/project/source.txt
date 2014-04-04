@@ -1,0 +1,6 @@
+This is the plain-text version of your email.
+
+<% if production? %>
+This email was sent to [email].  {a id="unsubscribe" href=#}Click here to unsubscribe{/a}.
+Using ERB, this unsubscribe notice will only appear in the 'email' format of this project.
+<% end %>

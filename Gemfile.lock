@@ -64,4 +64,5 @@ PLATFORMS
 DEPENDENCIES
   bundler (~> 1.1)
   inkcite!
+  minitest
   rake
