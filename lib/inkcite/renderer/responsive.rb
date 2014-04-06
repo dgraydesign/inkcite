@@ -119,6 +119,57 @@ module Inkcite
 
       end
 
+      def self.presets ctx
+
+        styles = []
+
+        # HIDE, which can be used on any responsive element, makes it disappear
+        # on mobile devices.
+        styles << Rule.new(UNIVERSAL, HIDE, 'display: none !important;', false)
+
+        # SHOW, which means the element is hidden on desktop but shown on mobile.
+        styles << Rule.new(UNIVERSAL, SHOW, 'display: block !important;', false)
+
+        # Brian Graves' Column Drop Pattern: Table goes to 100% width by way of
+        # the FILL rule and its cells stack vertically.
+        # http://briangraves.github.io/ResponsiveEmailPatterns/patterns/layouts/column-drop.html
+        styles << Rule.new('td', DROP, 'display: block; width: 100% !important; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;', false)
+
+        # FILL causes specific types of elements to expand to 100% of the available
+        # width of the mobile device.
+        styles << Rule.new('img', FILL, 'width: 100% !important; height: auto !important;', false)
+        styles << Rule.new([ 'table', 'td' ], FILL, 'width: 100% !important; background-size: 100% auto !important;', false)
+
+        # For mobile-image tags.
+        styles << Rule.new('span', IMAGE, 'display: block; background-position: center; background-size: cover;', false)
+
+        # BUTTON causes ordinary links to transform into buttons based
+        # on the styles configured by the developer.
+        cfg = Button::Config.new(ctx)
+
+        button_styles = {
+            :color => "#{cfg.color} !important",
+            :display => 'block',
+            BACKGROUND_COLOR => cfg.bgcolor,
+            TEXT_SHADOW => "0 -1px 0 #{cfg.text_shadow}"
+        }
+
+        button_styles[:border] = cfg.border unless cfg.border.blank?
+        button_styles[BORDER_BOTTOM] = cfg.border_bottom if cfg.bevel > 0
+        button_styles[BORDER_RADIUS] = Renderer.px(cfg.border_radius) if cfg.border_radius > 0
+        button_styles[FONT_WEIGHT] = cfg.font_weight unless cfg.font_weight.blank?
+        button_styles[:height] = Renderer.px(cfg.height) if cfg.height > 0
+        button_styles[MARGIN_TOP] = Renderer.px(cfg.margin_top) if cfg.margin_top > 0
+        button_styles[:padding] = Renderer.px(cfg.padding) if cfg.padding > 0
+        button_styles[TEXT_ALIGN] = 'center'
+
+        styles << Rule.new('a', BUTTON, button_styles, false)
+
+        styles
+      end
+
+      protected
+
       def mix_responsive element, opt, ctx, klass=nil
 
         # Get the tag of the element being made responsive.
@@ -234,57 +285,6 @@ module Inkcite
 
         rule
       end
-
-      def self.presets ctx
-
-        styles = []
-
-        # HIDE, which can be used on any responsive element, makes it disappear
-        # on mobile devices.
-        styles << Rule.new(UNIVERSAL, HIDE, 'display: none !important;', false)
-
-        # SHOW, which means the element is hidden on desktop but shown on mobile.
-        styles << Rule.new(UNIVERSAL, SHOW, 'display: block !important;', false)
-
-        # Brian Graves' Column Drop Pattern: Table goes to 100% width by way of
-        # the FILL rule and its cells stack vertically.
-        # http://briangraves.github.io/ResponsiveEmailPatterns/patterns/layouts/column-drop.html
-        styles << Rule.new('td', DROP, 'display: block; width: 100% !important; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;', false)
-
-        # FILL causes specific types of elements to expand to 100% of the available
-        # width of the mobile device.
-        styles << Rule.new('img', FILL, 'width: 100% !important; height: auto !important;', false)
-        styles << Rule.new([ 'table', 'td' ], FILL, 'width: 100% !important; background-size: 100% auto !important;', false)
-
-        # For mobile-image tags.
-        styles << Rule.new('span', IMAGE, 'display: block; background-position: center; background-size: cover;', false)
-
-        # BUTTON causes ordinary links to transform into buttons based
-        # on the styles configured by the developer.
-        cfg = Button::Config.new(ctx)
-
-        button_styles = {
-            :color => "#{cfg.color} !important",
-            :display => 'block',
-            BACKGROUND_COLOR => cfg.bgcolor,
-            TEXT_SHADOW => "0 -1px 0 #{cfg.text_shadow}"
-        }
-
-        button_styles[:border] = cfg.border unless cfg.border.blank?
-        button_styles[BORDER_BOTTOM] = cfg.border_bottom if cfg.bevel > 0
-        button_styles[BORDER_RADIUS] = Renderer.px(cfg.border_radius) if cfg.border_radius > 0
-        button_styles[FONT_WEIGHT] = cfg.font_weight unless cfg.font_weight.blank?
-        button_styles[:height] = Renderer.px(cfg.height) if cfg.height > 0
-        button_styles[MARGIN_TOP] = Renderer.px(cfg.margin_top) if cfg.margin_top > 0
-        button_styles[:padding] = Renderer.px(cfg.padding) if cfg.padding > 0
-        button_styles[TEXT_ALIGN] = 'center'
-
-        styles << Rule.new('a', BUTTON, button_styles, false)
-
-        styles
-      end
-
-      protected
 
       def unique_klass ctx
         "m%03d" % ctx.unique_id(:m)
