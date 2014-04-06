@@ -75,4 +75,8 @@ describe Inkcite::Renderer::Div do
     Inkcite::Renderer.render('{div height=15}{/div}', @view).must_equal('<div style="height:15px"></div>')
   end
 
+  it 'can have custom letter spacing' do
+    Inkcite::Renderer.render('{div letter-spacing=3}{/div}', @view).must_equal('<div style="letter-spacing:3px"></div>')
+  end
+
 end

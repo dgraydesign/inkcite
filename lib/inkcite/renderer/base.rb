@@ -16,6 +16,7 @@ module Inkcite
       FONT_FAMILY         = :'font-family'
       FONT_SIZE           = :'font-size'
       FONT_WEIGHT         = :'font-weight'
+      LETTER_SPACING      = :'letter-spacing'
       LINE_HEIGHT         = :'line-height'
       LINK_COLOR          = :'#link'
       MARGIN_TOP          = :'margin-top'
@@ -99,6 +100,9 @@ module Inkcite
 
         font_weight = detect_font(FONT_WEIGHT, font, opt, parent, ctx)
         element.style[FONT_WEIGHT] = font_weight unless font_weight.blank?
+
+        letter_spacing = detect_font(LETTER_SPACING, font, opt, parent, ctx)
+        element.style[LETTER_SPACING] = px(letter_spacing) unless none?(letter_spacing)
 
       end
 
