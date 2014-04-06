@@ -32,18 +32,13 @@ module Inkcite
         td_parent = ctx.tag_stack(:td).opts
         table_parent = ctx.tag_stack(:table).opts
 
+        # Choose a color from the parameters or inherit from the parent td, table or context.
+        opt[:color] = detect(opt[:color], td_parent[:link], table_parent[:link], ctx[LINK_COLOR])
+
         a = Element.new('a')
 
-        font_size = opt[FONT_SIZE]
-        a.style[FONT_SIZE] = px(font_size) unless font_size.blank?
-
-        line_height = opt[LINE_HEIGHT]
-        a.style[LINE_HEIGHT] = px(line_height) unless line_height.blank?
-
+        mix_font a, opt, ctx
         mix_text_shadow a, opt, ctx
-
-        color = detect(opt[:color], td_parent[:link], table_parent[:link], ctx[LINK_COLOR])
-        a.style[:color] = hex(color) if !color.blank? && color != NONE
 
         id   = opt[:id]
         href = opt[:href]
@@ -114,10 +109,10 @@ module Inkcite
 
           a[:target] = BLANK
 
-          # Make sure that these types of links have quotes.
-          href = quote(href) unless ctx.text?
-
         end
+
+        # Make sure that these types of links have quotes.
+        href = quote(href) unless ctx.text?
 
         # Set the href attribute to the resolved href.
         a[:href] = href
