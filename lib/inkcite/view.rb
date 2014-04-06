@@ -25,6 +25,9 @@ module Inkcite
     # The configuration hash for the view
     attr_accessor :config
 
+    # The array of error messages collected during rendering
+    attr_accessor :errors
+
     # Will be populated with the css and js compressor objects
     # after first use.  Ensures we can reset the compressors
     # after a rendering is complete.
@@ -122,10 +125,6 @@ module Inkcite
       @errors << message
 
       true
-    end
-
-    def errors
-      rendered?? @errors : raise('Can not retreive errors unless view has been rendered!')
     end
 
     def footer
