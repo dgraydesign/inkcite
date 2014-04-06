@@ -52,4 +52,13 @@ describe Inkcite::Renderer::Td do
     Inkcite::Renderer.render('{td line-height=15}{/td}', @view).must_equal('<td style="line-height:15px"></td>')
   end
 
+  it 'can have a specific vertical alignment' do
+    Inkcite::Renderer.render('{td valign=bottom}{/td}', @view).must_equal('<td valign=bottom></td>')
+  end
+
+  it 'can inherit valign from its parent table' do
+    Inkcite::Renderer.render('{table valign=top}{td}{/td}{/table}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0><tr><td valign=top></td></tr></table>')
+
+  end
+
 end
