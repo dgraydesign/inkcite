@@ -56,9 +56,6 @@ module Inkcite
 
         mix_font td, opt, ctx, ctx[FONT_FAMILY], parent
 
-        # Text shadowing
-        mix_text_shadow td, opt, ctx
-
         # If the cell doesn't define it's own responsive behavior, check to
         # see if the parent table was declared DROP.  If so, this cell needs
         # to inherit specific behavior.

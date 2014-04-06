@@ -38,7 +38,6 @@ module Inkcite
         a = Element.new('a')
 
         mix_font a, opt, ctx
-        mix_text_shadow a, opt, ctx
 
         id   = opt[:id]
         href = opt[:href]

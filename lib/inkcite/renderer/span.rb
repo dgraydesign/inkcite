@@ -9,7 +9,6 @@ module Inkcite
         span = Element.new('span')
 
         mix_font span, opt, ctx
-        mix_text_shadow span, opt, ctx
 
         mix_responsive span, opt, ctx
 

@@ -104,6 +104,9 @@ module Inkcite
         letter_spacing = detect_font(LETTER_SPACING, font, opt, parent, ctx)
         element.style[LETTER_SPACING] = px(letter_spacing) unless none?(letter_spacing)
 
+        # With font support comes text shadow support.
+        mix_text_shadow element, opt, ctx
+
       end
 
       def mix_text_shadow element, opt, ctx
