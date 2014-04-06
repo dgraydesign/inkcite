@@ -165,7 +165,14 @@ module Inkcite
 
       def detect_font att, font, opt, parent, ctx
         val = detect(opt[att], ctx["#{font}-#{att}"], parent[att])
+
+        # Sometimes font values reference other defined values so we need
+        # to run them through the renderer to resolve them.
+        val = Inkcite::Renderer.render(val, ctx)
+
+        # Convience
         val = nil if none?(val)
+
         val
       end
 
