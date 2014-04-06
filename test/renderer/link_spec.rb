@@ -1,0 +1,75 @@
+require 'minitest/spec'
+require 'minitest/autorun'
+require 'inkcite'
+
+describe Inkcite::Renderer::Link do
+
+  before do
+    @view = Inkcite::Email.new('test/project/').view(:development, :email)
+  end
+
+  it 'tags all links if tag-links-domain is empty' do
+    @view.config[:'tag-links-domain'] = ''
+    Inkcite::Renderer.render('{a id="litmus" href="http://litmus.com"}Test Emails Here{/a}', @view).must_equal('<a href="http://litmus.com?tag=inkcite|litmus" style="color:#0099cc;text-decoration:none" target=_blank>Test Emails Here</a>')
+  end
+
+  it "will tag a link with it's unique ID when it leads to a configured tag-links-domain" do
+    Inkcite::Renderer.render('{a id="blog" href="http://blog.inkceptional.com"}Our blog{/a}', @view).must_equal('<a href="http://blog.inkceptional.com?tag=inkcite|blog" style="color:#0099cc;text-decoration:none" target=_blank>Our blog</a>')
+  end
+
+  it 'will not tag a link when it leads to a different domain' do
+    Inkcite::Renderer.render('{a id="twitter" href="https://twitter.com/inkceptional"}Follow Us{/a}', @view).must_equal('<a href="https://twitter.com/inkceptional" style="color:#0099cc;text-decoration:none" target=_blank>Follow Us</a>')
+  end
+
+  it 'can tag a link with a unique ID' do
+    Inkcite::Renderer.render('{a id="order-now" href="http://inkceptional.com"}Order Now{/a}', @view).must_equal('<a href="http://inkceptional.com?tag=inkcite|order-now" style="color:#0099cc;text-decoration:none" target=_blank>Order Now</a>')
+  end
+
+  it 'raises a warning and generates an ID if one is not present' do
+    Inkcite::Renderer.render('{a href="http://inkceptional.com"}Click Here{/a}', @view).must_equal('<a href="http://inkceptional.com?tag=inkcite|link1" style="color:#0099cc;text-decoration:none" target=_blank>Click Here</a>')
+    @view.errors.must_include('Link missing ID (line 0) [href=http://inkceptional.com]')
+  end
+
+  it 'increments its automatically generated link ID' do
+    Inkcite::Renderer.render('{a href="http://blog.inkceptional.com"}Our Blog{/a}', @view).must_equal('<a href="http://blog.inkceptional.com?tag=inkcite|link1" style="color:#0099cc;text-decoration:none" target=_blank>Our Blog</a>')
+    Inkcite::Renderer.render('{a href="http://inkceptional.com"}Inkceptional.com{/a}', @view).must_equal('<a href="http://inkceptional.com?tag=inkcite|link2" style="color:#0099cc;text-decoration:none" target=_blank>Inkceptional.com</a>')
+  end
+
+  it 'can have a custom font color' do
+    Inkcite::Renderer.render('{a id="order-now" href="http://inkceptional.com" color=#fc9}Order Now{/a}', @view).must_equal('<a href="http://inkceptional.com?tag=inkcite|order-now" style="color:#ffcc99;text-decoration:none" target=_blank>Order Now</a>')
+  end
+
+  it 'can inherit link color from a parent td' do
+    Inkcite::Renderer.render('{td link=#0c3}{a id="order-now" href="http://inkceptional.com"}Order Now{/a}{/td}', @view).must_equal('<td><a href="http://inkceptional.com?tag=inkcite|order-now" style="color:#00cc33;text-decoration:none" target=_blank>Order Now</a></td>')
+  end
+
+  it 'can inherit link color from a parent table' do
+    Inkcite::Renderer.render('{table link=#396}{td}{a id="order-now" href="http://inkceptional.com"}Order Now{/a}{/td}{/table}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0><tr><td><a href="http://inkceptional.com?tag=inkcite|order-now" style="color:#339966;text-decoration:none" target=_blank>Order Now</a></td></tr></table>')
+  end
+
+  it 'can have a custom font family' do
+    Inkcite::Renderer.render('{a id="order-now" href="http://inkceptional.com" font-family="Comic Sans"}Order Now{/a}', @view).must_equal('<a href="http://inkceptional.com?tag=inkcite|order-now" style="color:#0099cc;font-family:Comic Sans;text-decoration:none" target=_blank>Order Now</a>')
+  end
+
+  it 'can have a custom font size' do
+    Inkcite::Renderer.render('{a id="order-now" href="http://inkceptional.com" font-size=72}Order Now{/a}', @view).must_equal('<a href="http://inkceptional.com?tag=inkcite|order-now" style="color:#0099cc;font-size:72px;text-decoration:none" target=_blank>Order Now</a>')
+  end
+
+  it 'can have a custom font weight' do
+    Inkcite::Renderer.render('{a id="order-now" href="http://inkceptional.com" font-weight=700}Order Now{/a}', @view).must_equal('<a href="http://inkceptional.com?tag=inkcite|order-now" style="color:#0099cc;font-weight:700;text-decoration:none" target=_blank>Order Now</a>')
+  end
+
+  it 'can have a custom line height' do
+    Inkcite::Renderer.render('{a id="order-now" href="http://inkceptional.com" line-height=64}Order Now{/a}', @view).must_equal('<a href="http://inkceptional.com?tag=inkcite|order-now" style="color:#0099cc;line-height:64px;text-decoration:none" target=_blank>Order Now</a>')
+    Inkcite::Renderer.render('{a id="order-now" href="http://inkceptional.com" line-height=auto}Order Now{/a}', @view).must_equal('<a href="http://inkceptional.com?tag=inkcite|order-now" style="color:#0099cc;line-height:auto;text-decoration:none" target=_blank>Order Now</a>')
+  end
+
+  it 'can inherit a font from the context' do
+    Inkcite::Renderer.render('{a id="order-now" href="http://inkceptional.com" font=large}Order Now{/a}', @view).must_equal('<a href="http://inkceptional.com?tag=inkcite|order-now" style="color:#0099cc;font-family:serif;font-size:24px;font-weight:bold;line-height:24px;text-decoration:none" target=_blank>Order Now</a>')
+  end
+
+  it 'will not tag mailto: links' do
+    Inkcite::Renderer.render('{a id="contact-us" href="mailto:some.email@some.where"}Contact Us{/a}', @view).must_equal('<a href="mailto:some.email@some.where" style="color:#0099cc;text-decoration:none">Contact Us</a>')
+  end
+
+end
