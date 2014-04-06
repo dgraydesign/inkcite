@@ -8,6 +8,9 @@ module Inkcite
 
         div = Element.new('div')
 
+        height = opt[:height].to_i
+        div.style[:height] = px(height) if height > 0
+
         mix_font div, opt, ctx
         mix_text_shadow div, opt, ctx
 
