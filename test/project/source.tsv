@@ -12,6 +12,12 @@ font-family	sans-serif
 font-size	15
 line-height	19
 
+default-color	{#text}
+default-font-family	{font-family}
+default-font-size	{font-size}
+default-font-weight	normal
+default-line-height	{line-height}
+
 large-color	#f00
 large-font-family	serif
 large-font-size	24
