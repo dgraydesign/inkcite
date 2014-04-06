@@ -8,11 +8,11 @@ describe Inkcite::Renderer do
     Inkcite::Renderer.hex('#rgb').must_equal('#rrggbb')
   end
 
-  it 'converts a hash to a parameter string' do
+  it 'converts a hash to an alphabetized parameter string' do
     Inkcite::Renderer.join_hash({ :src => 'logo.png', :height => 12, :alt => '"Company Logo"' }).must_equal('alt="Company Logo" height=12 src=logo.png')
   end
 
-  it 'can render a px value' do
+  it 'can render a CSS px value' do
     Inkcite::Renderer.px(5).must_equal('5px')
     Inkcite::Renderer.px(0).must_equal(0)
   end
