@@ -113,30 +113,38 @@ module Inkcite
 
           cfg = Config.new(ctx, opt)
 
-          # Wrap the table in a link to make the whole thing clickable.  Embed
-          # a second link inside the table a graceful trick to make the
+          # Wrap the table in a link to make the whole thing clickable.  This works
+          # in most email clients but doesn't work in Outlook (for a change).
           html << "{a id=\"#{id}\" href=\"#{href}\" color=\"none\"}"
+
+          # Responsive button is just a highly styled table/td combination with optional
+          # curved corners and a lower bevel (border).
           html << "{table bgcolor=#{cfg.bgcolor}"
           html << " padding=#{cfg.padding}" if cfg.padding > 0
           html << " border=#{cfg.border}" if cfg.border
           html << " border-radius=#{cfg.border_radius}" if cfg.border_radius > 0
+
+          # Need to separate borders that are collapsed by default - otherwise, the bevel
+          # renders incorrectly.
           html << " border-bottom=\"#{cfg.border_bottom}\" border-collapse=separate" if cfg.bevel > 0
+
           html << " margin-top=#{cfg.margin_top}" if cfg.margin_top > 0
           html << " width=#{cfg.width}" if cfg.width > 0
           html << " float=#{cfg.float}" if cfg.float
-          html << " mobile=\"fill\"}"
+          html << " mobile=\"fill\"}\n"
           html << "{td align=center"
           html << " height=#{cfg.height} valign=middle" if cfg.height > 0
           html << " font=\"#{cfg.font}\" line-height=auto"
           html << " font-weight=\"#{cfg.font_weight}\"" unless cfg.font_weight.blank?
           html << " shadow=\"#{cfg.text_shadow}\" shadow-offset=-1}"
+
+          # Second, internal link for Outlook users that makes the inside of the button
+          # clickable.
           html << "{a id=\"#{id}\" href=\"#{href}\" color=\"#{cfg.color}\"}"
 
         else
 
-          html << "{/a}"
-          html << "{/td}\n"
-          html << "{/table}{/a}"
+          html << "{/a}{/td}\n{/table}{/a}"
 
         end
 
