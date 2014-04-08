@@ -26,19 +26,9 @@ module Inkcite
           img[:title] = img[:alt] if ctx.is_enabled?(COPY_ALT_TO_TITLE)
 
           # All images with alt text inherit small font unless otherwise specified.
-          font = opt[:font] || 'small'
-          unless font == NONE
+          opt[:font] ||= 'small'
 
-            size = opt[FONT_SIZE] || ctx["#{font}-font-size"]
-            img.style[FONT_SIZE] = px(size)
-
-            color = opt[:color] || ctx["#{font}-color"]
-            img.style[:color] = hex(color) unless color.blank?
-
-          end
-
-          # Text shadowing
-          mix_text_shadow img, opt, ctx
+          mix_font img, opt, ctx
 
         end
 
