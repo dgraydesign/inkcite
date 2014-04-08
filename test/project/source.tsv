@@ -24,6 +24,9 @@ large-font-size	24
 large-font-weight	bold
 large-line-height	24
 
+small-color	#ccc
+small-font-size	11
+
 // This is an example of a custom tag.  Tabs delimit the tag name, its open and
 // close values.  Inkcite will replace instances of {big} and {/big} with these
 // values, respectively.  Notice that it allows its color, which defaults to
