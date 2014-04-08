@@ -2,7 +2,7 @@
 # in the email.  This ensures the client always retrieves the latest
 # version of the image and helpful during client previews.  Generally
 # this should be disabled in production.
-cache-bust: true
+cache-bust: false
 
 # When true copies image alt-text to the title property.  Populating both
 # presents a more consistent image tooltip experience.
