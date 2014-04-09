@@ -172,13 +172,63 @@ module Inkcite
 
       def mix_responsive element, opt, ctx, klass=nil
 
-        # Get the tag of the element being made responsive.
+        # Mix the override if one has been provided.
+        mix_responsive_klass element, opt, ctx, klass || opt[:mobile]
+
+        # Check to see if a mobile style (e.g. "mobile-style='background-color: #ff0;'")
+        # has been declared for this element.
+        declarations = opt[MOBILE_STYLE]
+        return nil if declarations.blank?
+
         tag = element.tag
 
-        # If a forced (override) klass was not provided by the caller then
-        # check to see if a mobile klass name (e.g. hide) has been defined
-        # on this element.
-        klass ||= opt[:mobile]
+        # If no klass was specified, check to see if any previously defined rule matches
+        # the style declarations.  If so, we'll reuse that rule and apply the klass
+        # to this object to avoid unnecessary duplication in the HTML.
+        rule = ctx.responsive_styles.detect { |r| r.declarations == declarations }
+        if rule.nil?
+
+          # Generate a unique class name for this style if it has not already been declared.
+          # These are of the form m001, etc.  Redability is not important because it's
+          # dynamically generated and referenced.
+          klass = unique_klass(ctx)
+
+          rule = Rule.new(tag, klass, declarations)
+
+          # Add the rule to the list of those that will be rendered into the
+          # completed email.
+          ctx.responsive_styles << rule
+
+        elsif !rule.include?(tag)
+
+          # Make sure this tag is included in the list of those that
+          # the CSS will match against.
+          rule << tag
+
+        end
+
+        # Mark the rule as active in case it was one of the pre-defined rules
+        # that can be activated on first use.
+        rule.activate!
+
+        # Add the rule's klass to the element
+        element.classes << rule.klass
+
+      end
+
+      def unique_klass ctx
+        "m%1d" % ctx.unique_id(:m)
+      end
+
+      private
+
+      def mix_responsive_klass element, opt, ctx, klass
+
+        # Nothing to do if there is no class specified.s
+        return if klass.blank?
+
+        # The element's tag - e.g. table, td, etc.
+        tag = element.tag
 
         # Special handling for TOGGLE-able elements which are made
         # visible by another element being clicked.
@@ -203,72 +253,22 @@ module Inkcite
           end
         end
 
-        # Check to see if a mobile style (e.g. "mobile-style='background-color: #ff0;'")
-        # has been declared for this element.
-        declarations = opt[MOBILE_STYLE]
+        # Check to see if there is already a rule that specifically matches this klass
+        # and tag combination - e.g. td.hide
+        rule = ctx.responsive_styles.detect { |r| klass == r.klass && r.include?(tag) }
+        if rule.nil?
 
-        # Will hold the Responsive::Rule that exists (or will be created) that
-        # matches the tag and style declarations targeting mobile devices.
-        rule = nil
+          # If no rule was found then find the first that matches the klass.
+          rule = ctx.responsive_styles.detect { |r| klass == r.klass }
 
-        if klass.blank?
-
-          # Nothing mobile-specific about this tag so quick abort.
-          return nil if declarations.blank?
-
-          # If no klass was specified, check to see if any previously defined rule matches
-          # the style declarations.  If so, we'll reuse that rule and apply the klass
-          # to this object to avoid unnecessary duplication in the HTML.
-          rule = ctx.responsive_styles.detect { |r| r.declarations == declarations }
-
-          # Generate a unique class name for this style if it has not already been declared.
-          # These are of the form m001, etc.  Redability is not important because it's
-          # dynamically generated and referenced.
-          klass = unique_klass(ctx)
-
-        else
-
-          # Check to see if there is already a rule that specifically matches this klass
-          # and tag combination - e.g. td.hide
-          rule = ctx.responsive_styles.detect { |r| klass == r.klass && r.include?(tag) }
+          # If no rule was found and the declaration is blank then we have
+          # an unknown mobile behavior.
           if rule.nil?
-
-            # If no rule was found then find the first that matches the klass.
-            rule = ctx.responsive_styles.detect { |r| klass == r.klass }
-
-            if declarations.blank?
-
-              # If no rule was found and the declaration is blank then we have
-              # an unknown mobile behavior.
-              if rule.nil?
-                ctx.error 'Undefined mobile behavior - are you missing a mobile-style declaration?', { :tag => tag, :mobile => klass }
-                return nil
-              end
-
-            elsif rule && declarations != rule.declarations
-
-              # If an existing rule if found but the author has declared styles that don't
-              # match it's own set, then we're going to declare a new rule - this allows
-              # an author to define {table mobile="collapse" mobile-style="..."} to be
-              # completely different from {td mobile="collapse" mobile-style="..."} which
-              # can be useful when defining behaviors and keeping HTML readable.
-              rule = nil
-
-            end
-
+            ctx.error 'Undefined mobile behavior - are you missing a mobile-style declaration?', { :tag => tag, :mobile => klass }
+            return nil
           end
 
-        end
-
-        if rule.nil?
-          rule = Rule.new(tag, klass, declarations)
-
-          # Add the rule to the list of those that will be rendered into the
-          # completed email.
-          ctx.responsive_styles << rule
-
-        elsif !rule.include?(tag)
-          rule << tag
+          rule << tag if !rule.include?(tag)
 
         end
 
@@ -283,14 +283,7 @@ module Inkcite
         # Add the rule's klass to the element
         element.classes << rule.klass
 
-        rule
       end
-
-      def unique_klass ctx
-        "m%03d" % ctx.unique_id(:m)
-      end
-
-      private
 
       # Attribute used to declare custom mobile styles for an element.
       MOBILE_STYLE = :'mobile-style'
