@@ -81,6 +81,10 @@ module Inkcite
       val
     end
 
+    def active_responsive_styles
+      @responsive_styles.select(&:active?)
+    end
+
     # Verifies that the provided image file (e.g. "banner.jpg") exists in the
     # project's image subdirectory.  If not, reports the missing image to the
     # developer (unless that is explicitly disabled).
@@ -598,7 +602,7 @@ module Inkcite
       # Responsive styles.
       if responsive?
         reset << '@media only screen and (max-width: 480px) {'
-        reset += @responsive_styles.select(&:active?).collect(&:to_css)
+        reset += active_responsive_styles.collect(&:to_css)
         reset << "}"
       end
 
