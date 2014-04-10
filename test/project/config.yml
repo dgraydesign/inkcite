@@ -62,12 +62,12 @@ sftp:
 # website analytics.  {id} will be replaced with the unique ID
 # from the link if you're concerned about which link the
 # recipient clicked to get to your website.
-tag-links: "tag=inkcite|{id}"
+#tag-links: "tag=inkcite|{id}"
 
 # Optionally, if your email newsletter links to multiple websites
 # and you only want to tag links to a specific domain, include
 # that domain in this setting.
-tag-links-domain: 'inkceptional.com'
+#tag-links-domain: 'inkceptional.com'
 
 # Environment-specific overrides allow you to change any setting
 # for each environment (e.g local development vs. client preview).

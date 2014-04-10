@@ -139,13 +139,13 @@ module Inkcite
           klass = opt[:class]
           a.classes << klass unless klass.blank?
 
-          rule = mix_responsive a, opt, ctx
+          rules = mix_responsive a, opt, ctx
 
           # Some responsive modes (e.g. button) change the display type from in-line
           # to block.  This change can cause unexpected whitespace or other unexpected
           # layout changes.  Outlook doesn't support block display on link elements
           # so the best workaround is simply to wrap the element in <div> tags.
-          if rule && rule.block?
+          if rules.any?(&:block?)
             html << '<div>'
 
             # Remember that we made this element block-display so that we can append
