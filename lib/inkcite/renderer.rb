@@ -14,6 +14,7 @@ require_relative 'renderer/link'
 require_relative 'renderer/litmus'
 require_relative 'renderer/lorem'
 require_relative 'renderer/mobile_image'
+require_relative 'renderer/mobile_style'
 require_relative 'renderer/mobile_toggle'
 require_relative 'renderer/outlook_background'
 require_relative 'renderer/property'
@@ -108,21 +109,22 @@ module Inkcite
 
       # Dynamic renderers for custom behavior and tags.
       @renderers ||= {
-          :a            => Link.new,
-          :button       => Button.new,
-          :div          => Div.new,
-          :google       => GoogleAnalytics.new,
-          :img          => Image.new,
-          :'in-browser' => InBrowser.new,
-          :like         => Like.new,
-          :litmus       => Litmus.new,
-          :lorem        => Lorem.new,
-          :'mobile-img' => MobileImage.new,
+          :a                  => Link.new,
+          :button             => Button.new,
+          :div                => Div.new,
+          :google             => GoogleAnalytics.new,
+          :img                => Image.new,
+          :'in-browser'       => InBrowser.new,
+          :like               => Like.new,
+          :litmus             => Litmus.new,
+          :lorem              => Lorem.new,
+          :'mobile-img'       => MobileImage.new,
+          :'mobile-style'     => MobileStyle.new,
           :'mobile-toggle-on' => MobileToggleOn.new,
-          :'outlook-bg' => OutlookBackground.new,
-          :span         => Span.new,
-          :table        => Table.new,
-          :td           => Td.new
+          :'outlook-bg'       => OutlookBackground.new,
+          :span               => Span.new,
+          :table              => Table.new,
+          :td                 => Td.new
       }
 
     end
