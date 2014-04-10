@@ -64,6 +64,9 @@ module Inkcite
 
         mix_responsive td, opt, ctx, mobile
 
+        # TDs that drop also fill
+        mix_responsive_klass td, opt, ctx, FILL if mobile == DROP
+
         #outlook-bg	<!-&#45;&#91;if gte mso 9]>[n]<v:rect style="width:%width%px;height:%height%px;" strokecolor="none"><v:fill type="tile" src="%src%" /></v:fill></v:rect><v:shape id="theText[rnd]" style="position:absolute;width:%width%px;height:%height%px;margin:0;padding:0;%style%">[n]<!&#91;endif]&#45;->
         #/outlook-bg	<!-&#45;&#91;if gte mso 9]></v:shape><!&#91;endif]&#45;->
 
