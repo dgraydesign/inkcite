@@ -1,3 +1,7 @@
+require_relative 'view/context'
+require_relative 'view/media_query'
+require_relative 'view/tag_stack'
+
 module Inkcite
   class View
 
@@ -16,8 +20,8 @@ module Inkcite
     # The format of the email (e.g. :email or :text)
     attr_reader :format
 
-    # The array of Responsive::Rules applied to this email view.
-    attr_reader :responsive_styles
+    # Manages the Responsive::Rules applied to this email view.
+    attr_reader :media_query
 
     # Line number of the email file being processed
     attr_accessor :line
@@ -51,16 +55,16 @@ module Inkcite
       @config[:format] = format.to_s
       @config[FILE_NAME] = file_name
 
+      # The MediaQuery object manages the responsive styles that are applied to
+      # the email during rendering.
+      @media_query = MediaQuery.new(self, 480)
+
       # Tracks the line number and is recorded when errors are encountered
       # while rendering said line.
       @line = 0
 
       # True if VML is used during the preparation of this email.
       @vml_used = false
-
-      # Initialize the responsive styles used in this email.  This will hold
-      # an array of Responsive::Rule objects.
-      @responsive_styles = Renderer::Responsive.presets(self)
 
     end
 
@@ -79,10 +83,6 @@ module Inkcite
       val = config[key] if val.nil?
 
       val
-    end
-
-    def active_responsive_styles
-      @responsive_styles.select(&:active?)
     end
 
     # Verifies that the provided image file (e.g. "banner.jpg") exists in the
@@ -342,10 +342,6 @@ module Inkcite
       !@content.blank?
     end
 
-    def responsive?
-      @responsive_styles.any?(&:active?)
-    end
-
     def scripts
       @scripts ||= []
     end
@@ -600,11 +596,7 @@ module Inkcite
       end
 
       # Responsive styles.
-      if responsive?
-        reset << '@media only screen and (max-width: 480px) {'
-        reset += active_responsive_styles.collect(&:to_css)
-        reset << "}"
-      end
+      reset += @media_query.to_a unless @media_query.blank?
 
       html = []
 
@@ -680,72 +672,6 @@ module Inkcite
       end
 
       lines
-    end
-
-    # Private class used to convey view attributes to the Erubis rendering
-    # engine without exposing all of the view's attributes.
-    class Context
-
-      delegate :browser?, :development?, :email?, :environment, :format, :production?, :preview?, :version, :to => :view
-
-      def initialize view
-        @view = view
-      end
-
-      def method_missing(m, *args, &block)
-        if m[-1] == QUESTION_MARK
-          symbol = m[0, m.length - 1].to_sym
-          @view.version == symbol
-        else
-          super
-        end
-      end
-
-      protected
-
-      def view
-        @view
-      end
-
-      private
-
-      QUESTION_MARK = '?'
-
-    end
-
-    class TagStack
-
-      attr_reader :tag
-
-      delegate :empty?, :length, :to => :opts
-
-      def initialize tag, ctx
-        @tag = tag
-        @ctx = ctx
-        @opts = []
-      end
-
-      # Pushes a new set of options onto the stack for this tag.
-      def << opt
-        @opts << opt
-      end
-      alias_method :push, :<<
-
-      # Retrieves the most recent set of options for this tag.
-      def opts
-        @opts.last || {}
-      end
-
-      # Pops the most recent tag off of the stack.
-      def pop
-        if @opts.empty?
-          @ctx.error 'Attempt to close an unopened tag', { :tag => tag }
-          nil
-        else
-          @opts.pop
-        end
-      end
-
     end
 
   end

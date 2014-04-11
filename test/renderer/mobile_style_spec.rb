@@ -26,9 +26,7 @@ describe Inkcite::Renderer::MobileStyle do
 
   it 'adds an inactive responsive style to the context' do
     Inkcite::Renderer.render('{mobile-style name="outlined" style="border: 1px solid #f00"}', @view).must_equal('')
-    rule = @view.responsive_styles.find { |r| r.klass == 'outlined' && r.declarations == 'border: 1px solid #f00' && !r.active? }
-    rule.nil?.must_equal(false)
-    rule.to_css.must_equal('[class~="outlined"] { border: 1px solid #f00 }')
+    rule = @view.media_query.find_by_klass('outlined').to_css.must_equal('[class~="outlined"] { border: 1px solid #f00 }')
   end
 
   it 'can be applied to a responsive element' do

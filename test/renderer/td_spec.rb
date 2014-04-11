@@ -66,7 +66,7 @@ describe Inkcite::Renderer::Td do
 
   it 'can have a mobile behavior and a custom mobile style simultaneously' do
     Inkcite::Renderer.render('{td mobile="drop" mobile-style="border: 1px solid #f00"}{/td}', @view).must_equal('<td class="drop m1 fill"></td>')
-    @view.active_responsive_styles.detect { |r| r.declarations == 'border: 1px solid #f00' }.klass.must_match('m1')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('td[class~="m1"] { border: 1px solid #f00 }')
   end
 
 end
