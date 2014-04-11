@@ -79,4 +79,19 @@ describe Inkcite::Renderer::Div do
     Inkcite::Renderer.render('{div letter-spacing=3}{/div}', @view).must_equal('<div style="letter-spacing:3px"></div>')
   end
 
+  it 'can have a custom font size on mobile' do
+    Inkcite::Renderer.render('{div font-size=15 mobile-font-size=20}{/div}', @view).must_equal('<div class="m1" style="font-size:15px"></div>')
+    @view.media_query.find_by_klass('m1').declarations.must_match('font-size:20px')
+  end
+
+  it 'can have a custom line height on mobile' do
+    Inkcite::Renderer.render('{div line-height=15 mobile-line-height=20}{/div}', @view).must_equal('<div class="m1" style="line-height:15px"></div>')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('div[class~="m1"] { line-height:20px }')
+  end
+
+  it 'can inherit a custom font size on mobile from the context' do
+    Inkcite::Renderer.render('{div font=responsive}{/div}', @view).must_equal('<div class="m1" style="font-size:20px"></div>')
+    @view.media_query.find_by_klass('m1').declarations.must_match('font-size:40px')
+  end
+
 end

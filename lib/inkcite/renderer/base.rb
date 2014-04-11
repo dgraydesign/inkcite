@@ -54,6 +54,19 @@ module Inkcite
         opts.detect { |o| !o.blank? }
       end
 
+      def detect_font att, font, opt, parent, ctx
+        val = detect(opt[att], ctx["#{font}-#{att}"], parent ? parent[att] : nil)
+
+        # Sometimes font values reference other defined values so we need
+        # to run them through the renderer to resolve them.
+        val = Inkcite::Renderer.render(val, ctx)
+
+        # Convience
+        val = nil if none?(val)
+
+        val
+      end
+
       # Convenience pass-thru to Renderer's static helper method.
       def hex color
         Renderer.hex(color)
@@ -107,6 +120,7 @@ module Inkcite
         # With font support comes text shadow support.
         mix_text_shadow element, opt, ctx
 
+        font
       end
 
       def mix_text_shadow element, opt, ctx
@@ -166,21 +180,6 @@ module Inkcite
         html << '>'
 
         html
-      end
-
-      private
-
-      def detect_font att, font, opt, parent, ctx
-        val = detect(opt[att], ctx["#{font}-#{att}"], parent[att])
-
-        # Sometimes font values reference other defined values so we need
-        # to run them through the renderer to resolve them.
-        val = Inkcite::Renderer.render(val, ctx)
-
-        # Convience
-        val = nil if none?(val)
-
-        val
       end
 
     end

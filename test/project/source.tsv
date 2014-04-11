@@ -18,6 +18,9 @@ default-font-size	{font-size}
 default-font-weight	normal
 default-line-height	{line-height}
 
+responsive-font-size	20
+responsive-mobile-font-size	40
+
 large-color	#f00
 large-font-family	serif
 large-font-size	24

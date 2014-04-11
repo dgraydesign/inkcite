@@ -170,6 +170,26 @@ module Inkcite
 
       protected
 
+      def mix_font element, opt, ctx, default_font=nil, parent=nil
+
+        # Let the super class do its thing and grab the name of the font
+        # style that was applied, if any.
+        font = super
+
+        # Will hold the mobile font overrides for this element, if any.
+        style = { }
+
+        font_size = detect_font(MOBILE_FONT_SIZE, font, opt, parent, ctx)
+        style[FONT_SIZE] = px(font_size) unless font_size.blank?
+
+        line_height = detect_font(MOBILE_LINE_HEIGHT, font, opt, parent, ctx)
+        style[LINE_HEIGHT] = (line_height == 'auto' ? line_height : px(line_height)) unless line_height.blank?
+
+        mix_responsive_style element, opt, ctx, Renderer.render_styles(style) unless style.blank?
+
+        font
+      end
+
       def mix_responsive element, opt, ctx, klass=nil
 
         rules = []
@@ -303,6 +323,10 @@ module Inkcite
 
       # Universal CSS selector.
       UNIVERSAL = '*'
+
+      # For font overrides on mobile devices.
+      MOBILE_FONT_SIZE   = :'mobile-font-size'
+      MOBILE_LINE_HEIGHT = :'mobile-line-height'
 
     end
   end
