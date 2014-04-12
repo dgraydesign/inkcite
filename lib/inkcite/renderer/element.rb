@@ -36,6 +36,7 @@ module Inkcite
         # element's HTML.
         classes << rule.klass
 
+        rule
       end
 
       def classes
