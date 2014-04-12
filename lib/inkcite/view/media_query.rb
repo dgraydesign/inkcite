@@ -44,7 +44,7 @@ module Inkcite
       def to_a
 
         css = []
-        css << "@media only screen and (max-width: #{@max_width}) {"
+        css << "@media only screen and (max-width: #{Inkcite::Renderer::px(@max_width)}) {"
         css += active_styles.collect(&:to_css)
         css << "}"
 
