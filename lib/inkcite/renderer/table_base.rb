@@ -19,7 +19,7 @@ module Inkcite
 
         # Set the bgcolor attribute of the element as a fallback if
         # css isn't supported.
-        element[:bgcolor] = bgcolor unless bgcolor.blank?
+        element[:bgcolor] = hex(bgcolor) unless bgcolor.blank?
 
         # Assisted background image handling for maximum compatibility.
         bgimage    = opt[:background]
