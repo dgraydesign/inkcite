@@ -15,10 +15,6 @@ module Inkcite
 
       def << rule
 
-        # All rules added via this mechanism are automatically marked
-        # as active to ensure they show up in the final CSS.
-        rule.activate!
-
         # Rules only get added once
         @responsive_styles << rule unless @responsive_styles.include?(rule)
 

@@ -12,6 +12,8 @@ module Inkcite
 
       # For elements that take on different background properties
       # when they go responsive
+      MOBILE_BGCOLOR             = :'mobile-bgcolor'
+      MOBILE_BACKGROUND          = :'mobile-background'
       MOBILE_BACKGROUND_COLOR    = :'mobile-background-color'
       MOBILE_BACKGROUND_IMAGE    = :'mobile-background-image'
       MOBILE_BACKGROUND_REPEAT   = :'mobile-background-repeat'
@@ -192,16 +194,12 @@ module Inkcite
 
       def mix_responsive element, opt, ctx, klass=nil
 
-        rules = []
+        # Apply the "mobile" attribute or use the override if one was provided.
+        mix_responsive_klass element, opt, ctx, klass || opt[:mobile]
 
-        # Mix the override if one has been provided.
-        rule = mix_responsive_klass element, opt, ctx, klass || opt[:mobile]
-        rules << rule unless rule.nil?
+        # Apply the "mobile-style" attribute if one was provided.
+        mix_responsive_style element, opt, ctx, opt[MOBILE_STYLE]
 
-        rule = mix_responsive_style element, opt, ctx, opt[MOBILE_STYLE]
-        rules << rule unless rule.nil?
-
-        rules
       end
 
       def mix_responsive_klass element, opt, ctx, klass
@@ -260,14 +258,9 @@ module Inkcite
         # so it is hidden.
         element.style[:display] = 'none' if klass == SHOW
 
-        # Mark the rule as active in case it was one of the pre-defined rules
-        # that can be activated on first use.
-        rule.activate!
+        # Add the responsive rule to the element
+        element.add_rule rule
 
-        # Add the rule's klass to the element
-        element.classes << rule.klass
-
-        rule
       end
 
       def mix_responsive_style element, opt, ctx, declarations=nil
@@ -275,7 +268,7 @@ module Inkcite
         # Check to see if a mobile style (e.g. "mobile-style='background-color: #ff0;'")
         # has been declared for this element.
         declarations ||= opt[MOBILE_STYLE]
-        return nil if declarations.blank?
+        return if declarations.blank?
 
         mq = ctx.media_query
 
@@ -306,10 +299,10 @@ module Inkcite
 
         end
 
-        # Add the rule's klass to the element
-        element.classes << rule.klass
+        # Add the responsive rule to the element which automatically adds its
+        # class to the element's list.
+        element.add_rule rule
 
-        rule
       end
 
       def unique_klass ctx

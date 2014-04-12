@@ -22,19 +22,21 @@ module Inkcite
         element[:bgcolor] = bgcolor unless bgcolor.blank?
 
         # Assisted background image handling for maximum compatibility.
-        bgimage  = opt[:background]
+        bgimage    = opt[:background]
+        bgposition = opt[BACKGROUND_POSITION]
+        bgrepeat   = opt[BACKGROUND_REPEAT]
 
-        background_css(element.style, bgcolor, bgimage, opt[BACKGROUND_POSITION], opt[BACKGROUND_REPEAT], false, ctx)
+        background_css(element.style, bgcolor, bgimage, bgposition, bgrepeat, false, ctx)
 
-        m_bgcolor = opt[MOBILE_BACKGROUND_COLOR]
-        m_bgimage = opt[MOBILE_BACKGROUND_IMAGE]
+        m_bgcolor = detect(opt[MOBILE_BACKGROUND_COLOR], opt[MOBILE_BGCOLOR])
+        m_bgimage = detect(opt[MOBILE_BACKGROUND_IMAGE], opt[MOBILE_BACKGROUND])
 
         mobile_background = background_css(
             {},
             m_bgcolor,
             m_bgimage,
-            opt[MOBILE_BACKGROUND_POSITION],
-            opt[MOBILE_BACKGROUND_REPEAT],
+            detect(opt[MOBILE_BACKGROUND_POSITION], bgposition),
+            detect(opt[MOBILE_BACKGROUND_REPEAT], bgrepeat),
             (m_bgcolor && bgcolor) || (m_bgimage && bgimage),
             ctx
         )
@@ -44,11 +46,9 @@ module Inkcite
           # Add the responsive rule that applies to this element.
           rule = Rule.new(element.tag, unique_klass(ctx), mobile_background)
 
-          # Add the rule to the view
-          ctx.responsive_styles << rule
-
-          # Add the responsive klass to the
-          element.classes << rule.klass
+          # Add the rule to the view and the element
+          ctx.media_query << rule
+          element.add_rule rule
 
         end
 
@@ -84,13 +84,14 @@ module Inkcite
       private
 
       def background_css into, bgcolor, img, position, repeat, important, ctx
+
         unless bgcolor.blank? && img.blank?
 
           bgcolor = hex(bgcolor) unless bgcolor.blank?
 
           # There is only a background color so set that explicitly.
           if img.blank?
-            bgcolor = "#{bgcolor} !important" if important
+            bgcolor << ' !important' if important
             into[BACKGROUND_COLOR] = bgcolor
 
           else
@@ -102,12 +103,11 @@ module Inkcite
             sty = []
             sty << bgcolor unless bgcolor.blank?
 
-            if ctx.assert_image_exists(img)
-              sty << "url(#{ctx.image_url(img)})"
-              sty << position unless position.blank?
-              sty << repeat unless repeat.blank?
-            end
+            ctx.assert_image_exists(img)
 
+            sty << "url(#{ctx.image_url(img)})"
+            sty << position unless position.blank?
+            sty << repeat unless repeat.blank?
             sty << '!important' if important
 
             into[:background] = sty.join(' ')
