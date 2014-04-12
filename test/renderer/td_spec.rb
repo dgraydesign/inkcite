@@ -69,13 +69,17 @@ describe Inkcite::Renderer::Td do
     @view.media_query.find_by_klass('m1').to_css.must_equal('td[class~="m1"] { border: 1px solid #f00 }')
   end
 
+  it 'can have a background color' do
+    Inkcite::Renderer.render('{td bgcolor=#f9c}{/td}', @view).must_equal('<td bgcolor=#ff99cc style="background-color:#ff99cc"></td>')
+  end
+
   it 'can have a custom background color on mobile' do
     Inkcite::Renderer.render('{td mobile-bgcolor=#f09}{/td}', @view).must_equal('<td class="m1"></td>')
     @view.media_query.find_by_klass('m1').to_css.must_equal('td[class~="m1"] { background-color:#ff0099 }')
   end
 
   it 'can override background color on mobile' do
-    Inkcite::Renderer.render('{td bgcolor=#f00 mobile-bgcolor=#00f}{/td}', @view).must_equal('<td bgcolor=#f00 class="m1" style="background-color:#ff0000"></td>')
+    Inkcite::Renderer.render('{td bgcolor=#f00 mobile-bgcolor=#00f}{/td}', @view).must_equal('<td bgcolor=#ff0000 class="m1" style="background-color:#ff0000"></td>')
     @view.media_query.find_by_klass('m1').to_css.must_equal('td[class~="m1"] { background-color:#0000ff !important }')
   end
 
