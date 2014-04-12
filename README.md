@@ -107,5 +107,4 @@ details.
 [Middleman]: http://middlemanapp.com
 [Litmus]: http://litmus.com
 [rubyinstaller]: http://rubyinstaller.org/
-[LICENSE]: https://github.com/inkceptional/inkcite/LICENSE
-
+[LICENSE]: https://github.com/inkceptional/inkcite/blob/master/LICENSE
