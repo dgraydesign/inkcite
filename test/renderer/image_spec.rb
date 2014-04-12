@@ -19,10 +19,12 @@ describe Inkcite::Renderer::Image do
   end
 
   it 'substitutes a placeholder for a missing image of sufficient size' do
+    @view.config[Inkcite::Email::IMAGE_PLACEHOLDERS] = true
     Inkcite::Renderer.render('{img src=missing.jpg height=50 width=100}', @view).must_equal('<img border=0 height=50 src="http://placehold.it/100x50.jpg" style="display:block" width=100>')
   end
 
   it 'does not substitute placeholders for small images' do
+    @view.config[Inkcite::Email::IMAGE_PLACEHOLDERS] = true
     Inkcite::Renderer.render('{img src=missing.jpg height=5 width=15}', @view).must_equal('<img border=0 height=5 src="missing.jpg" style="display:block" width=15>')
   end
 
@@ -60,7 +62,11 @@ describe Inkcite::Renderer::Image do
     html[0,47].must_equal('<img border=0 height=0 src="images/inkcite.jpg?')
     html[47,10].must_match(/[0-9]{10,}/)
     html[57..-1].must_equal('" style="display:block" width=0>')
+  end
 
+  it 'can substitute a different image on mobile' do
+    Inkcite::Renderer.render('{img src=inkcite.jpg mobile-src=inkcite-mobile.jpg height=75 width=125}', @view).must_equal('<img border=0 class="i01" height=75 src="images/inkcite.jpg" style="display:block" width=125>')
+    @view.media_query.find_by_klass('i01').to_css.must_equal('img[class~="i01"] { content: url("images/inkcite-mobile.jpg") !important; }')
   end
 
 end

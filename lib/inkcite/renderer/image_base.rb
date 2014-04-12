@@ -21,7 +21,7 @@ module Inkcite
         unless src.include?('://')
 
           # Verify that the image exists.
-          if ctx.assert_image_exists(src)
+          if ctx.assert_image_exists(src) || ctx.is_disabled?(Inkcite::Email::IMAGE_PLACEHOLDERS)
 
             if missing_dimensions
               # TODO read the image dimensions from the file and auto-populate
@@ -53,7 +53,7 @@ module Inkcite
       end
 
       def klass_name src, ctx
-        klass = "i%03d" % ctx.unique_id(:i)
+        klass = "i%02d" % ctx.unique_id(:i)
       end
 
       def missing_dimensions? att

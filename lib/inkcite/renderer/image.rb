@@ -52,7 +52,7 @@ module Inkcite
 
           # Get a unique CSS class name that will be used to swap in the alternate
           # image on mobile.
-          img.classes << klass = klass_name(mobile_src, ctx)
+          klass = klass_name(mobile_src, ctx)
 
           # Fully-qualify the image URL.
           mobile_src = image_url(mobile_src, opt, ctx)
@@ -61,7 +61,7 @@ module Inkcite
           # with the same dimensions.  Warning, this isn't supported on earlier
           # versions of iOS 6 and Android 4.
           # http://www.emailonacid.com/forum/viewthread/404/
-          ctx.responsive_styles << Rule.new(tag, klass, "content: url(#{mobile_src}) !important;")
+          ctx.media_query << img.add_rule(Rule.new(tag, klass, "content: url(#{mobile_src}) !important;"))
 
         end
 

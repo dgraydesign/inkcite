@@ -184,10 +184,22 @@ module Inkcite
       Renderer.render(src_url, self)
     end
 
+    # Tests if a configuration value has been enabled.  This assumes
+    # it is disabled by default but that a value of true, 'true' or 1
+    # for the value indicates it is enabled.
     def is_enabled? key
       val = self[key]
       !val.blank? && val != false && (val == true || val == true.to_s || val.to_i == 1)
     end
+
+    # Tests if a configuration value has been disabled.  This assumes
+    # it is enabled by default but that a value of false, 'false' or 0
+    # will indicate it is disabled.
+    def is_disabled? key
+      val = self[key]
+      !val.nil? && (val == false || val == false.to_s)
+    end
+
 
     def links_file_name
 

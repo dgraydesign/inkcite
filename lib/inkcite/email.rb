@@ -3,6 +3,7 @@ module Inkcite
 
     CACHE_BUST          = :'cache-bust'
     IMAGE_HOST          = :'image-host'
+    IMAGE_PLACEHOLDERS  = :'image-placeholders'
     TRACK_LINKS         = :'track-links'
     VIEW_IN_BROWSER_URL = :'view-in-browser-url'
 

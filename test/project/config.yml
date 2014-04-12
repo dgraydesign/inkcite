@@ -17,6 +17,10 @@ minify: true
 # and needs to be provided.
 missing-link-url: 'https://github.com/404'
 
+# No placeholders during image testing unless the spec turns this
+# back on itself.
+image-placeholders: false
+
 # Inkcite can generate multiple versions of an email from a single source
 # file which is useful for targeted mailings and a/b testing.  Specify a
 # unique, single-word identifier for each version.

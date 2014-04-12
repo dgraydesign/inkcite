@@ -50,15 +50,13 @@ module Inkcite
         # http://www.campaignmonitor.com/guides/mobile/optimizing-images/
         img.style[:width] = '100%' if mobile == FILL
 
-        ctx.responsive_styles << Rule.new('span', klass, img.style)
-
         # Now visualize a span element
         span = Element.new('span')
 
         mix_responsive span, opt, ctx, IMAGE
 
         # Add the class that handles inserting the correct background image.
-        span.classes << klass
+        ctx.media_query << span.add_rule(Rule.new('span', klass, img.style))
 
         span.to_s
       end
