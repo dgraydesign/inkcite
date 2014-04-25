@@ -32,7 +32,7 @@ module Inkcite
     def self.each_line path, fail_if_not_exists, &block
 
       if File.exists?(path)
-        File.open(path, 'r:windows-1252:utf-8').each { |line| yield line.strip }
+        File.open(path).each { |line| yield line.strip }
       elsif fail_if_not_exists
         raise "File not found: #{path}"
       end
