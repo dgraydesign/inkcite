@@ -61,11 +61,11 @@ describe Inkcite::Renderer::Td do
   end
 
   it 'will inherit mobile drop from its parent table' do
-    Inkcite::Renderer.render('{table mobile="drop"}{td}{/td}{/table}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0 class="fill"><tr><td class="drop fill"></td></tr></table>')
+    Inkcite::Renderer.render('{table mobile="drop"}{td}{/td}{/table}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0 class="fill"><tr><td class="drop"></td></tr></table>')
   end
 
   it 'can have a mobile behavior and a custom mobile style simultaneously' do
-    Inkcite::Renderer.render('{td mobile="drop" mobile-style="border: 1px solid #f00"}{/td}', @view).must_equal('<td class="drop fill m1"></td>')
+    Inkcite::Renderer.render('{td mobile="drop" mobile-style="border: 1px solid #f00"}{/td}', @view).must_equal('<td class="drop m1"></td>')
     @view.media_query.find_by_klass('m1').to_css.must_equal('td[class~="m1"] { border: 1px solid #f00 }')
   end
 

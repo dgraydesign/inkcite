@@ -33,9 +33,9 @@ module Inkcite
             LINE_HEIGHT => 1
         }) unless opt[:flush].blank?
 
-        # Check to see if padding was declared on the parent table.  If so, inherit
-        # it on all cells of the table.
-        padding = detect(opt[:padding], parent[:padding]).to_i
+        # It is a best-practice to declare the same padding on all cells in a
+        # table.  Check to see if padding was declared on the parent.
+        padding = parent[:padding].to_i
         td.style[:padding] = px(padding) if padding > 0
 
         align = opt[:align]
@@ -63,9 +63,6 @@ module Inkcite
         mobile = DROP if mobile.blank? && parent[:mobile] == DROP
 
         mix_responsive td, opt, ctx, mobile
-
-        # TDs that drop also fill
-        mix_responsive_klass td, opt, ctx, FILL if mobile == DROP
 
         #outlook-bg	<!-&#45;&#91;if gte mso 9]>[n]<v:rect style="width:%width%px;height:%height%px;" strokecolor="none"><v:fill type="tile" src="%src%" /></v:fill></v:rect><v:shape id="theText[rnd]" style="position:absolute;width:%width%px;height:%height%px;margin:0;padding:0;%style%">[n]<!&#91;endif]&#45;->
         #/outlook-bg	<!-&#45;&#91;if gte mso 9]></v:shape><!&#91;endif]&#45;->
