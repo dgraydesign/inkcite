@@ -1,5 +1,6 @@
 require 'webrick'
 require 'rack'
+require 'socket'
 
 module Inkcite
   module Cli
@@ -11,8 +12,10 @@ module Inkcite
         port = opts[:port].to_i
         host = opts[:host]
 
-        puts "== Inkcite is standing watch at http://#{host}:#{port}"
-        puts "== Serving from #{Dir.pwd}"
+        # Resolve local public IP for mobile device address
+        ip = IPSocket.getaddress(Socket.gethostname)
+
+        puts "== Inkcite is starting up ..."
 
         begin
           @server = ::WEBrick::HTTPServer.new({
@@ -37,6 +40,10 @@ module Inkcite
         end
 
         @server.mount "/", Rack::Handler::WEBrick, Inkcite::Cli::Server.new(email, opts)
+
+        puts "== Your email is being served at http://#{host}:#{port}"
+        puts "== Point your mobile device to http://#{ip}:#{port}" if ip
+
         @server.start
 
       end
@@ -59,7 +66,11 @@ module Inkcite
           html = view.render!
 
           unless view.errors.blank?
-            puts "Errors!\n - #{view.errors.join("\n - ")}"
+            error_count = view.errors.count
+
+            puts ''
+            puts "== Your email has #{error_count} error#{'s' if error_count > 1} or warning#{'s' if error_count > 1}:"
+            puts " - #{view.errors.join("\n - ")}"
           end
 
           [200, {}, [html]]
