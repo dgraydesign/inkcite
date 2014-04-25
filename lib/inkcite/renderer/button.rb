@@ -48,6 +48,10 @@ module Inkcite
           @opt[:font] || @ctx[BUTTON_FONT]
         end
 
+        def font_size
+          (@opt[Base::FONT_SIZE] || @ctx[BUTTON_FONT_SIZE]).to_i
+        end
+
         def font_weight
           @opt[Base::FONT_WEIGHT] || @ctx[BUTTON_FONT_WEIGHT]
         end
@@ -88,6 +92,7 @@ module Inkcite
         BUTTON_COLOR = :'button-color'
         BUTTON_FLOAT = :'button-float'
         BUTTON_FONT = :'button-font'
+        BUTTON_FONT_SIZE = :'button-font-size'
         BUTTON_FONT_WEIGHT = :'button-font-weight'
         BUTTON_HEIGHT = :'button-height'
         BUTTON_MARGIN_TOP = :'button-margin-top'
@@ -135,6 +140,7 @@ module Inkcite
           html << "{td align=center"
           html << " height=#{cfg.height} valign=middle" if cfg.height > 0
           html << " font=\"#{cfg.font}\" line-height=auto"
+          html << " font-size=\"#{cfg.font_size}\"" if cfg.font_size > 0
           html << " font-weight=\"#{cfg.font_weight}\"" unless cfg.font_weight.blank?
           html << " shadow=\"#{cfg.text_shadow}\" shadow-offset=-1}"
 
