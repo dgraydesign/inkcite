@@ -94,4 +94,8 @@ describe Inkcite::Renderer::Div do
     @view.media_query.find_by_klass('m1').declarations.must_match('font-size:40px')
   end
 
+  it 'supports text alignment' do
+    Inkcite::Renderer.render('{div align=right}{/div}', @view).must_equal('<div style="text-align:right"></div>')
+  end
+
 end
