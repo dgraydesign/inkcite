@@ -38,6 +38,10 @@ module Inkcite
         padding = parent[:padding].to_i
         td.style[:padding] = px(padding) if padding > 0
 
+        # Custom handling for text align on TDs rather than Base's mix_text_align
+        # because if possible, using align= rather than a style keeps emails
+        # smaller.  But for left-aligned text, you gotta use a style because
+        # you know, Outlook.
         align = opt[:align]
         unless align.blank?
           td[:align] = align
@@ -48,7 +52,7 @@ module Inkcite
 
         end
 
-        valign = opt[:valign] || parent[:valign]
+        valign = detect(opt[:valign], parent[:valign])
         td[:valign] = valign unless valign.blank?
 
         rowspan = opt[:rowspan].to_i
