@@ -81,12 +81,12 @@ describe Inkcite::Renderer::Div do
 
   it 'can have a custom font size on mobile' do
     Inkcite::Renderer.render('{div font-size=15 mobile-font-size=20}{/div}', @view).must_equal('<div class="m1" style="font-size:15px"></div>')
-    @view.media_query.find_by_klass('m1').declarations.must_match('font-size:20px')
+    @view.media_query.find_by_klass('m1').declarations.must_match('font-size:20px !important')
   end
 
   it 'can have a custom line height on mobile' do
     Inkcite::Renderer.render('{div line-height=15 mobile-line-height=20}{/div}', @view).must_equal('<div class="m1" style="line-height:15px"></div>')
-    @view.media_query.find_by_klass('m1').to_css.must_equal('div[class~="m1"] { line-height:20px }')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('div[class~="m1"] { line-height:20px !important }')
   end
 
   it 'can inherit a custom font size on mobile from the context' do

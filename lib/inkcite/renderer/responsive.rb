@@ -182,10 +182,10 @@ module Inkcite
         style = { }
 
         font_size = detect_font(MOBILE_FONT_SIZE, font, opt, parent, ctx)
-        style[FONT_SIZE] = px(font_size) unless font_size.blank?
+        style[FONT_SIZE] = "#{px(font_size)} !important" unless font_size.blank?
 
         line_height = detect_font(MOBILE_LINE_HEIGHT, font, opt, parent, ctx)
-        style[LINE_HEIGHT] = (line_height == 'auto' ? line_height : px(line_height)) unless line_height.blank?
+        style[LINE_HEIGHT] = "#{line_height == 'auto' ? line_height : px(line_height)} !important" unless line_height.blank?
 
         mix_responsive_style element, opt, ctx, Renderer.render_styles(style) unless style.blank?
 
