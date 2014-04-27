@@ -76,6 +76,14 @@ describe Inkcite::Renderer::Td do
     Inkcite::Renderer.render('{table mobile="drop"}{td}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0 class="fill"><tr><td class="drop">')
   end
 
+  it 'will inherit mobile switch from its parent table' do
+    Inkcite::Renderer.render('{table mobile="switch"}{td}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0 class="fill"><tr><td class="switch">')
+  end
+
+  it 'can specify switch behavior and override its parent table' do
+    Inkcite::Renderer.render('{table mobile="switch"}{td}{td mobile="switch-up"}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0 class="fill"><tr><td class="switch"><td class="switch-up">')
+  end
+
   it 'can have a mobile behavior and a custom mobile style simultaneously' do
     Inkcite::Renderer.render('{td mobile="drop" mobile-style="border: 1px solid #f00"}', @view).must_equal('<td class="drop m1">')
     @view.media_query.find_by_klass('m1').to_css.must_equal('td[class~="m1"] { border: 1px solid #f00 }')

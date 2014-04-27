@@ -50,7 +50,7 @@ module Inkcite
         # actually needs to FILL on mobile and it's child Tds will
         # be DROP'd.  Override the local mobile klass so the child Tds
         # see the parent as DROP.
-        mobile = FILL if mobile == DROP
+        mobile = FILL if mobile == DROP || mobile == SWITCH
 
         mix_responsive table, opt, ctx, mobile
 

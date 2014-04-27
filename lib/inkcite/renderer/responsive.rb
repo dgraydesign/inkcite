@@ -2,13 +2,15 @@ module Inkcite
   module Renderer
     class Responsive < Base
 
-      BUTTON  = 'button'
-      DROP    = 'drop'
-      FILL    = 'fill'
-      HIDE    = 'hide'
-      IMAGE   = 'img'
-      SHOW    = 'show'
-      TOGGLE  = 'toggle'
+      BUTTON    = 'button'
+      DROP      = 'drop'
+      FILL      = 'fill'
+      HIDE      = 'hide'
+      IMAGE     = 'img'
+      SHOW      = 'show'
+      SWITCH    = 'switch'
+      SWITCH_UP = 'switch-up'
+      TOGGLE    = 'toggle'
 
       # For elements that take on different background properties
       # when they go responsive
@@ -136,6 +138,12 @@ module Inkcite
         # the FILL rule and its cells stack vertically.
         # http://briangraves.github.io/ResponsiveEmailPatterns/patterns/layouts/column-drop.html
         styles << Rule.new('td', DROP, 'display: block; width: 100% !important; background-size: 100% auto !important; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;', false)
+
+        # Brian Graves' Column Switch Pattern: Allows columns in a table to
+        # be reordered based on up and down states.
+        # http://www.degdigital.com/blog/content-choreography-in-responsive-email/
+        styles << Rule.new('td', SWITCH, 'display: table-footer-group; width: 100% !important; background-size: 100% auto !important;')
+        styles << Rule.new('td', SWITCH_UP, 'display: table-header-group; width: 100% !important; background-size: 100% auto !important;')
 
         # FILL causes specific types of elements to expand to 100% of the available
         # width of the mobile device.

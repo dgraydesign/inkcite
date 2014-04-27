@@ -60,11 +60,16 @@ module Inkcite
 
         mix_font td, opt, ctx, ctx[FONT_FAMILY], parent
 
-        # If the cell doesn't define it's own responsive behavior, check to
-        # see if the parent table was declared DROP.  If so, this cell needs
-        # to inherit specific behavior.
         mobile = opt[:mobile]
-        mobile = DROP if mobile.blank? && parent[:mobile] == DROP
+        if mobile.blank?
+
+          # If the cell doesn't define it's own responsive behavior, check to
+          # see if it inherits from its parent table.  DROP and SWITCH declared
+          # at the table-level descend to their tds.
+          pm = parent[:mobile]
+          mobile = pm if pm == DROP || pm == SWITCH
+
+        end
 
         mix_responsive td, opt, ctx, mobile
 
