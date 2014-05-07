@@ -53,7 +53,7 @@ describe Inkcite::Renderer::Div do
 
   it 'can override the line height of an inherited font' do
     Inkcite::Renderer.render('{div font=large line-height=12}{/div}', @view).must_equal('<div style="color:#ff0000;font-family:serif;font-size:24px;font-weight:bold;line-height:12px"></div>')
-    Inkcite::Renderer.render('{div font=large line-height=auto}{/div}', @view).must_equal('<div style="color:#ff0000;font-family:serif;font-size:24px;font-weight:bold;line-height:auto"></div>')
+    Inkcite::Renderer.render('{div font=large line-height=normal}{/div}', @view).must_equal('<div style="color:#ff0000;font-family:serif;font-size:24px;font-weight:bold;line-height:normal"></div>')
     Inkcite::Renderer.render('{div font=large line-height=none}{/div}', @view).must_equal('<div style="color:#ff0000;font-family:serif;font-size:24px;font-weight:bold"></div>')
   end
 

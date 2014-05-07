@@ -109,7 +109,7 @@ module Inkcite
         element.style[:color] = hex(color) unless color.blank?
 
         line_height = detect_font(LINE_HEIGHT, font, opt, parent, ctx)
-        element.style[LINE_HEIGHT] = (line_height == 'auto' ? line_height : px(line_height)) unless line_height.blank?
+        element.style[LINE_HEIGHT] = (line_height == 'normal' ? line_height : px(line_height)) unless line_height.blank?
 
         font_weight = detect_font(FONT_WEIGHT, font, opt, parent, ctx)
         element.style[FONT_WEIGHT] = font_weight unless font_weight.blank?

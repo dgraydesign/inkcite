@@ -70,7 +70,7 @@ describe Inkcite::Renderer::Link do
 
   it 'can have a custom line height' do
     Inkcite::Renderer.render('{a id="order-now" href="http://inkceptional.com" line-height=64}Order Now{/a}', @view).must_equal('<a href="http://inkceptional.com" style="color:#0099cc;line-height:64px;text-decoration:none" target=_blank>Order Now</a>')
-    Inkcite::Renderer.render('{a id="order-now" href="http://inkceptional.com" line-height=auto}Order Now{/a}', @view).must_equal('<a href="http://inkceptional.com" style="color:#0099cc;line-height:auto;text-decoration:none" target=_blank>Order Now</a>')
+    Inkcite::Renderer.render('{a id="order-now" href="http://inkceptional.com" line-height=normal}Order Now{/a}', @view).must_equal('<a href="http://inkceptional.com" style="color:#0099cc;line-height:normal;text-decoration:none" target=_blank>Order Now</a>')
   end
 
   it 'can inherit a font from the context' do
