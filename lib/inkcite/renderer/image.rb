@@ -15,20 +15,28 @@ module Inkcite
 
         mix_background img, opt
 
-        # Check to see if there is alt text specified for this image.
+        # Check to see if there is alt text specified for this image.  We are
+        # testing against nil because sometimes the author desires an empty
+        # alt-text attribute.
         alt = opt[:alt]
-        unless alt.blank?
+        if alt
 
           # Ensure that the alt-tag has quotes around it.
           img[:alt] = quote(alt)
 
-          # Copy the text to the title attribute if enabled for this issue
-          img[:title] = img[:alt] if ctx.is_enabled?(COPY_ALT_TO_TITLE)
+          # The rest of this logic is only appropriate if the alt text
+          # is not blank.
+          unless alt.blank?
 
-          # All images with alt text inherit small font unless otherwise specified.
-          opt[:font] ||= 'small'
+            # Copy the text to the title attribute if enabled for this issue
+            img[:title] = img[:alt] if ctx.is_enabled?(COPY_ALT_TO_TITLE)
 
-          mix_font img, opt, ctx
+            # All images with alt text inherit small font unless otherwise specified.
+            opt[:font] ||= 'small'
+
+            mix_font img, opt, ctx
+
+          end
 
         end
 
