@@ -256,6 +256,7 @@ module Inkcite
       filtered.gsub!(/[‘’`]/, "'")
       filtered.gsub!(/[“”]/, '"')
       filtered.gsub!(/…/, '...')
+      filtered.gsub!(/é/, '&eacute;')
 
       if text?
 
