@@ -251,27 +251,8 @@ module Inkcite
       # Run the content through Erubis
       filtered = Erubis::Eruby.new(source, :filename => source_file, :trim => false, :numbering => true).evaluate(Context.new(self))
 
-      # Remove special characters that can cause rendering problems is
-      # certain email clients.
-      filtered.gsub!(/[‘’`]/, "'")
-      filtered.gsub!(/[“”]/, '"')
-      filtered.gsub!(/…/, '...')
-      filtered.gsub!(/é/, '&eacute;')
-
-      if text?
-
-        filtered.gsub!(/[–—]/, '-')
-        filtered.gsub!(/™/, '(tm)')
-        filtered.gsub!(/®/, '(r)')
-
-      else
-
-        filtered.gsub!(/[–—]/, '&#8211;')
-        filtered.gsub!(/\-\-/, '&#8211;')
-        filtered.gsub!(/™/, '{sup}&trade;{/sup}')
-        filtered.gsub!(/®/, '{sup}&reg;{/sup}')
-
-      end
+      # Protect against unsupported characters
+      Renderer.fix_illegal_characters filtered, self
 
       # Filter each of the lines of text and push them onto the stack of lines
       # that we be written into the text or html file.

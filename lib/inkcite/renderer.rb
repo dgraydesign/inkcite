@@ -25,6 +25,36 @@ require_relative 'renderer/td'
 module Inkcite
   module Renderer
 
+    def self.fix_illegal_characters value, context
+
+      # These special characters cause rendering problems in a variety
+      # of email clients.  Convert them to the correct unicode characters.
+      # https://www.campaignmonitor.com/blog/post/1810/why-are-all-my-apostrophes-mis
+
+      if context.text?
+        value.gsub!(/[–—]/, '-')
+        value.gsub!(/™/, '(tm)')
+        value.gsub!(/®/, '(r)')
+        value.gsub!(/[‘’`]/, "'")
+        value.gsub!(/[“”]/, '"')
+        value.gsub!(/…/, '...')
+
+      else
+        value.gsub!(/[–—]/, '&#8211;')
+        value.gsub!(/\-\-/, '&#8211;')
+        value.gsub!(/™/, '&trade;')
+        value.gsub!(/®/, '&reg;')
+        value.gsub!(/[‘’`]/, '&#8217;')
+        value.gsub!(/“/, '&#8220;')
+        value.gsub!(/”/, '&#8221;')
+        value.gsub!(/é/, '&eacute;')
+        value.gsub!(/…/, '&#8230;')
+
+      end
+
+      value
+    end
+
     def self.hex color
 
       # Convert #rgb into #rrggbb
