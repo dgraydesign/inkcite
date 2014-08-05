@@ -89,10 +89,24 @@ module Inkcite
 
           bgcolor = hex(bgcolor) unless bgcolor.blank?
 
-          # There is only a background color so set that explicitly.
-          if img.blank?
-            bgcolor << ' !important' if important
-            into[BACKGROUND_COLOR] = bgcolor
+          # If no image has been provided or if the image provided is equal
+          # to "none" then we'll set the values independently.  Otherwise
+          # we'll use a composite background declaration.
+          if none?(img)
+
+            unless bgcolor.blank?
+              bgcolor << ' !important' if important
+              into[BACKGROUND_COLOR] = bgcolor
+            end
+
+            # Check specifically for a value of "none" which allows the email
+            # designer to the background that is otherwise present on the
+            # desktop version of the email.
+            if img == NONE
+              img = 'none'
+              img << ' !important' if important
+              into[BACKGROUND_IMAGE] = img
+            end
 
           else
 
