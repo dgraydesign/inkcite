@@ -73,12 +73,14 @@ module Inkcite
 
       # Look for configuration specific to the environment and then format.
       env_cfg = config[@environment] || EMPTY_HASH
+      ver_cfg = env_cfg[@version] || config[@version] || EMPTY_HASH
       fmt_cfg = env_cfg[@format] || EMPTY_HASH
 
       # Not using || operator because the value can be legitimately false (e.g. minify
       # is disabled) so only a nil should trigger moving on to the next level up the
       # hierarchy.
-      val = fmt_cfg[key]
+      val = ver_cfg[key]
+      val = fmt_cfg[key] if val.nil?
       val = env_cfg[key] if val.nil?
       val = config[key] if val.nil?
 
@@ -302,7 +304,7 @@ module Inkcite
         # Intentially not setting the link colors because those should be entirely
         # controlled by the styles and attributes of the links themselves.  By not
         # setting it, links created sans-helper should be visually distinct.
-        html << Renderer.render("<body bgcolor=\"#{bgcolor}\" style=\"background-color: #{bgcolor}; width: 100% !important; margin: 0; padding: 0; -webkit-text-size-adjust: none; -ms-text-size-adjust: none;\">", self)
+        html << Renderer.render("<body bgcolor=\"#{bgcolor}\" style=\"background-color: #{bgcolor}; width: 100% !important; min-width: 100% !important; margin: 0; padding: 0; -webkit-text-size-adjust: none; -ms-text-size-adjust: none;\">", self)
 
         html << minified
 
