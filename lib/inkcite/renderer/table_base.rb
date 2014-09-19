@@ -26,7 +26,7 @@ module Inkcite
         bgposition = opt[BACKGROUND_POSITION]
         bgrepeat   = opt[BACKGROUND_REPEAT]
 
-        background_css(element.style, bgcolor, bgimage, bgposition, bgrepeat, false, ctx)
+        background_css(element.style, bgcolor, bgimage, bgposition, bgrepeat, nil, false, ctx)
 
         m_bgcolor = detect(opt[MOBILE_BACKGROUND_COLOR], opt[MOBILE_BGCOLOR])
         m_bgimage = detect(opt[MOBILE_BACKGROUND_IMAGE], opt[MOBILE_BACKGROUND])
@@ -37,6 +37,7 @@ module Inkcite
             m_bgimage,
             detect(opt[MOBILE_BACKGROUND_POSITION], bgposition),
             detect(opt[MOBILE_BACKGROUND_REPEAT], bgrepeat),
+            detect(opt[MOBILE_BACKGROUND_SIZE]),
             (m_bgcolor && bgcolor) || (m_bgimage && bgimage),
             ctx
         )
@@ -83,7 +84,7 @@ module Inkcite
 
       private
 
-      def background_css into, bgcolor, img, position, repeat, important, ctx
+      def background_css into, bgcolor, img, position, repeat, size, important, ctx
 
         unless bgcolor.blank? && img.blank?
 
@@ -125,6 +126,14 @@ module Inkcite
             sty << '!important' if important
 
             into[:background] = sty.join(' ')
+
+          end
+
+          # Background size needs to be set independently.  Perhaps it can be
+          # mixed into background: but I couldn't make it work.
+          unless size.blank?
+            into[BACKGROUND_SIZE] = size
+            into[BACKGROUND_SIZE] << ' !important' if important
           end
 
         end
