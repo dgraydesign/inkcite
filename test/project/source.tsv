@@ -44,3 +44,14 @@ button-width	175
 
 // Dimensions
 width	500
+
+// Test for multiline tag declaration
+multiline	<<-START
+  This
+    is a
+      multiline tag.
+END->>	<<-START
+			This
+		ends the
+	multiline tag.
+END->>
