@@ -10,7 +10,7 @@ versioning, testing and minification into their workflow.
 * Automatic link tagging and tracking
 * [Litmus] integration for compatibility
 * Preview distribution lists
-* Failsafe rules to ensure content is included or excluded
+* Content inclusion/exclusion rules
 
 ## Installation
 
