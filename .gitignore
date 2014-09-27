@@ -4,6 +4,7 @@
 .config
 .ruby-gemset
 .ruby-version
+bin/build-test
 coverage
 InstalledFiles
 lib/bundler/man
