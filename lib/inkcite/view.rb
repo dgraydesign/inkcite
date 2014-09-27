@@ -96,7 +96,7 @@ module Inkcite
       path = @email.image_path(src)
       exists = File.exists?(path)
 
-      error('Missing image', { :src => src, :path => path }) if !exists
+      error('Missing image', { :src => src }) if !exists
 
       exists
     end
