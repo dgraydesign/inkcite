@@ -15,7 +15,7 @@ module Inkcite
         # Resolve local public IP for mobile device address
         ip = IPSocket.getaddress(Socket.gethostname)
 
-        puts "== Inkcite is starting up ..."
+        puts "Inkcite #{Inkcite::VERSION} is starting up ..."
 
         begin
           @server = ::WEBrick::HTTPServer.new({
@@ -41,8 +41,8 @@ module Inkcite
 
         @server.mount "/", Rack::Handler::WEBrick, Inkcite::Cli::Server.new(email, opts)
 
-        puts "== Your email is being served at http://#{host}:#{port}"
-        puts "== Point your mobile device to http://#{ip}:#{port}" if ip
+        puts "Your email is being served at http://#{host}:#{port}"
+        puts "Point your mobile device to http://#{ip}:#{port}" if ip
 
         @server.start
 
@@ -75,16 +75,21 @@ module Inkcite
           format = Util.detect(params[:f], params[:format], @opts[:format])
           version = Util.detect(params[:v], params[:view], @opts[:version])
 
+          # Timestamp all of the messages from this rendering so it is clear which
+          # messages are associated with this reload.
+          ts = "[#{Time.now.strftime(DATEFORMAT)}]"
+
+          puts ''
+          puts "#{ts} Rendering your email [environment=#{environment}, format=#{format}, version=#{version || 'default'}]"
+
           view = @email.view(environment, format, version)
 
           html = view.render!
 
           unless view.errors.blank?
             error_count = view.errors.count
-
-            puts ''
-            puts "== Your email has #{error_count} error#{'s' if error_count > 1} or warning#{'s' if error_count > 1}:"
-            puts " - #{view.errors.join("\n - ")}"
+            puts "#{ts} #{error_count} error#{'s' if error_count > 1} or warning#{'s' if error_count > 1}:"
+            puts "#{ts} - #{view.errors.join("\n#{ts} - ")}"
           end
 
           [200, {}, [html]]
@@ -100,6 +105,8 @@ module Inkcite
       REQUEST_PATH = 'REQUEST_PATH'
       REQUEST_ROOT = '/'
       QUERY_STRING = 'QUERY_STRING'
+
+      DATEFORMAT = '%Y-%m-%d %H:%M:%S'
 
     end
   end

@@ -42,7 +42,7 @@ module Inkcite
 
         # This is the fully-qualified path to the .zip file.
         zip_file = File.expand_path(opts[:archive])
-        puts "== Archiving to #{zip_file} ..."
+        puts "Archiving to #{zip_file} ..."
 
         # The Zip::File will try to update an existing archive so just blow the old
         # one away if it still exists.
@@ -72,7 +72,7 @@ module Inkcite
         # The absolute path to the build directory
         build_path = File.expand_path email.config[BUILD_PATH] || 'build'
 
-        puts "== Building to #{build_path}"
+        puts "Building to #{build_path}"
 
         # Sanity check to ensure we're not building to the same
         # directory as we're working.
