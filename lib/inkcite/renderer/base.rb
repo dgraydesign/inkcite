@@ -48,10 +48,9 @@ module Inkcite
 
       protected
 
-      # Iterates through the list of possible options and returns the
-      # first non-blank value.
+      # Convenience proxy
       def detect *opts
-        opts.detect { |o| !o.blank? }
+        Util.detect(*opts)
       end
 
       def detect_font att, font, opt, parent, ctx

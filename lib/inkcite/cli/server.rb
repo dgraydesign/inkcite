@@ -61,7 +61,21 @@ module Inkcite
         # render the static asset.
         if path == REQUEST_ROOT
 
-          view = @email.view(@opts[:environment], @opts[:format], @opts[:version])
+          # Check for and convert query string parameters to a symolized
+          # key hash so the designer can override the environment, format
+          # and version attributes during a given rendering.
+          # Courtesy of http://stackoverflow.com/questions/21990997/how-do-i-create-a-hash-from-a-querystring-in-ruby
+          params = CGI::parse(env[QUERY_STRING] || '')
+          params = Hash[params.map { |key, values| [ key.to_sym, values[0] || true ] }].symbolize_keys
+
+          # Allow the designer to specify both short- and long-form versions of
+          # the (e)nvironment, (f)ormat and (v)ersion.  Otherwise, use the values
+          # that Inkcite was started with.
+          environment = Util.detect(params[:e], params[:environment], @opts[:environment])
+          format = Util.detect(params[:f], params[:format], @opts[:format])
+          version = Util.detect(params[:v], params[:view], @opts[:version])
+
+          view = @email.view(environment, format, version)
 
           html = view.render!
 
@@ -85,6 +99,7 @@ module Inkcite
 
       REQUEST_PATH = 'REQUEST_PATH'
       REQUEST_ROOT = '/'
+      QUERY_STRING = 'QUERY_STRING'
 
     end
   end

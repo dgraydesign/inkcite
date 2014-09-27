@@ -4,7 +4,7 @@ module Inkcite
   module Util
 
     def self.brightness_value color
-      color.nil?? 0 : (color.gsub('#', '').scan(/../).map { |c| c.hex }).inject { |sum, c| sum + c }
+      color.nil? ? 0 : (color.gsub('#', '').scan(/../).map { |c| c.hex }).inject { |sum, c| sum + c }
     end
 
     def self.darken color, amount=0.4
@@ -14,6 +14,12 @@ module Inkcite
       rgb[1] = (rgb[1].to_i * amount).round
       rgb[2] = (rgb[2].to_i * amount).round
       "#%02x%02x%02x" % rgb
+    end
+
+    # Iterates through the list of possible options and returns the
+    # first non-blank value.
+    def self.detect *opts
+      opts.detect { |o| !o.blank? }
     end
 
     def self.lighten color, amount=0.6
