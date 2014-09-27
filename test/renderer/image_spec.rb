@@ -10,7 +10,7 @@ describe Inkcite::Renderer::Image do
 
   it 'warns when an image is missing' do
     Inkcite::Renderer.render('{img src=missing.jpg}', @view)
-    @view.errors.must_include('Missing image (line 0) [src=missing.jpg, path=test/project/images/missing.jpg]')
+    @view.errors.must_include('Missing image (line 0) [src=missing.jpg]')
   end
 
   it 'warns when image dimesions are missing' do
