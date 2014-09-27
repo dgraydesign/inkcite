@@ -284,8 +284,9 @@ module Inkcite
         html << '<head>'
         html << '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>'
         html << '<meta name="viewport" content="width=device-width"/>'
+        html << "<meta name=\"generator\" content=\"Inkcite #{Inkcite::VERSION}\"/>"
 
-        html << "<title>#{self.subject}</title>"
+        html << "<title>#{self.title}</title>"
 
         # Add external script sources.
         html += external_scripts
@@ -357,12 +358,16 @@ module Inkcite
     end
 
     def subject
-      @subject ||= Renderer.render((self[:title] || self[:subject] || 'Untitled Email'), self)
+      @subject ||= Renderer.render((self[:subject] || self[:title] || UNTITLED_EMAIL), self)
     end
 
     def tag_stack tag
       @tag_stack ||= Hash.new()
       @tag_stack[tag] ||= TagStack.new(tag, self)
+    end
+
+    def title
+      @title ||= Renderer.render((self[:title] || UNTITLED_EMAIL), self)
     end
 
     # Sends this version of the email to Litmus for testing.
@@ -445,6 +450,9 @@ module Inkcite
     # Name of the property holding the email field used to ensure that an unsubscribe has
     # been placed into emails.
     EMAIL_MERGE_TAG = :'email-merge-tag'
+
+    # Used when there is no subject or title for this email.
+    UNTITLED_EMAIL = 'Untitled Email'
 
     def assert_in_browser msg
       raise msg if email? && !development?
