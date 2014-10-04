@@ -68,7 +68,7 @@ module Inkcite
 
       # Load the project's properties, which may include references to additional
       # properties in other directories.
-      read_properties opts, 'source.tsv'
+      read_properties opts, 'helpers.tsv'
 
       # As a convenience pre-populate the month name of the email.
       mm = opts[:mm].to_i

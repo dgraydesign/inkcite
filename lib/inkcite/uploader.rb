@@ -7,7 +7,7 @@ module Inkcite
 
       times = []
 
-      [ 'source.html', 'source.tsv' ].each do |file|
+      [ 'source.html', 'source.txt', 'helpers.tsv' ].each do |file|
         times << File.mtime(email.project_file(file)).to_i
       end
 

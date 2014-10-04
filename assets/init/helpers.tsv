@@ -27,3 +27,5 @@ button-width	175
 
 // Dimensions
 width	500
+
+wrap	{table width=100% bgcolor={#background}}{td font-family="{font-family}" align=center}	{/td}{/table}
