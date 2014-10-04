@@ -13,21 +13,27 @@ module Inkcite
           :aliases => '-f',
           :desc => 'Build even if there are errors (not recommended)',
           :type => :boolean
+
       def build
         require_relative 'build'
         Cli::Build.invoke(email, {
             :archive => options['archive'],
-            :force   => options['force']
+            :force => options['force']
         })
       end
 
-      desc 'init NAME [options]', 'Initialize a new email project NAME'
+      desc 'init NAME [options]', 'Initialize a new email project in the NAME directory'
+      option :from,
+          :aliases => '-f',
+          :desc => 'Clones an existing Inkcite project into a new one'
+
       def init name
         require_relative 'init'
         Cli::Init.invoke(name, options)
       end
 
       desc 'preview TO [options]', 'Send a preview of the email  recipient list: developer, internal or client'
+
       def preview to=:developer
         require_relative 'preview'
         Cli::Preview.invoke(email, to, options)
@@ -55,32 +61,38 @@ module Inkcite
       option :version,
           :aliases => '-v',
           :desc => 'Render a specific version of the email'
+
       def server
         require_relative 'server'
 
         Cli::Server.start(email, {
             :environment => environment,
-            :format      => format,
-            :host        => options['host'],
-            :port        => options['port'],
-            :version     => version
+            :format => format,
+            :host => options['host'],
+            :port => options['port'],
+            :version => version
         })
 
       end
 
       desc 'test [options]', 'Tests (or re-tests) the email with Litmus'
       option :new,
-        :aliases => '-n',
-        :desc => 'Forces a new test to be created, otherwise will revision an existing test if present.',
-        :type => :boolean
+          :aliases => '-n',
+          :desc => 'Forces a new test to be created, otherwise will revision an existing test if present',
+          :type => :boolean
+
       def test
         require_relative 'test'
         Cli::Test.invoke(email, options)
       end
 
-      desc 'upload', 'Upload the preview version to the remote server'
+      desc 'upload', 'Upload the preview version to your CDN or remote image server'
+      option :force,
+          :aliases => '-f',
+          :desc => "Forces files to be uploaded regardless of whether or not they've changed",
+          :type => :boolean
       def upload
-        email.upload!
+        options[:force] ? email.upload! : email.upload
       end
 
       private
