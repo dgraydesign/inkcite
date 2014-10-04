@@ -42,7 +42,7 @@ inkcite server
 ```
 
 Inkcite’s preview server gives you a live view of your email as you build it
-by modifying the `source.html`, `source.tsv`, `source.txt` and `config.yml`
+by modifying the `source.html`, `helpers.tsv`, `source.txt` and `config.yml`
 files.  Open your browser to `http://localhost:4567` to see your email as you
 build it.  As you make changes, simply refresh your browser to see up-to-date
 results.
