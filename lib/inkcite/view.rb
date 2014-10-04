@@ -247,8 +247,11 @@ module Inkcite
       source_file = 'source'
       source_file << (text?? TXT_EXTENSION : HTML_EXTENSION)
 
+      # Detect abnormal file encoding.
+      encoding = self[SOURCE_ENCODING]
+
       # Read the original source which may include embedded Ruby.
-      source = File.open(@email.project_file(source_file), 'r:windows-1252:utf-8').read
+      source = File.open(@email.project_file(source_file), encoding).read
 
       # Run the content through Erubis
       filtered = Erubis::Eruby.new(source, :filename => source_file, :trim => false, :numbering => true).evaluate(Context.new(self))
@@ -441,6 +444,7 @@ module Inkcite
     FILE_NAME       = :'file-name'
     HTML_EXTENSION  = '.html'
     LINKS_EXTENSION = '-links.csv'
+    SOURCE_ENCODING = :'source_encoding'
     TXT_EXTENSION   = '.txt'
     NEW_LINE        = "\n"
 
