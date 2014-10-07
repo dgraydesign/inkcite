@@ -19,14 +19,14 @@ module Inkcite
 
         end
 
-        abort("Fix errors or use -force to build") if errors && !opts[:force]
+        abort("Fix errors or use --force to build") if errors && !opts[:force]
+
+        # First, compile all assets to the build directory.
+        build_to_dir email, opts
 
         # No archive? Build to files instead.
-        if opts[:archive].blank?
-          build_to_dir email, opts
-        else
-          build_to_archive email, opts
-        end
+        archive = opts[:archive]
+        build_archive(email, opts) unless archive.blank?
 
       end
 
@@ -36,7 +36,7 @@ module Inkcite
       # be created
       BUILD_PATH = :'build-path'
 
-      def self.build_to_archive email, opts
+      def self.build_archive email, opts
 
         require 'zip'
 
@@ -48,51 +48,81 @@ module Inkcite
         # one away if it still exists.
         File.delete(zip_file) if File.exists?(zip_file)
 
+        # The absolute path to the build directories
+        build_html_to = build_path(email)
+        build_images_to = build_images_path(email)
+
         Zip::File.open(zip_file, Zip::File::CREATE) do |zip|
 
-          email.each_image do |img|
-            zip.add(File.join(Inkcite::Email::IMAGES, img), email.image_path(img))
+          # Add the minified images to the .zip archive
+          if File.exists?(build_images_to)
+            Dir.foreach(build_images_to) do |img|
+              img_path = File.join(build_images_to, img)
+              zip.add(File.join(Inkcite::Email::IMAGES, img), img_path) unless File.directory?(img_path)
+            end
           end
 
-          email.views(:production) do |ev|
-
-            zip.get_output_stream(ev.file_name) { |out| ev.write(out) }
-
-            # Tracked link CSV
-            zip.get_output_stream(ev.links_file_name) { |out| ev.write_links_csv(out) } if ev.track_links?
-
+          Dir.foreach(build_html_to) do |file|
+            file_path = File.join(build_html_to, file)
+            zip.add(file, file_path)
           end
 
         end
+
+        # Remove the build directory
+        FileUtils.rm_rf(build_html_to)
 
       end
 
       def self.build_to_dir email, opts
 
-        # The absolute path to the build directory
-        build_path = File.expand_path email.config[BUILD_PATH] || 'build'
+        # The absolute path to the build directories
+        build_html_to = build_path(email)
+        build_images_to = build_images_path(email)
 
-        puts "Building to #{build_path}"
+        puts "Building to #{build_html_to}"
 
         # Sanity check to ensure we're not building to the same
         # directory as we're working.
-        if File.identical?(email.path, build_path)
+        if File.identical?(email.path, build_html_to)
           puts "Working path and build path can not be the same.  Change the '#{BUILD_PATH}' value in your config.yml."
           exit(1)
         end
 
-        # Create the build path if it doesn't exist yet.
-        FileUtils.mkpath build_path
+        # Clear the existing build-to directory so we don't get any
+        # lingering files from the last build.
+        FileUtils.rm_rf build_html_to
 
+        # Remove any existing images directory and then create a new one to
+        # ensure the entire build path exists.
+        FileUtils.mkpath build_images_to
+
+        # Check to see if images should be optimized and if so, perform said
+        # optimization on new or updated images.
+        email.optimize_images if email.optimize_images?
+
+        # For each of the production views, build the HTML and links files.
         email.views(:production) do |ev|
 
-          File.open(File.join(build_path, ev.file_name), 'w') { |f| ev.write(f) }
+          File.open(File.join(build_html_to, ev.file_name), 'w') { |f| ev.write(f) }
 
           # Tracked link CSV
-          File.open(File.join(build_path, ev.links_file_name), 'w') { |f| ev.write_links_csv(f) } if ev.track_links?
+          File.open(File.join(build_html_to, ev.links_file_name), 'w') { |f| ev.write_links_csv(f) } if ev.track_links?
 
         end
 
+        # Copy all of the source images into the build directory in preparation
+        # for optimization
+        FileUtils.cp_r(File.join(email.optimized_image_dir, '.'), build_images_to)
+
+      end
+
+      def self.build_path email
+        File.expand_path email.config[BUILD_PATH] || 'build'
+      end
+
+      def self.build_images_path email
+        File.join(build_path(email), Email::IMAGES)
       end
 
     end

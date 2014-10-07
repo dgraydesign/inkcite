@@ -4,6 +4,7 @@ module Inkcite
     CACHE_BUST          = :'cache-bust'
     IMAGE_HOST          = :'image-host'
     IMAGE_PLACEHOLDERS  = :'image-placeholders'
+    OPTIMIZE_IMAGES     = :'optimize-images'
     TRACK_LINKS         = :'track-links'
     VIEW_IN_BROWSER_URL = :'view-in-browser-url'
 
@@ -23,18 +24,6 @@ module Inkcite
 
     def config
       Util.read_yml(File.join(path, 'config.yml'), true)
-    end
-
-    # Iterates through each of the original source images.
-    def each_image &block
-      dir = image_dir
-      return false unless File.exists?(dir)
-
-      Dir.foreach(dir) do |img|
-        yield(img) unless File.directory?(File.join(dir, img))
-      end
-
-      true
     end
 
     def formats env
@@ -58,6 +47,20 @@ module Inkcite
 
     def meta key
       meta_data[key.to_sym]
+    end
+
+    def optimize_images
+      Minifier.images(self)
+    end
+
+    def optimize_images?
+      email.config[Inkcite::Email::OPTIMIZE_IMAGES] == true
+    end
+
+    # Returns the directory that optimized, compressed images
+    # have been saved to.
+    def optimized_image_dir
+      File.join(path, optimize_images?? Minifier::IMAGE_CACHE : IMAGES)
     end
 
     def properties
