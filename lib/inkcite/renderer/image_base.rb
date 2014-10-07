@@ -34,16 +34,17 @@ module Inkcite
             # is being hosted.
             src = ctx.image_url(src)
 
-          else
-
-            # Check to see if the designer specified FPO text for this placeholder -
-            # otherwise default to the dimensions of the image.
-            fpo = opt[:fpo] || "#{opt[:width]}x#{opt[:height]}"
+          elsif DIMENSIONS.all? { |dim| opt[dim].to_i > MINIMUM_DIMENSION_FOR_PLACEHOLDER }
 
             # As a convenience, replace missing images with placehold.it as long as they
             # meet the minimum dimensions.  No need to spam the design with tiny, tiny
             # placeholders.
-            src = "http://placehold.it/#{opt[:width]}x#{opt[:height]}#{File.extname(src)}&text=#{fpo}" if DIMENSIONS.all? { |dim| opt[dim].to_i > MINIMUM_DIMENSION_FOR_PLACEHOLDER }
+            src = "http://placehold.it/#{opt[:width]}x#{opt[:height]}#{File.extname(src)}"
+
+            # Check to see if the designer specified FPO text for this placeholder -
+            # otherwise default to the dimensions of the image.
+            fpo = opt[:fpo]
+            src << "&text=#{URI::encode(fpo)}" unless fpo.blank?
 
           end
 
