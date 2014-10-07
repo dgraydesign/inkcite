@@ -54,7 +54,7 @@ module Inkcite
     end
 
     def optimize_images?
-      email.config[Inkcite::Email::OPTIMIZE_IMAGES] == true
+      config[Inkcite::Email::OPTIMIZE_IMAGES] == true
     end
 
     # Returns the directory that optimized, compressed images
