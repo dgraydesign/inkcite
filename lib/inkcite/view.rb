@@ -247,11 +247,20 @@ module Inkcite
       source_file = 'source'
       source_file << (text?? TXT_EXTENSION : HTML_EXTENSION)
 
-      # Detect abnormal file encoding.
+      # Will be used to assemble the parameters passed to File.open.
+      # First, always open the file in read mode.
+      mode = [ 'r' ]
+
+      # Detect abnormal file encoding and construct the string to
+      # convert such encoding to UTF-8 if specified.
       encoding = self[SOURCE_ENCODING]
+      if !encoding.blank? && encoding != UTF_8
+        mode << encoding
+        mode << UTF_8
+      end
 
       # Read the original source which may include embedded Ruby.
-      source = File.open(@email.project_file(source_file), encoding).read
+      source = File.open(@email.project_file(source_file), mode.join(':')).read
 
       # Run the content through Erubis
       filtered = Erubis::Eruby.new(source, :filename => source_file, :trim => false, :numbering => true).evaluate(Context.new(self))
@@ -444,9 +453,10 @@ module Inkcite
     FILE_NAME       = :'file-name'
     HTML_EXTENSION  = '.html'
     LINKS_EXTENSION = '-links.csv'
-    SOURCE_ENCODING = :'source_encoding'
+    SOURCE_ENCODING = :'source-encoding'
     TXT_EXTENSION   = '.txt'
     NEW_LINE        = "\n"
+    UTF_8           = 'utf-8'
 
     # Empty hash used when there is no environment or format-specific configuration
     EMPTY_HASH = {}
