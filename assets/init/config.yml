@@ -1,18 +1,22 @@
-# When true, appends a cache-busting timestamp to the images referenced
-# in the email.  This ensures the client always retrieves the latest
-# version of the image and helpful during client previews.  Generally
-# this should be disabled in production.
+# When true (recommended), appends a cache-busting timestamp to the
+# images referenced in the email.  This ensures the client always
+# retrieves the latest version of the image and helpful during client
+# previews.  Generally this should be disabled in production.
 cache-bust: true
 
 # When true copies image alt-text to the title property.  Populating both
 # presents a more consistent image tooltip experience.
 copy-alt-to-title: false
 
-# When true minifies the HTML and CSS of the email.  Should usually be
-# disabled in development to make debugging easier.
+# When true (recommended), minifies the HTML and CSS of the email.  Should
+# usually be disabled in development to make debugging easier.
 minify: true
 
-# When empty links are found in content, this is the URL that will be 
+# When true (recommended), enables image optimization using ImageOptim.
+# http://imageoptim.com
+optimize-images: true
+
+# When empty links are found in content, this is the URL that will be
 # included instead - so that clients understand this link is missing
 # and needs to be provided.
 missing-link-url: 'https://github.com/404'
@@ -21,8 +25,8 @@ missing-link-url: 'https://github.com/404'
 # file which is useful for targeted mailings and a/b testing.  Specify a
 # unique, single-word identifier for each version.
 #versions:
-#  - new_customer
 #  - past_customer
+#  - prospect
 
 # SMTP settings for sending previews to the small list of internal and client
 # addresses specified below.  Most importantly, specify the address your test
@@ -35,10 +39,10 @@ smtp:
   password: ''
   from: 'Your Name <email@domain.com>'
 
-# Specify the distribution lists for preview versions of the email.
+# Specify the distribution lists for preview versions of your email.
 recipients:
-  clients:
-    - 'Awesome Customer <awesome.customer@domain.com>'
+  client:
+    - 'Awesome Client <awesome.client@domain.com>'
   internal:
     - 'Creative Director <creative.director@domain.com>'
     - 'Proofreader <proof.reader@domain.com>'
@@ -50,27 +54,28 @@ litmus:
   username: ''
   password: ''
 
-# Easy deployment of static assets to a preview server.
+# Easy deployment of static assets to a CDN or publicly-accessible
+# server - required when your email has images.
 sftp:
   host: ''
   path: ''
   username: ''
   password: ''
 
-# Link tagging ensures that every link in the email includes a 
+# Link tagging ensures that every link in the email includes a
 # name-value pair.  This is useful if you harvest data from your
-# website analytics.  {id} will be replaced with the unique ID 
-# from the link if you're concerned about which link the 
+# website analytics.  {id} will be replaced with the unique ID
+# from the link if you're concerned about which link the
 # recipient clicked to get to your website.
 tag-links: "from_email=myemail|{id}"
 
 # Optionally, if your email newsletter links to multiple websites
-# and you only want to tag links to a specific domain, include 
+# and you only want to tag links to a specific domain, include
 # that domain in this setting.
 #tag-links-domain: 'clientdomain.com'
 
 
-# Environment-specific overrides allow you to change any setting 
+# Environment-specific overrides allow you to change any setting
 # for each environment (e.g local development vs. client preview).
 
 # These overrides apply to your local development environment when
@@ -81,15 +86,12 @@ development:
 # These overrides apply to previews both internally and to external
 # clients and sent with Inkcite's preview function.
 preview:
-  email:
-    view-in-browser-url: 'http://preview.contenthost.com/path/{filename}'
-    image-host: 'http://preview.imagehost.com/emails/'
+  view-in-browser-url: 'http://preview.contenthost.com/path/{filename}'
+  image-host: 'http://preview.imagehost.com/emails/'
 
 # These overrides apply to the final, ready-to-send files.
 production:
   cache-bust: false
   image-host: "http://production.imagehost.com/emails/myemail"
-
-  email:
-    view-in-browser-url: 'http://production.contenthost.com/path/{filename}'
+  view-in-browser-url: 'http://production.contenthost.com/path/{filename}'
 
