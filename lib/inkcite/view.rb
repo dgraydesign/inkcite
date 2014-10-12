@@ -453,9 +453,10 @@ module Inkcite
     FILE_NAME       = :'file-name'
     HTML_EXTENSION  = '.html'
     LINKS_EXTENSION = '-links.csv'
+    NEW_LINE        = "\n"
+    REGEX_SLASH     = '/'
     SOURCE_ENCODING = :'source-encoding'
     TXT_EXTENSION   = '.txt'
-    NEW_LINE        = "\n"
     UTF_8           = 'utf-8'
 
     # Empty hash used when there is no environment or format-specific configuration
@@ -479,18 +480,18 @@ module Inkcite
       failsafes = self[:failsafe] || self[:failsafes]
       unless failsafes.blank?
 
-        incs = failsafes[:includes]
-        [*incs].each do |i|
-          unless @content.include?(i)
-            error "Failsafe! Email does not include \"#{i}\""
+        _includes = failsafes[:includes]
+        [*_includes].each do |rule|
+          if !content_matches?(rule)
+            error "Failsafe! Email does not include \"#{rule}\""
             passes = false
           end
         end
 
-        dnis = failsafes[:'does-not-include']
-        [*dnis].each do |i|
-          if @content.include?(i)
-            error("Failsafe! Email must not include \"#{i}\"")
+        _excludes = failsafes[:excludes]
+        [*_excludes].each do |rule|
+          if content_matches?(rule)
+            error("Failsafe! Email must not include \"#{rule}\"")
             passes = false
           end
         end
@@ -498,6 +499,18 @@ module Inkcite
       end
 
       passes
+    end
+
+    # Returns true if the content in this email either matches the
+    # regular expression provided or if it includes the exact string
+    # that is provided.
+    def content_matches? rule
+      # Check to see if the failsafe rule is a regular expression.
+      if rule[0, 1] == REGEX_SLASH && rule[-1, 1] == REGEX_SLASH
+        @content.match(Regexp.new(rule[1..-2]))
+      else
+        @content.include?(rule)
+      end
     end
 
     def external_scripts
