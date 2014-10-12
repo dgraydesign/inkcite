@@ -180,7 +180,7 @@ module Inkcite
 
       protected
 
-      def mix_font element, opt, ctx, default_font=nil, parent=nil
+      def mix_font element, opt, ctx, parent=nil
 
         # Let the super class do its thing and grab the name of the font
         # style that was applied, if any.

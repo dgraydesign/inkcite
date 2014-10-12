@@ -36,10 +36,6 @@ describe Inkcite::Renderer::Td do
     Inkcite::Renderer.render('{td font-family="Comic Sans"}', @view).must_equal('<td style="font-family:Comic Sans">')
   end
 
-  it 'does not set the font family unnecessarily' do
-    Inkcite::Renderer.render('{td font-family="{font-family}"}', @view).must_equal('<td>')
-  end
-
   it 'can have a custom font size' do
     Inkcite::Renderer.render('{td font-size=18}', @view).must_equal('<td style="font-size:18px">')
   end

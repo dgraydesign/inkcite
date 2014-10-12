@@ -13,7 +13,6 @@ font-size	15
 line-height	19
 
 default-color	{#text}
-default-font-family	{font-family}
 default-font-size	{font-size}
 default-font-weight	normal
 default-line-height	{line-height}

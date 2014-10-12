@@ -85,7 +85,7 @@ module Inkcite
 
       end
 
-      def mix_font element, opt, ctx, default_font=nil, parent=nil
+      def mix_font element, opt, ctx, parent=nil
 
         # Always ensure we have a parent to inherit from.
         parent ||= {}
@@ -99,7 +99,7 @@ module Inkcite
         font = nil if none?(font)
 
         font_family = detect_font(FONT_FAMILY, font, opt, parent, ctx)
-        element.style[FONT_FAMILY] = font_family unless font_family.blank? || font_family == default_font
+        element.style[FONT_FAMILY] = font_family unless font_family.blank?
 
         font_size = detect_font(FONT_SIZE, font, opt, parent, ctx)
         element.style[FONT_SIZE] = px(font_size) unless font_size.blank?

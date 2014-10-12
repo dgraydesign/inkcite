@@ -58,7 +58,7 @@ module Inkcite
         rowspan = opt[:rowspan].to_i
         td[:rowspan] = rowspan if rowspan > 0
 
-        mix_font td, opt, ctx, ctx[FONT_FAMILY], parent
+        mix_font td, opt, ctx, parent
 
         mobile = opt[:mobile]
         if mobile.blank?
