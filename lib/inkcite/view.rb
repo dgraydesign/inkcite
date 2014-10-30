@@ -59,6 +59,10 @@ module Inkcite
       # the email during rendering.
       @media_query = MediaQuery.new(self, 480)
 
+      # Set the version index based on the position of this
+      # version in the list of those defined.
+      @config[:'version-index'] = (email.versions.index(version) + 1).to_s
+
       # Tracks the line number and is recorded when errors are encountered
       # while rendering said line.
       @line = 0
