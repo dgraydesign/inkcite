@@ -634,6 +634,30 @@ module Inkcite
         reset << 'o\:* { behavior: url(#default#VML); display: inline-block; }'
       end
 
+      # Google Web Fonts support courtesy of
+      # http://www.emaildesignreview.com/html-email-coding/web-fonts-in-email-1482/
+      font_urls = self[:fonts]
+      unless font_urls.blank?
+        require 'open-uri'
+
+        # If you use @font-face in HTML email, Outlook 07/10/13 will default all
+        # text back to Times New Roman.
+        # http://www.emaildesignreview.com/html-email-coding/web-fonts-in-email-1482/
+        reset << "@media screen {"
+
+        # Iterate through the configured fonts and
+        font_urls.each do |url|
+          begin
+            reset << open(url).read
+          rescue
+            error "Unable to load Google Web Font", { :url => url }
+          end
+
+        end
+        reset << "}"
+
+      end
+
       # Responsive styles.
       reset += @media_query.to_a unless @media_query.blank?
 
