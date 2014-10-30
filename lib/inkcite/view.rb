@@ -117,6 +117,10 @@ module Inkcite
       @format == :email
     end
 
+    def eval_erb source, file_name
+      Erubis::Eruby.new(source, :filename => file_name, :trim => false, :numbering => true).evaluate(Context.new(self))
+    end
+
     # Records an error message on the currently processing line of the source.
     def error message, obj=nil
 
@@ -263,7 +267,7 @@ module Inkcite
       source = File.open(@email.project_file(source_file), mode.join(':')).read
 
       # Run the content through Erubis
-      filtered = Erubis::Eruby.new(source, :filename => source_file, :trim => false, :numbering => true).evaluate(Context.new(self))
+      filtered = self.eval_erb(source, source_file)
 
       # Protect against unsupported characters
       Renderer.fix_illegal_characters filtered, self

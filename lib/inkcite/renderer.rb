@@ -17,6 +17,7 @@ require_relative 'renderer/mobile_image'
 require_relative 'renderer/mobile_style'
 require_relative 'renderer/mobile_toggle'
 require_relative 'renderer/outlook_background'
+require_relative 'renderer/partial'
 require_relative 'renderer/property'
 require_relative 'renderer/span'
 require_relative 'renderer/table'
@@ -145,6 +146,7 @@ module Inkcite
           :google             => GoogleAnalytics.new,
           :img                => Image.new,
           :'in-browser'       => InBrowser.new,
+          :include            => Partial.new,
           :like               => Like.new,
           :litmus             => Litmus.new,
           :lorem              => Lorem.new,
