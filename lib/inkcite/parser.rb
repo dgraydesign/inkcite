@@ -99,7 +99,7 @@ module Inkcite
     EMPTY_STRING = ''
 
     # We fail if we recurse through a property more than this many times.
-    MAX_RECURSION = 100
+    MAX_RECURSION = 1000
 
     BRACKET_REGEX = /\{([^\{\}]+)\}/
 

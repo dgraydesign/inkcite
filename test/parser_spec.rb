@@ -65,7 +65,7 @@ describe Inkcite::Parser do
       Inkcite::Parser.each('{ok}') { |e| '{ok}' }
       false.must_equal(true) # Intentional, should never be thrown.
     rescue Exception => e
-      e.message.must_equal("Infinite replacement detected: 100 {ok}")
+      e.message.must_equal("Infinite replacement detected: 1000 {ok}")
     end
   end
 
