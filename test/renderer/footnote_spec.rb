@@ -8,6 +8,11 @@ describe Inkcite::Renderer::Footnote do
     @view = Inkcite::Email.new('test/project/').view(:development, :email)
   end
 
+  it 'requires text' do
+    Inkcite::Renderer.render('({footnote symbol="†"})', @view)
+    @view.errors.must_include('Footnote requires text attribute (line 0) [id=, symbol=†]')
+  end
+
   it 'can have a custom symbol' do
     Inkcite::Renderer.render('({footnote symbol="†" text="See Blackmur, especially chapters 3 and 4, for an insightful analysis of this trend."})', @view).must_equal("(†)")
   end
