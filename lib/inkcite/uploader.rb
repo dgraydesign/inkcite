@@ -1,4 +1,5 @@
 require 'net/sftp'
+require 'stringio'
 
 module Inkcite
   class Uploader
@@ -71,8 +72,6 @@ module Inkcite
     # forcing (if necessary) the update of the graphics.
     def self.do_upload email, force
 
-      require 'stringio'
-
       # The preview version defines the configuration for the server to which
       # the files will be sftp'd.
       config = email.config[:sftp]
@@ -128,8 +127,7 @@ module Inkcite
             # to ASCII-8bit in non-binary mode, so it was blowing up on UTF-8 special
             # characters (e.g. "Mäkinen").
             # http://stackoverflow.com/questions/9439289/netsftp-transfer-mode-binary-vs-text
-            io = StringIO.new
-            view.write(io)
+            io = StringIO.new(view.render!)
             sftp.upload!(io, remote_file_name)
 
           end
