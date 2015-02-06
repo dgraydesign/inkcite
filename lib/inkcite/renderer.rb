@@ -6,6 +6,7 @@ require_relative 'renderer/table_base'
 
 require_relative 'renderer/button'
 require_relative 'renderer/div'
+require_relative 'renderer/footnote'
 require_relative 'renderer/google_analytics'
 require_relative 'renderer/image'
 require_relative 'renderer/in_browser'
@@ -143,6 +144,8 @@ module Inkcite
           :a                  => Link.new,
           :button             => Button.new,
           :div                => Div.new,
+          :footnote           => Footnote.new,
+          :footnotes          => Footnotes.new,
           :google             => GoogleAnalytics.new,
           :img                => Image.new,
           :'in-browser'       => InBrowser.new,
