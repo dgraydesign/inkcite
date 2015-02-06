@@ -86,7 +86,7 @@ describe Inkcite::Renderer::Td do
   end
 
   it 'can have a background color' do
-    Inkcite::Renderer.render('{td bgcolor=#f9c}', @view).must_equal('<td bgcolor=#ff99cc style="background-color:#ff99cc">')
+    Inkcite::Renderer.render('{td bgcolor=#f9c}', @view).must_equal('<td bgcolor=#ff99cc>')
   end
 
   it 'can have a custom background color on mobile' do
@@ -95,7 +95,7 @@ describe Inkcite::Renderer::Td do
   end
 
   it 'can override background color on mobile' do
-    Inkcite::Renderer.render('{td bgcolor=#f00 mobile-bgcolor=#00f}', @view).must_equal('<td bgcolor=#ff0000 class="m1" style="background-color:#ff0000">')
+    Inkcite::Renderer.render('{td bgcolor=#f00 mobile-bgcolor=#00f}', @view).must_equal('<td bgcolor=#ff0000 class="m1">')
     @view.media_query.find_by_klass('m1').to_css.must_equal('td[class~="m1"] { background-color:#0000ff !important }')
   end
 

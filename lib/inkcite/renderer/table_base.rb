@@ -26,7 +26,10 @@ module Inkcite
         bgposition = opt[BACKGROUND_POSITION]
         bgrepeat   = opt[BACKGROUND_REPEAT]
 
-        background_css(element.style, bgcolor, bgimage, bgposition, bgrepeat, nil, false, ctx)
+        # No need to set any CSS if there is no background image present on this
+        # element.  Previously, it would also set the background-color attribute
+        # for unnecessary duplication.
+        background_css(element.style, bgcolor, bgimage, bgposition, bgrepeat, nil, false, ctx)  unless bgimage.blank?
 
         m_bgcolor = detect(opt[MOBILE_BACKGROUND_COLOR], opt[MOBILE_BGCOLOR])
         m_bgimage = detect(opt[MOBILE_BACKGROUND_IMAGE], opt[MOBILE_BACKGROUND])
