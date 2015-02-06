@@ -145,6 +145,10 @@ module Inkcite
       @footer ||= []
     end
 
+    def footnotes
+      @footnotes ||= []
+    end
+
     def file_name ext=nil
 
       # Check to see if the file name has been configured.
