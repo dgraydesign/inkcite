@@ -45,4 +45,8 @@ describe Inkcite::Renderer::Footnote do
     Inkcite::Renderer.render('({footnote text="EPA-estimated fuel economy."}) {footnotes tmpl="<p><sup>$symbol$</sup> $text$</p>"}', @view).must_equal("(1) <p><sup>1</sup> EPA-estimated fuel economy.</p>")
   end
 
+  it 'can be defined silently' do
+    Inkcite::Renderer.render('{footnote hidden=1 text="EPA-estimated fuel economy."}{footnotes}', @view).must_equal("1. EPA-estimated fuel economy.<br><br>")
+  end
+
 end

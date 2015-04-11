@@ -77,7 +77,9 @@ module Inkcite
 
         end
 
-        "#{instance.symbol}"
+        # Allow footnotes to be defined without showing a symbol
+        hidden = opt[:hidden].to_i == 1
+        "#{instance.symbol}" unless hidden
       end
 
     end
