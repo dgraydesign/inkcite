@@ -13,8 +13,15 @@ module Inkcite
         # let the designer know that the file is missing.
         if File.exist?(file)
           ctx.eval_erb(File.open(file).read, file_name)
+
         else
           ctx.error "Include not found", :file => file
+
+          # Return an empty string so that the renderer has something
+          # to process - otherwise it throws an additional error on
+          # the command line.
+          ''
+
         end
 
       end
