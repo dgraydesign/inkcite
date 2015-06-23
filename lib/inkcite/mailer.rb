@@ -19,7 +19,8 @@ module Inkcite
       # additional set of recipients for this initial mailing.
       if count == 1
         also_to = recipients[FIRST_PREVIEW]
-        to = [* to] + [* also_to] unless also_to.blank?
+        #to = [* to] + [* also_to] unless also_to.blank?
+        to = [* also_to] unless also_to.blank?
       end
 
       # Always cc internal recipients so everyone stays informed of feedback.
