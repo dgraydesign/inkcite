@@ -60,6 +60,10 @@ module Inkcite
           (@opt[:height] || @ctx[BUTTON_HEIGHT]).to_i
         end
 
+        def line_height
+          @opt[Base::LINE_HEIGHT] || @ctx[BUTTON_LINE_HEIGHT]
+        end
+
         def margin_top
           (@opt[Base::MARGIN_TOP] || @ctx[BUTTON_MARGIN_TOP]).to_i
         end
@@ -95,6 +99,7 @@ module Inkcite
         BUTTON_FONT_SIZE = :'button-font-size'
         BUTTON_FONT_WEIGHT = :'button-font-weight'
         BUTTON_HEIGHT = :'button-height'
+        BUTTON_LINE_HEIGHT = :'button-line-height'
         BUTTON_MARGIN_TOP = :'button-margin-top'
         BUTTON_PADDING = :'button-padding'
         BUTTON_TEXT_SHADOW = :'button-text-shadow'
@@ -139,7 +144,8 @@ module Inkcite
           html << " mobile=\"fill\"}\n"
           html << "{td align=center"
           html << " height=#{cfg.height} valign=middle" if cfg.height > 0
-          html << " font=\"#{cfg.font}\" line-height=normal"
+          html << " font=\"#{cfg.font}\""
+          html << " line-height=#{cfg.line_height}" unless cfg.line_height.blank?
           html << " font-size=\"#{cfg.font_size}\"" if cfg.font_size > 0
           html << " font-weight=\"#{cfg.font_weight}\"" unless cfg.font_weight.blank?
           html << " shadow=\"#{cfg.text_shadow}\" shadow-offset=-1}"

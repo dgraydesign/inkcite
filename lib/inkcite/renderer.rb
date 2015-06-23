@@ -87,9 +87,16 @@ module Inkcite
       pairs.join(sep)
     end
 
-    # Returns the provided integer value with a "px" extension unless
-    # the value is zero and the px extension can be excluded.
+    # Applies a "px" extension to unlabeled integer values.  If a labeled
+    # value is detected (e.g. 2em) or a non-integer value is provided
+    # (e.g. "normal") then the value is returned directly.
     def self.px val
+
+      # Quick abort if a non-integer value has been provided.  This catches
+      # cases like 3em and normal.  When provided, the value is not converted
+      # to pixels and instead is returned directly.
+      return val if val && val.to_i.to_s != val.to_s
+
       val = val.to_i
       val = "#{val}px" unless val == 0
       val
