@@ -19,6 +19,7 @@ require_relative 'renderer/mobile_style'
 require_relative 'renderer/mobile_toggle'
 require_relative 'renderer/outlook_background'
 require_relative 'renderer/partial'
+require_relative 'renderer/preheader'
 require_relative 'renderer/property'
 require_relative 'renderer/span'
 require_relative 'renderer/table'
@@ -157,6 +158,7 @@ module Inkcite
           :'mobile-style'     => MobileStyle.new,
           :'mobile-toggle-on' => MobileToggleOn.new,
           :'outlook-bg'       => OutlookBackground.new,
+          :preheader          => Preheader.new,
           :span               => Span.new,
           :table              => Table.new,
           :td                 => Td.new
