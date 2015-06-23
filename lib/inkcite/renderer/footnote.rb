@@ -94,9 +94,16 @@ module Inkcite
         # on the format of the email.
         tmpl = opt[:tmpl] || opt[:template]
         if tmpl.blank?
-          tmpl = '$symbol$. $text$'
-          tmpl << (ctx.text?? "\n\n" : '<br><br>')
+          tmpl = ctx.text?? "($symbol$) $text$\n\n" : "<sup>$symbol$</sup> $text$<br><br>"
+
+        elsif ctx.text?
+
+          # If there are new-lines encoded in the custom template, make sure
+          # they get converted to real new lines.
+          tmpl.gsub!('\\n', "\n")
+
         end
+
 
         # Symbolic footnotes (e.g. daggers) always go ahead of
         # the numeric footnotes - cause that's the way I like it

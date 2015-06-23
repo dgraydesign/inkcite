@@ -30,11 +30,11 @@ describe Inkcite::Renderer::Footnote do
   end
 
   it 'renders using the {footnotes} tag' do
-    Inkcite::Renderer.render('yadda yadda({footnote text="EPA-estimated fuel economy."})<br><br>{footnotes}', @view).must_equal("yadda yadda(1)<br><br>1. EPA-estimated fuel economy.<br><br>")
+    Inkcite::Renderer.render('yadda yadda({footnote text="EPA-estimated fuel economy."})<br><br>{footnotes}', @view).must_equal("yadda yadda(1)<br><br><sup>1</sup> EPA-estimated fuel economy.<br><br>")
   end
 
   it 'sorts symbols before numeric footnotes' do
-    Inkcite::Renderer.render('({footnote text="EPA-estimated fuel economy."})({footnote symbol="†" text="See Blackmur, especially chapters 3 and 4, for an insightful analysis of this trend."})({footnote text="Actual mileage may vary."})<br><br>{footnotes}', @view).must_equal("(1)(†)(2)<br><br>†. See Blackmur, especially chapters 3 and 4, for an insightful analysis of this trend.<br><br>1. EPA-estimated fuel economy.<br><br>2. Actual mileage may vary.<br><br>")
+    Inkcite::Renderer.render('({footnote text="EPA-estimated fuel economy."})({footnote symbol="†" text="See Blackmur, especially chapters 3 and 4, for an insightful analysis of this trend."})({footnote text="Actual mileage may vary."})<br><br>{footnotes}', @view).must_equal("(1)(†)(2)<br><br><sup>†</sup> See Blackmur, especially chapters 3 and 4, for an insightful analysis of this trend.<br><br><sup>1</sup> EPA-estimated fuel economy.<br><br><sup>2</sup> Actual mileage may vary.<br><br>")
   end
 
   it 'can have a reusable, readable ID assigned to it' do
@@ -46,7 +46,12 @@ describe Inkcite::Renderer::Footnote do
   end
 
   it 'can be defined silently' do
-    Inkcite::Renderer.render('{footnote hidden=1 text="EPA-estimated fuel economy."}{footnotes}', @view).must_equal("1. EPA-estimated fuel economy.<br><br>")
+    Inkcite::Renderer.render('{footnote hidden=1 text="EPA-estimated fuel economy."}{footnotes}', @view).must_equal("<sup>1</sup> EPA-estimated fuel economy.<br><br>")
+  end
+
+  it 'converts "\n" within footnotes template to new-lines' do
+    text_view = Inkcite::Email.new('test/project/').view(:development, :text)
+    Inkcite::Renderer.render('({footnote text="EPA-estimated fuel economy."}) {footnotes tmpl="[$symbol$] $text$\n\n"}', text_view).must_equal("(1) [1] EPA-estimated fuel economy.\n\n")
   end
 
 end
