@@ -13,7 +13,11 @@ module Inkcite
         host = opts[:host]
 
         # Resolve local public IP for mobile device address
-        ip = IPSocket.getaddress(Socket.gethostname)
+        ip = begin
+          IPSocket.getaddress(Socket.gethostname)
+        rescue
+          nil
+        end
 
         puts "Inkcite #{Inkcite::VERSION} is starting up ..."
 
@@ -54,48 +58,54 @@ module Inkcite
       end
 
       def call env
+        begin
 
-        path = env[REQUEST_PATH]
+          path = env[REQUEST_PATH]
 
-        # If this request is for the root index page, render the email.  Otherwise
-        # render the static asset.
-        if path == REQUEST_ROOT
+          # If this request is for the root index page, render the email.  Otherwise
+          # render the static asset.
+          if path == REQUEST_ROOT
 
-          # Check for and convert query string parameters to a symolized
-          # key hash so the designer can override the environment, format
-          # and version attributes during a given rendering.
-          # Courtesy of http://stackoverflow.com/questions/21990997/how-do-i-create-a-hash-from-a-querystring-in-ruby
-          params = CGI::parse(env[QUERY_STRING] || '')
-          params = Hash[params.map { |key, values| [ key.to_sym, values[0] || true ] }].symbolize_keys
+            # Check for and convert query string parameters to a symolized
+            # key hash so the designer can override the environment, format
+            # and version attributes during a given rendering.
+            # Courtesy of http://stackoverflow.com/questions/21990997/how-do-i-create-a-hash-from-a-querystring-in-ruby
+            params = CGI::parse(env[QUERY_STRING] || '')
+            params = Hash[params.map { |key, values| [ key.to_sym, values[0] || true ] }].symbolize_keys
 
-          # Allow the designer to specify both short- and long-form versions of
-          # the (e)nvironment, (f)ormat and (v)ersion.  Otherwise, use the values
-          # that Inkcite was started with.
-          environment = Util.detect(params[:e], params[:environment], @opts[:environment])
-          format = Util.detect(params[:f], params[:format], @opts[:format])
-          version = Util.detect(params[:v], params[:view], @opts[:version])
+            # Allow the designer to specify both short- and long-form versions of
+            # the (e)nvironment, (f)ormat and (v)ersion.  Otherwise, use the values
+            # that Inkcite was started with.
+            environment = Util.detect(params[:e], params[:environment], @opts[:environment])
+            format = Util.detect(params[:f], params[:format], @opts[:format])
+            version = Util.detect(params[:v], params[:view], @opts[:version])
 
-          # Timestamp all of the messages from this rendering so it is clear which
-          # messages are associated with this reload.
-          ts = "[#{Time.now.strftime(DATEFORMAT)}]"
+            # Timestamp all of the messages from this rendering so it is clear which
+            # messages are associated with this reload.
+            ts = "[#{Time.now.strftime(DATEFORMAT)}]"
 
-          puts ''
-          puts "#{ts} Rendering your email [environment=#{environment}, format=#{format}, version=#{version || 'default'}]"
+            puts ''
+            puts "#{ts} Rendering your email [environment=#{environment}, format=#{format}, version=#{version || 'default'}]"
 
-          view = @email.view(environment, format, version)
+            view = @email.view(environment, format, version)
 
-          html = view.render!
+            html = view.render!
 
-          unless view.errors.blank?
-            error_count = view.errors.count
-            puts "#{ts} #{error_count} error#{'s' if error_count > 1} or warning#{'s' if error_count > 1}:"
-            puts "#{ts} - #{view.errors.join("\n#{ts} - ")}"
+            unless view.errors.blank?
+              error_count = view.errors.count
+              puts "#{ts} #{error_count} error#{'s' if error_count > 1} or warning#{'s' if error_count > 1}:"
+              puts "#{ts} - #{view.errors.join("\n#{ts} - ")}"
+            end
+
+            [200, {}, [html]]
+          else
+            Rack::File.new(Dir.pwd).call(env)
+
           end
 
-          [200, {}, [html]]
-        else
-          Rack::File.new(Dir.pwd).call(env)
-
+        rescue Exception => e
+          puts e.message
+          puts e.backtrace.inspect
         end
 
       end
