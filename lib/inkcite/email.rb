@@ -49,7 +49,14 @@ module Inkcite
       meta_data[key.to_sym]
     end
 
+    # Optimizes this email's images if optimize-images is enabled
+    # in the email configuration.
     def optimize_images
+      optimize_images! if optimize_images?
+    end
+
+    # Optimizes all of the images in this email.
+    def optimize_images!
       Minifier.images(self)
     end
 
