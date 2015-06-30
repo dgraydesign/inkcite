@@ -70,23 +70,6 @@ module Inkcite
       File.join(path, optimize_images?? Minifier::IMAGE_CACHE : IMAGES)
     end
 
-    def properties
-
-      opts = {
-        :n => NEW_LINE
-      }
-
-      # Load the project's properties, which may include references to additional
-      # properties in other directories.
-      read_properties opts, 'helpers.tsv'
-
-      # As a convenience pre-populate the month name of the email.
-      mm = opts[:mm].to_i
-      opts[:month] = Date::MONTHNAMES[mm] if mm > 0
-
-      opts
-    end
-
     def project_file file
       File.join(path, file)
     end
@@ -122,12 +105,9 @@ module Inkcite
       raise "Unknown format \"#{format}\" - must be one of #{FORMATS.join(',')}" unless FORMATS.include?(format)
       raise "Unknown version: \"#{version}\" - must be one of #{versions.join(',')}" unless versions.include?(version)
 
-      opt = properties
-      opt.merge!(self.config)
-
       # Instantiate a new view of this email with the desired view and
       # format.
-      View.new(self, environment, format, version, opt)
+      View.new(self, environment, format, version)
 
     end
 
@@ -158,68 +138,12 @@ module Inkcite
     META_FILE_NAME = :'meta-file'
     META_FILE      = '.inkcite'
 
-    COMMENT         = '//'
-    NEW_LINE        = "\n"
-    TAB             = "\t"
-    CARRIAGE_RETURN = "\r"
-
-    # Used for
-    MULTILINE_START = "<<-START"
-    MULTILINE_END = "END->>"
-    TAB_TO_SPACE = '  '
-
     def meta_data
       Util.read_yml(File.join(path, meta_file_name), false)
     end
 
     def meta_file_name
       config[META_FILE_NAME] || META_FILE
-    end
-
-    def read_properties into, file
-
-      fp = File.join(path, file)
-      abort("Can't find #{file} in #{path} - are you sure this is an Inkcite project?") unless File.exists?(fp)
-
-      # Consolidate line-breaks for simplicity
-      raw = File.read(fp)
-      raw.gsub!(/[\r\f\n]{1,}/, NEW_LINE)
-
-      # Initial position of the
-      multiline_starts_at = 0
-
-      # Determine if there are any multiline declarations - those that are wrapped with
-      # <<-START and END->> and reduce them to single line declarations.
-      while (multiline_starts_at = raw.index(MULTILINE_START, multiline_starts_at))
-
-        break unless (multiline_ends_at = raw.index(MULTILINE_END, multiline_starts_at))
-
-        declaration = raw[(multiline_starts_at+MULTILINE_START.length)..multiline_ends_at - 1]
-        declaration.strip!
-        declaration.gsub!(/\t/, TAB_TO_SPACE)
-        declaration.gsub!(/\n/, "\r")
-
-        raw[multiline_starts_at..multiline_ends_at+MULTILINE_END.length - 1] = declaration
-
-      end
-
-      raw.split(NEW_LINE).each do |line|
-        next if line.starts_with?(COMMENT)
-
-        line.gsub!(/\r/, NEW_LINE)
-        line.strip!
-
-        key, open, close = line.split(TAB)
-        next if key.blank?
-
-        into[key.to_sym] = open.to_s.freeze
-
-        # Prepend the key with a "/" and populate the closing tag.
-        into["/#{key}".to_sym] = close.to_s.freeze
-
-      end
-
-      true
     end
 
   end

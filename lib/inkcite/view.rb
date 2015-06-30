@@ -38,15 +38,20 @@ module Inkcite
     attr_accessor :css_compressor
     attr_accessor :js_compressor
 
-    def initialize email, environment, format, version, config
+    def initialize email, environment, format, version
       @email = email
       @environment = environment
       @format = format
       @version = version
 
-      # TODO Read this ourselves and run it through Erubis for better
-      # a/b testing capabilities
-      @config = config
+      # Read the helper(s) for this view of the email.  This will load
+      # the default helpers.tsv and any version-specific (e.g. returning-customer.tsv)
+      # helper allowing for overrides.
+      @config = load_helpers
+
+      # Merge in the email's configuration for convience - providing access
+      # to the renderers.
+      @config.merge!(email.config)
 
       # Expose the version, format as a properties so that it can be resolved when
       # processing pathnames and such.  These need to be strings because they are
@@ -468,6 +473,7 @@ module Inkcite
     NEW_LINE        = "\n"
     REGEX_SLASH     = '/'
     SOURCE_ENCODING = :'source-encoding'
+    TAB             = "\t"
     TXT_EXTENSION   = '.txt'
     UTF_8           = 'utf-8'
 
@@ -480,6 +486,21 @@ module Inkcite
 
     # Used when there is no subject or title for this email.
     UNTITLED_EMAIL = 'Untitled Email'
+
+    # Used to denote the start and end of a multi-line helper entry. e.g.
+    # feature-story <<-START
+    #   I'm a multiline helper where line breaks and indendentation
+    #   can be used to make the helper file more readable, debuggable.
+    # END->>
+    MULTILINE_START = "<<-START"
+    MULTILINE_END = "END->>"
+
+    # Tabs within a multiline helper are converted to spaces.
+    TAB_TO_SPACE = '  '
+
+    # Used to mark a helper.tsv line as a comment.
+    COMMENT = '//'
+
 
     def assert_in_browser msg
       raise msg if email? && !development?
@@ -677,6 +698,78 @@ module Inkcite
       end
 
       html.join(NEW_LINE)
+    end
+
+    def load_helper_file filename, into, abort_on_fail=true
+
+      path = @email.path
+      file = File.join(path, filename)
+      unless File.exists?(file)
+        abort("Can't find #{filename} in #{path} - are you sure this is an Inkcite project?") if abort_on_fail
+        return
+      end
+
+      # Consolidate line-breaks for simplicity
+      raw = File.read(file)
+      raw.gsub!(/[\r\f\n]{1,}/, NEW_LINE)
+
+      # Initial position of the
+      multiline_starts_at = 0
+
+      # Determine if there are any multiline declarations - those that are wrapped with
+      # <<-START and END->> and reduce them to single line declarations.
+      while (multiline_starts_at = raw.index(MULTILINE_START, multiline_starts_at))
+
+        break unless (multiline_ends_at = raw.index(MULTILINE_END, multiline_starts_at))
+
+        declaration = raw[(multiline_starts_at+MULTILINE_START.length)..multiline_ends_at - 1]
+        declaration.strip!
+        declaration.gsub!(/\t/, TAB_TO_SPACE)
+        declaration.gsub!(/\n/, "\r")
+
+        raw[multiline_starts_at..multiline_ends_at+MULTILINE_END.length - 1] = declaration
+
+      end
+
+      raw.split(NEW_LINE).each do |line|
+        next if line.starts_with?(COMMENT)
+
+        line.gsub!(/\r/, NEW_LINE)
+        line.strip!
+
+        key, open, close = line.split(TAB)
+        next if key.blank?
+
+        into[key.to_sym] = open.to_s.freeze
+
+        # Prepend the key with a "/" and populate the closing tag.
+        into["/#{key}".to_sym] = close.to_s.freeze
+
+      end
+
+      true
+    end
+
+    # Reads the helpers.tsv and any version-specific override (e.g. helpers-owners.tsv)
+    def load_helpers
+
+      _helpers = {
+        :n => NEW_LINE
+      }
+
+      # Load the project's properties, which may include references to additional
+      # properties in other directories.
+      load_helper_file 'helpers.tsv', _helpers
+
+      # Look for a version-specific override allowing restyling of an email based
+      # on its version - e.g. difference colors in the "no orders for 30 days" email.
+      load_helper_file "helpers-#{@version}.tsv", _helpers, false
+
+      # As a convenience pre-populate the month name of the email.
+      mm = _helpers[:mm].to_i
+      _helpers[:month] = Date::MONTHNAMES[mm] if mm > 0
+
+      _helpers
     end
 
     # Retrieves the version-specific meta data for this view.
