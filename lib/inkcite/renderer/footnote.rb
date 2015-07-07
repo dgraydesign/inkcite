@@ -33,6 +33,10 @@ module Inkcite
           @symbol == @symbol.to_i.to_s
         end
 
+        def symbol?
+          !numeric?
+        end
+
         def to_s
           "#{symbol} #{text}"
         end
@@ -61,7 +65,7 @@ module Inkcite
             # there is one, increment the count.  Otherwise, start the count
             # off at one.
             last_instance = ctx.footnotes.select(&:numeric?).last
-            symbol = last_instance.nil?? 1 : last_instance.symbol.to_i + 1
+            symbol = last_instance.nil? ? 1 : last_instance.symbol.to_i + 1
 
           end
 
@@ -94,7 +98,7 @@ module Inkcite
         # on the format of the email.
         tmpl = opt[:tmpl] || opt[:template]
         if tmpl.blank?
-          tmpl = ctx.text?? "($symbol$) $text$\n\n" : "<sup>$symbol$</sup> $text$<br><br>"
+          tmpl = ctx.text? ? "($symbol$) $text$\n\n" : "<sup>$symbol$</sup> $text$<br><br>"
 
         elsif ctx.text?
 
@@ -104,23 +108,19 @@ module Inkcite
 
         end
 
+        # First, collect all symbols in the natural order they are defined
+        # in the email.
+        footnotes = ctx.footnotes.select(&:symbol?)
 
-        # Symbolic footnotes (e.g. daggers) always go ahead of
-        # the numeric footnotes - cause that's the way I like it
-        # uh huh, uh huh.
-        ctx.footnotes.sort! do |f1, f2|
-
-          next 1 if f1.numeric? && !f2.numeric?
-          next -1 if !f1.numeric? && f2.numeric?
-          f1.number <=> f2.number
-
-        end
+        # Now add to the list all numeric footnotes ordered naturally
+        # regardless of how they were ordered in the email.
+        footnotes += ctx.footnotes.select(&:numeric?).sort { |f1, f2| f1.number <=> f2.number }
 
         html = ''
 
         # Iterate through each of the footnotes and render them based on the
         # template that was provided.
-        ctx.footnotes.collect do |f|
+        footnotes.each do |f|
           html << tmpl.gsub('$symbol$', f.symbol).gsub('$text$', f.text)
         end
 

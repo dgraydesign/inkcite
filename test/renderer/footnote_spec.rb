@@ -37,6 +37,10 @@ describe Inkcite::Renderer::Footnote do
     Inkcite::Renderer.render('({footnote text="EPA-estimated fuel economy."})({footnote symbol="†" text="See Blackmur, especially chapters 3 and 4, for an insightful analysis of this trend."})({footnote text="Actual mileage may vary."})<br><br>{footnotes}', @view).must_equal("(1)(†)(2)<br><br><sup>†</sup> See Blackmur, especially chapters 3 and 4, for an insightful analysis of this trend.<br><br><sup>1</sup> EPA-estimated fuel economy.<br><br><sup>2</sup> Actual mileage may vary.<br><br>")
   end
 
+  it 'sorts symbols in the order they are defined' do
+    Inkcite::Renderer.render('({footnote text="EPA-estimated fuel economy."})({footnote symbol="†" text="See Blackmur, especially chapters 3 and 4, for an insightful analysis of this trend."})({footnote symbol="*" text="Actual mileage may vary."})<br><br>{footnotes}', @view).must_equal("(1)(†)(*)<br><br><sup>†</sup> See Blackmur, especially chapters 3 and 4, for an insightful analysis of this trend.<br><br><sup>*</sup> Actual mileage may vary.<br><br><sup>1</sup> EPA-estimated fuel economy.<br><br>")
+  end
+
   it 'can have a reusable, readable ID assigned to it' do
     Inkcite::Renderer.render('({footnote id="epa" text="EPA-estimated fuel economy."})({footnote id="epa"})', @view).must_equal("(1)(1)")
   end
