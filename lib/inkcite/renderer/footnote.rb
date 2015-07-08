@@ -108,6 +108,10 @@ module Inkcite
 
         end
 
+        # For the emailed version, append a line break between each footnote so that we don't
+        # end up with lines that exceed the allowed limit in certain versions of Outlook.
+        tmpl << "\n" if ctx.email?
+
         # First, collect all symbols in the natural order they are defined
         # in the email.
         footnotes = ctx.footnotes.select(&:symbol?)

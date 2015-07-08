@@ -30,15 +30,15 @@ describe Inkcite::Renderer::Footnote do
   end
 
   it 'renders using the {footnotes} tag' do
-    Inkcite::Renderer.render('yadda yadda({footnote text="EPA-estimated fuel economy."})<br><br>{footnotes}', @view).must_equal("yadda yadda(1)<br><br><sup>1</sup> EPA-estimated fuel economy.<br><br>")
+    Inkcite::Renderer.render('yadda yadda({footnote text="EPA-estimated fuel economy."})<br><br>{footnotes}', @view).must_equal("yadda yadda(1)<br><br><sup>1</sup> EPA-estimated fuel economy.<br><br>\n")
   end
 
   it 'sorts symbols before numeric footnotes' do
-    Inkcite::Renderer.render('({footnote text="EPA-estimated fuel economy."})({footnote symbol="†" text="See Blackmur, especially chapters 3 and 4, for an insightful analysis of this trend."})({footnote text="Actual mileage may vary."})<br><br>{footnotes}', @view).must_equal("(1)(†)(2)<br><br><sup>†</sup> See Blackmur, especially chapters 3 and 4, for an insightful analysis of this trend.<br><br><sup>1</sup> EPA-estimated fuel economy.<br><br><sup>2</sup> Actual mileage may vary.<br><br>")
+    Inkcite::Renderer.render('({footnote text="EPA-estimated fuel economy."})({footnote symbol="†" text="See Blackmur, especially chapters 3 and 4, for an insightful analysis of this trend."})({footnote text="Actual mileage may vary."})<br><br>{footnotes}', @view).must_equal("(1)(†)(2)<br><br><sup>†</sup> See Blackmur, especially chapters 3 and 4, for an insightful analysis of this trend.<br><br>\n<sup>1</sup> EPA-estimated fuel economy.<br><br>\n<sup>2</sup> Actual mileage may vary.<br><br>\n")
   end
 
   it 'sorts symbols in the order they are defined' do
-    Inkcite::Renderer.render('({footnote text="EPA-estimated fuel economy."})({footnote symbol="†" text="See Blackmur, especially chapters 3 and 4, for an insightful analysis of this trend."})({footnote symbol="*" text="Actual mileage may vary."})<br><br>{footnotes}', @view).must_equal("(1)(†)(*)<br><br><sup>†</sup> See Blackmur, especially chapters 3 and 4, for an insightful analysis of this trend.<br><br><sup>*</sup> Actual mileage may vary.<br><br><sup>1</sup> EPA-estimated fuel economy.<br><br>")
+    Inkcite::Renderer.render('({footnote text="EPA-estimated fuel economy."})({footnote symbol="†" text="See Blackmur, especially chapters 3 and 4, for an insightful analysis of this trend."})({footnote symbol="*" text="Actual mileage may vary."})<br><br>{footnotes}', @view).must_equal("(1)(†)(*)<br><br><sup>†</sup> See Blackmur, especially chapters 3 and 4, for an insightful analysis of this trend.<br><br>\n<sup>*</sup> Actual mileage may vary.<br><br>\n<sup>1</sup> EPA-estimated fuel economy.<br><br>\n")
   end
 
   it 'can have a reusable, readable ID assigned to it' do
@@ -46,11 +46,11 @@ describe Inkcite::Renderer::Footnote do
   end
 
   it 'can have a custom template' do
-    Inkcite::Renderer.render('({footnote text="EPA-estimated fuel economy."}) {footnotes tmpl="<p><sup>$symbol$</sup> $text$</p>"}', @view).must_equal("(1) <p><sup>1</sup> EPA-estimated fuel economy.</p>")
+    Inkcite::Renderer.render('({footnote text="EPA-estimated fuel economy."}) {footnotes tmpl="<p><sup>$symbol$</sup> $text$</p>"}', @view).must_equal("(1) <p><sup>1</sup> EPA-estimated fuel economy.</p>\n")
   end
 
   it 'can be defined silently' do
-    Inkcite::Renderer.render('{footnote hidden=1 text="EPA-estimated fuel economy."}{footnotes}', @view).must_equal("<sup>1</sup> EPA-estimated fuel economy.<br><br>")
+    Inkcite::Renderer.render('{footnote hidden=1 text="EPA-estimated fuel economy."}{footnotes}', @view).must_equal("<sup>1</sup> EPA-estimated fuel economy.<br><br>\n")
   end
 
   it 'converts "\n" within footnotes template to new-lines' do
