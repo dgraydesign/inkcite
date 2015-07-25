@@ -36,7 +36,9 @@ module Inkcite
 
         # Copy the main Inkcite project files
         FILES.each do |file|
-          FileUtils.cp File.join(from_path, file), full_init_path
+          from_file = File.join(from_path, file)
+          next unless File.exists?(from_file)
+          FileUtils.cp(from_file, full_init_path)
           puts "Created #{File.join(path, file)}"
         end
 
