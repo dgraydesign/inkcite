@@ -41,8 +41,8 @@ module Inkcite
         border_collapse = opt[BORDER_COLLAPSE]
         table.style[BORDER_COLLAPSE] = border_collapse unless border_collapse.blank?
 
-        margin_top = opt[MARGIN_TOP].to_i
-        table.style[MARGIN_TOP] = px(margin_top) if margin_top > 0
+        # Apply margins.
+        mix_margins table, opt, ctx
 
         mobile = opt[:mobile]
 

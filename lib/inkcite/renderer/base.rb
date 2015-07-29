@@ -3,41 +3,48 @@ module Inkcite
     class Base
 
       # Constants for style and property names with dashes in them.
-      BACKGROUND_COLOR    = :'background-color'
-      BACKGROUND_IMAGE    = :'background-image'
-      BACKGROUND_REPEAT   = :'background-repeat'
+      BACKGROUND_COLOR = :'background-color'
+      BACKGROUND_IMAGE = :'background-image'
+      BACKGROUND_REPEAT = :'background-repeat'
       BACKGROUND_POSITION = :'background-position'
-      BACKGROUND_SIZE     = :'background-size'
-      BORDER_BOTTOM       = :'border-bottom'
-      BORDER_COLLAPSE     = :'border-collapse'
-      BORDER_RADIUS       = :'border-radius'
-      BORDER_SPACING      = :'border-spacing'
-      BOX_SHADOW          = :'box-shadow'
-      FONT_FAMILY         = :'font-family'
-      FONT_SIZE           = :'font-size'
-      FONT_WEIGHT         = :'font-weight'
-      LETTER_SPACING      = :'letter-spacing'
-      LINE_HEIGHT         = :'line-height'
-      LINK_COLOR          = :'#link'
-      MARGIN_TOP          = :'margin-top'
-      PADDING_X           = :'padding-x'
-      PADDING_Y           = :'padding-y'
-      TEXT_ALIGN          = :'text-align'
-      TEXT_DECORATION     = :'text-decoration'
-      TEXT_SHADOW         = :'text-shadow'
-      TEXT_SHADOW_BLUR    = :'shadow-blur'
-      TEXT_SHADOW_OFFSET  = :'shadow-offset'
-      VERTICAL_ALIGN      = :'vertical-align'
+      BACKGROUND_SIZE = :'background-size'
+      BORDER_BOTTOM = :'border-bottom'
+      BORDER_COLLAPSE = :'border-collapse'
+      BORDER_RADIUS = :'border-radius'
+      BORDER_SPACING = :'border-spacing'
+      BOX_SHADOW = :'box-shadow'
+      FONT_FAMILY = :'font-family'
+      FONT_SIZE = :'font-size'
+      FONT_WEIGHT = :'font-weight'
+      LETTER_SPACING = :'letter-spacing'
+      LINE_HEIGHT = :'line-height'
+      LINK_COLOR = :'#link'
+      MARGIN = :'margin'
+      MARGIN_BOTTOM = :'margin-bottom'
+      MARGIN_LEFT = :'margin-left'
+      MARGIN_RIGHT = :'margin-right'
+      MARGIN_TOP = :'margin-top'
+      PADDING_X = :'padding-x'
+      PADDING_Y = :'padding-y'
+      TEXT_ALIGN = :'text-align'
+      TEXT_DECORATION = :'text-decoration'
+      TEXT_SHADOW = :'text-shadow'
+      TEXT_SHADOW_BLUR = :'shadow-blur'
+      TEXT_SHADOW_OFFSET = :'shadow-offset'
+      VERTICAL_ALIGN = :'vertical-align'
+
+      # CSS Margins
+      MARGINS = [MARGIN_TOP, MARGIN_LEFT, MARGIN_BOTTOM, MARGIN_RIGHT]
 
       # CSS Directions
-      DIRECTIONS = [ :top, :right, :bottom, :left ]
+      DIRECTIONS = [:top, :right, :bottom, :left]
 
       # Attribute and CSS dimensions
-      DIMENSIONS = [ :width, :height ]
+      DIMENSIONS = [:width, :height]
 
       # Common value declarations
       POUND_SIGN = '#'
-      NONE       = 'none'
+      NONE = 'none'
 
       # Zero-width space character
       ZERO_WIDTH_SPACE = '&#8203;'
@@ -120,6 +127,24 @@ module Inkcite
         mix_text_shadow element, opt, ctx
 
         font
+      end
+
+      def mix_margins element, opt, ctx
+
+        # Check to see if the 'all' margin attribute is specified.
+        all_margin = opt[MARGIN]
+
+        # Applying individual margins helps ensure compatibility across
+        # all email clients. Cough! Cough! Looking at you Outlook.
+        MARGINS.each do |margin|
+
+          # Check for specific direction margin (e.g. margin-left) which
+          # would override all margins.  Otherwise, inherit all margin.
+          amt = (opt[margin] || all_margin).to_i
+          element.style[margin] = px(amt) if amt > 0
+
+        end
+
       end
 
       def mix_text_shadow element, opt, ctx
