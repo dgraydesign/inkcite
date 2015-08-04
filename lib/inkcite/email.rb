@@ -23,7 +23,7 @@ module Inkcite
     end
 
     def config
-      Util.read_yml(File.join(path, 'config.yml'), true)
+      Util.read_yml(File.join(path, 'config.yml'), :fail_if_not_exists => true)
     end
 
     def formats env
@@ -139,7 +139,7 @@ module Inkcite
     META_FILE      = '.inkcite'
 
     def meta_data
-      Util.read_yml(File.join(path, meta_file_name), false)
+      Util.read_yml(File.join(path, meta_file_name))
     end
 
     def meta_file_name

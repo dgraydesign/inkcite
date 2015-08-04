@@ -501,6 +501,9 @@ module Inkcite
     # Used to mark a helper.tsv line as a comment.
     COMMENT = '//'
 
+    # Name of the local font cache file used for local storage of
+    # Google Font CSS
+    FONT_CACHE_FILE = '.inkcite_fonts'
 
     def assert_in_browser msg
       raise msg if email? && !development?
@@ -591,6 +594,54 @@ module Inkcite
       html
     end
 
+    def inline_google_fonts
+
+      reset = ''
+
+      # Google Web Fonts support courtesy of
+      # http://www.emaildesignreview.com/html-email-coding/web-fonts-in-email-1482/
+      font_urls = self[:fonts]
+      unless font_urls.blank?
+        require 'open-uri'
+
+        # Load the previously cached font, if any
+        font_cache_path = @email.project_file(FONT_CACHE_FILE)
+        font_cache = Util.read_yml(font_cache_path, :symbolize_keys => false)
+
+        # True if the cache needs to be updated because a new URL was
+        # added to it.
+        updated = false
+
+        # If you use @font-face in HTML email, Outlook 07/10/13 will default all
+        # text back to Times New Roman.
+        # http://www.emaildesignreview.com/html-email-coding/web-fonts-in-email-1482/
+        reset << '@media screen {'
+
+        # Iterate through the configured fonts. Check to see if we've already cached
+        # Google's response.  If not, retrieve it and add it to the
+        font_urls.each do |url|
+          if font_cache[url].blank?
+            begin
+              font_cache[url] = open(url).read
+              updated = true
+            rescue
+              error 'Unable to load Google Web Font', { :url => url }
+            end
+          end
+
+          reset << font_cache[url]
+        end
+        reset << '}'
+
+        # If the fontcache was updated, update it in our sekret file.
+        File.write(font_cache_path, font_cache.to_yaml) if updated
+
+      end
+
+      reset
+    end
+
+
     def inline_scripts
 
       code = ''
@@ -659,29 +710,7 @@ module Inkcite
         reset << 'o\:* { behavior: url(#default#VML); display: inline-block; }'
       end
 
-      # Google Web Fonts support courtesy of
-      # http://www.emaildesignreview.com/html-email-coding/web-fonts-in-email-1482/
-      font_urls = self[:fonts]
-      unless font_urls.blank?
-        require 'open-uri'
-
-        # If you use @font-face in HTML email, Outlook 07/10/13 will default all
-        # text back to Times New Roman.
-        # http://www.emaildesignreview.com/html-email-coding/web-fonts-in-email-1482/
-        reset << "@media screen {"
-
-        # Iterate through the configured fonts and
-        font_urls.each do |url|
-          begin
-            reset << open(url).read
-          rescue
-            error "Unable to load Google Web Font", { :url => url }
-          end
-
-        end
-        reset << "}"
-
-      end
+      reset << inline_google_fonts
 
       # Responsive styles.
       reset += @media_query.to_a unless @media_query.blank?

@@ -55,10 +55,12 @@ module Inkcite
       end
     end
 
-    def self.read_yml file, fail_if_not_exists=false
+    def self.read_yml file, opts={}
       if File.exist?(file)
-        symbolize_keys(YAML.load_file(file))
-      elsif fail_if_not_exists
+        yml = YAML.load_file(file)
+        symbolize_keys(yml) unless opts[:symbolize_keys] == false
+        yml
+      elsif opts[:fail_if_not_exists]
         raise "File not found: #{file}" if fail_if_not_exists
       else
         {}
