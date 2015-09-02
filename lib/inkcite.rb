@@ -1,3 +1,4 @@
+require 'csv'
 require 'erubis'
 require 'i18n'
 require 'set'

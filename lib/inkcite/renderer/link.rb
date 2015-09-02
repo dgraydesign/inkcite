@@ -42,6 +42,10 @@ module Inkcite
         id   = opt[:id]
         href = opt[:href]
 
+        # If a URL wasn't provided in the HTML, then check to see if there is
+        # a link declared in the project's links_tsv file.
+        href = ctx.links_tsv[id] if href.blank?
+
         # True if the href is missing.  If so, we may try to look it up by it's ID
         # or we'll insert a default TBD link.
         missing = href.blank?

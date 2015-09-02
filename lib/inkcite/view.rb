@@ -239,6 +239,20 @@ module Inkcite
       @links ||= {}
     end
 
+    # Returns a hash of the links.tsv file from the project which is used
+    # to populate the {a} and {button} hrefs when an href isn't defined.
+    def links_tsv
+      @links_tsv ||= begin
+        links_tsv_file = @email.project_file(LINKS_TSV_FILE)
+        if File.exists?(links_tsv_file)
+          Hash[CSV.read(links_tsv_file, { :col_sep => "\t" })]
+        end
+      rescue Exception => e
+        error("There was a problem reading #{LINKS_TSV_FILE}: #{e.message}")
+        {}
+      end
+    end
+
     def meta key
       md = meta_data
       md.nil?? nil : md[key]
@@ -451,8 +465,6 @@ module Inkcite
     def write_links_csv out
 
       unless @links.blank?
-
-        require 'csv'
         csv = CSV.new(out, :force_quotes => true)
 
         # Write each link to the CSV file.
@@ -504,6 +516,9 @@ module Inkcite
     # Name of the local font cache file used for local storage of
     # Google Font CSS
     FONT_CACHE_FILE = '.inkcite_fonts'
+
+    # Tab-separated file containing links declarations.
+    LINKS_TSV_FILE = 'links.tsv'
 
     def assert_in_browser msg
       raise msg if email? && !development?
