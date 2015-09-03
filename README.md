@@ -91,8 +91,8 @@ of other preflight features.
 
 ## Learn More
 
-Documentation for Inkcite is generously hosted by the friendly folks at
-[Readme]: https://inkcite.readme.io/
+Documentation for Inkcite is generously hosted by the friendly folks at [Readme].
+Get started here: https://inkcite.readme.io/
 
 ## Bug Reports
 
