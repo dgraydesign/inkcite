@@ -92,7 +92,7 @@ of other preflight features.
 ## Learn More
 
 Documentation for Inkcite is generously hosted by the friendly folks at
-[Readme.io]: https://inkcite.readme.io/
+[Readme]: https://inkcite.readme.io/
 
 ## Bug Reports
 
@@ -113,4 +113,4 @@ details.
 [Litmus]: http://litmus.com
 [rubyinstaller]: http://rubyinstaller.org/
 [LICENSE]: https://github.com/inkceptional/inkcite/blob/master/LICENSE
-[Readme.io]: https://readme.io
+[Readme]: https://readme.io
