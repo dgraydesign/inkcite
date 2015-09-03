@@ -89,6 +89,11 @@ By default, this will create the production version of your email.  This
 includes fully-qualified URLs for images, link tracking and tagging and a host
 of other preflight features.
 
+## Learn More
+
+Documentation for Inkcite is generously hosted by the friendly folks at
+[Readme.io]: https://inkcite.readme.io/
+
 ## Bug Reports
 
 Github Issues is used for managing bug reports and feature requests. If you
@@ -108,3 +113,4 @@ details.
 [Litmus]: http://litmus.com
 [rubyinstaller]: http://rubyinstaller.org/
 [LICENSE]: https://github.com/inkceptional/inkcite/blob/master/LICENSE
+[Readme.io]: https://readme.io
