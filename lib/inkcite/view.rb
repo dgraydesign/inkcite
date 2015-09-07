@@ -246,6 +246,8 @@ module Inkcite
         links_tsv_file = @email.project_file(LINKS_TSV_FILE)
         if File.exists?(links_tsv_file)
           Hash[CSV.read(links_tsv_file, { :col_sep => "\t" })]
+        else
+          {}
         end
       rescue Exception => e
         error("There was a problem reading #{LINKS_TSV_FILE}: #{e.message}")
