@@ -33,7 +33,7 @@ module Inkcite
           tag_stack = ctx.tag_stack(tag[1..-1])
 
           # The provided opts take precedence over the ones passed to the open tag.
-          opt = tag_stack.pop.merge(opt)
+          opt = tag_stack.pop.merge(opt) if tag_stack
 
         end
 
