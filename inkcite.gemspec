@@ -29,6 +29,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'faker'
   spec.add_dependency 'litmus'
   spec.add_dependency 'mail'
+  spec.add_dependency 'mailgun-ruby'
   spec.add_dependency 'net-sftp'
   spec.add_dependency 'rack'
   spec.add_dependency 'rubyzip'

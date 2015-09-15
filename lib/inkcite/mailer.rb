@@ -1,4 +1,5 @@
 require 'mail'
+require 'mailgun'
 
 module Inkcite
   class Mailer
@@ -27,11 +28,11 @@ module Inkcite
       cc = recipients[:internal]
 
       self.send(email, {
-          :to => to,
-          :cc => cc,
-          :bcc => true,
-          :tag => "Preview ##{count}"
-      })
+              :to => to,
+              :cc => cc,
+              :bcc => true,
+              :tag => "Preview ##{count}"
+          })
 
     end
 
@@ -40,8 +41,8 @@ module Inkcite
       count = increment(email, :developer)
 
       self.send(email, {
-          :tag => "Developer Test ##{count}"
-      })
+              :tag => "Developer Test ##{count}"
+          })
 
     end
 
@@ -57,10 +58,10 @@ module Inkcite
       count = increment(email, :internal)
 
       self.send(email, {
-          :to => recipients[:internal],
-          :bcc => true,
-          :tag => "Internal Proof ##{count}"
-      })
+              :to => recipients[:internal],
+              :bcc => true,
+              :tag => "Internal Proof ##{count}"
+          })
 
     end
 
@@ -87,46 +88,82 @@ module Inkcite
 
     def self.send_version email, version, opt
 
-      config = email.config[:smtp]
+      # The version of the email we will be sending.
+      view = email.view(:preview, :email, version)
+
+      # Subject line tag such as "Preview #3"
+      tag = opt[:tag]
+
+      subject = view.subject
+      subject = "#{subject} (#{tag})" unless tag.blank?
+
+      if config = email.config[:mailgun]
+        send_version_via_mailgun config, view, subject, opt
+      elsif config = email.config[:smtp]
+        send_version_via_smtp config, view, subject, opt
+      else
+        puts 'Unable to send previews. Please configure mailgun or smtp sections in config.yml'
+      end
+
+    end
+
+    private
+
+    def self.send_version_via_mailgun config, view, subject, opt
+
+      # The address of the developer
+      from = config[:from]
+
+      # First, instantiate the Mailgun Client with your API key
+      mg_client = Mailgun::Client.new config[:'api-key']
+
+      # Define your message parameters
+      message_params = {
+          :from => from,
+          :to => opt[:to] || from,
+          :subject => subject,
+          :html => view.render!
+      }
+
+      message_params[:cc] = opt[:cc] unless opt[:cc].blank?
+      message_params[:bcc] = from if opt[:bcc] == true
+
+      # Send your message through the client
+      mg_client.send_message config[:domain], message_params
+
+    end
+
+    def self.send_version_via_smtp config, view, _subject, opt
 
       Mail.defaults do
         delivery_method :smtp, {
-          :address              => config[:host],
-          :port                 => config[:port],
-          :user_name            => config[:username],
-          :password             => config[:password],
-          :authentication       => :plain,
-          :enable_starttls_auto => true
-        }
+                :address => config[:host],
+                :port => config[:port],
+                :user_name => config[:username],
+                :password => config[:password],
+                :authentication => :plain,
+                :enable_starttls_auto => true
+            }
       end
 
       # The address of the developer
       _from = config[:from]
 
-      # Subject line tag such as "Preview #3"
-      _tag = opt[:tag]
-
       # True if the developer should be bcc'd.
       _bcc = opt[:bcc] == true
 
-      # The version of the email we will be sending.
-      _view = email.view(:preview, :email, version)
-
-      _subject = _view.subject
-      _subject = "#{_subject} (#{_tag})" unless _tag.blank?
-
       mail = Mail.new do
 
-        to      opt[:to] || _from
-        cc      opt[:cc]
-        from    _from
+        to opt[:to] || _from
+        cc opt[:cc]
+        from _from
         subject _subject
 
         bcc(_from) if _bcc
 
         html_part do
           content_type 'text/html; charset=UTF-8'
-          body _view.render!
+          body view.render!
         end
 
       end
