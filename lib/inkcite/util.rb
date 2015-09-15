@@ -61,7 +61,7 @@ module Inkcite
         symbolize_keys(yml) unless opts[:symbolize_keys] == false
         yml
       elsif opts[:fail_if_not_exists]
-        raise "File not found: #{file}" if fail_if_not_exists
+        raise "File not found: #{file}"
       else
         {}
       end
