@@ -19,7 +19,11 @@ module Inkcite
           nil
         end
 
+        puts
         puts "Inkcite #{Inkcite::VERSION} is starting up ..."
+        puts 'Documentation available at http://inkcite.readme.io'
+        puts 'Press CTRL-C to exit server mode'
+        puts
 
         begin
           @server = ::WEBrick::HTTPServer.new({
@@ -47,6 +51,7 @@ module Inkcite
 
         puts "Your email is being served at http://#{host}:#{port}"
         puts "Point your mobile device to http://#{ip}:#{port}" if ip
+        puts
 
         @server.start
 
