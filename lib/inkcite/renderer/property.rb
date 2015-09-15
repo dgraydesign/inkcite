@@ -30,7 +30,7 @@ module Inkcite
           # grab the tag stack for said open tag.  Pop the most recently provided
           # opts off the stack so those values are available again.
           open_tag = tag[1..-1]
-          tag_stack = ctx.tag_stack(tag[1..-1])
+          tag_stack = ctx.tag_stack(open_tag)
 
           # The provided opts take precedence over the ones passed to the open tag.
           opt = tag_stack.pop.merge(opt) if tag_stack
