@@ -10,6 +10,7 @@ require_relative 'renderer/footnote'
 require_relative 'renderer/google_analytics'
 require_relative 'renderer/image'
 require_relative 'renderer/in_browser'
+require_relative 'renderer/increment'
 require_relative 'renderer/like'
 require_relative 'renderer/link'
 require_relative 'renderer/litmus'
@@ -149,6 +150,7 @@ module Inkcite
 
       # Dynamic renderers for custom behavior and tags.
       @renderers ||= {
+          :'++'               => Increment.new,
           :a                  => Link.new,
           :button             => Button.new,
           :div                => Div.new,
