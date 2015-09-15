@@ -44,6 +44,7 @@ module Inkcite
             packed_line = ''
           end
 
+          packed_line << ' ' unless packed_line.blank?
           packed_line << line
 
         end
