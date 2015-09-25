@@ -17,10 +17,16 @@ module Inkcite
         # when the {footnotes} tag is rendered.
         attr_reader :text
 
-        def initialize id, symbol, text
+        # True if this footnote is active. By default all footnotes are
+        # activate but those read from footnotes.tsv are inactive until
+        # referenced in the source.
+        attr_accessor :active
+
+        def initialize id, symbol, text, active=true
           @id = id
           @symbol = symbol.to_s
           @text = text
+          @active = active
         end
 
         def number
@@ -31,6 +37,10 @@ module Inkcite
         # a symbol - e.g. †
         def numeric?
           @symbol == @symbol.to_i.to_s
+        end
+
+        def symbol=symbol
+          @symbol = symbol.to_s
         end
 
         def symbol?
@@ -59,19 +69,13 @@ module Inkcite
           # this isn't specified count the number of existing numeric footnotes
           # and increment it for this new footnote's symbol.
           symbol = opt[:symbol]
-          if symbol.blank?
-
-            # Grab the last numeric footnote that was specified and, assuming
-            # there is one, increment the count.  Otherwise, start the count
-            # off at one.
-            last_instance = ctx.footnotes.select(&:numeric?).last
-            symbol = last_instance.nil? ? 1 : last_instance.symbol.to_i + 1
-
-          end
 
           # Grab the text associated with this footnote.
           text = opt[:text]
-          ctx.error("Footnote requires text attribute", { :id => id, :symbol => symbol }) if text.blank?
+          if text.blank?
+            ctx.error("Footnote requires text attribute", { :id => id, :symbol => symbol })
+            return
+          end
 
           # Create a new Footnote instance
           instance = Instance.new(id, symbol, text)
@@ -80,6 +84,24 @@ module Inkcite
           ctx.footnotes << instance
 
         end
+
+        # Check to see if the footnote's symbol is blank (either because one
+        # wasn't defined in the source.html or because the one read from the
+        # footnotes.tsv had no symbol associated with it) and if so, generate
+        # one based on the number of previously declared numeric footnotes.
+        if instance.symbol.blank?
+
+          # Grab the last numeric footnote that was specified and, assuming
+          # there is one, increment the count.  Otherwise, start the count
+          # off at one.
+          last_instance = ctx.footnotes.select(&:numeric?).last
+          instance.symbol = last_instance.nil? ? 1 : last_instance.symbol.to_i + 1
+
+        end
+
+        # Make sure the instance is marked as having been used so it will
+        # appear in the {footnotes} rendering.
+        instance.active = true
 
         # Allow footnotes to be defined without showing a symbol
         hidden = opt[:hidden].to_i == 1
@@ -93,6 +115,10 @@ module Inkcite
 
         # Nothing to do if footnotes are blank.
         return if ctx.footnotes.blank?
+
+        # Grab the active footnotes.
+        active_footnotes = ctx.footnotes.select(&:active)
+        return if active_footnotes.blank?
 
         # Check to see if a template has been provided.  Otherwise use a default one based
         # on the format of the email.
@@ -114,11 +140,11 @@ module Inkcite
 
         # First, collect all symbols in the natural order they are defined
         # in the email.
-        footnotes = ctx.footnotes.select(&:symbol?)
+        footnotes = active_footnotes.select(&:symbol?)
 
         # Now add to the list all numeric footnotes ordered naturally
         # regardless of how they were ordered in the email.
-        footnotes += ctx.footnotes.select(&:numeric?).sort { |f1, f2| f1.number <=> f2.number }
+        footnotes += active_footnotes.select(&:numeric?).sort { |f1, f2| f1.number <=> f2.number }
 
         html = ''
 

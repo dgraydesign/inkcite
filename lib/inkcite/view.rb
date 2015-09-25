@@ -151,7 +151,32 @@ module Inkcite
     end
 
     def footnotes
-      @footnotes ||= []
+
+      if @footnotes.nil?
+        @footnotes = []
+
+        # Preload the array of footnotes if they exist
+        footnotes_tsv_file = @email.project_file(FOOTNOTES_TSV_FILE)
+        if File.exists?(footnotes_tsv_file)
+          CSV.foreach(footnotes_tsv_file, { :col_sep => "\t" }) do |fn|
+
+            id = fn[0]
+            next if id.blank?
+
+            text = fn[2]
+            next if text.blank?
+
+            # Read the symbol and replace it with nil (so that one will be auto-generated)
+            symbol = fn[1]
+            symbol = nil if symbol.blank?
+
+            @footnotes << Renderer::Footnote::Instance.new(id, symbol, text, false)
+
+          end
+        end
+      end
+
+      @footnotes
     end
 
     def file_name ext=nil
@@ -521,6 +546,9 @@ module Inkcite
 
     # Tab-separated file containing links declarations.
     LINKS_TSV_FILE = 'links.tsv'
+
+    # Tab-separated file containing footnote declarations.
+    FOOTNOTES_TSV_FILE = 'footnotes.tsv'
 
     def assert_in_browser msg
       raise msg if email? && !development?
