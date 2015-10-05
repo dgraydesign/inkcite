@@ -13,7 +13,7 @@ require_relative 'renderer/in_browser'
 require_relative 'renderer/increment'
 require_relative 'renderer/like'
 require_relative 'renderer/link'
-require_relative 'renderer/litmus'
+require_relative 'renderer/litmus_analytics'
 require_relative 'renderer/lorem'
 require_relative 'renderer/mobile_image'
 require_relative 'renderer/mobile_style'
@@ -161,7 +161,7 @@ module Inkcite
           :'in-browser'       => InBrowser.new,
           :include            => Partial.new,
           :like               => Like.new,
-          :litmus             => Litmus.new,
+          :litmus             => LitmusAnalytics.new,
           :lorem              => Lorem.new,
           :'mobile-img'       => MobileImage.new,
           :'mobile-style'     => MobileStyle.new,
