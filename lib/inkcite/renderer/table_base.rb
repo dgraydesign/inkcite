@@ -21,34 +21,43 @@ module Inkcite
         # css isn't supported.
         element[:bgcolor] = hex(bgcolor) unless bgcolor.blank?
 
-        # Assisted background image handling for maximum compatibility.
         bgimage    = opt[:background]
         bgposition = opt[BACKGROUND_POSITION]
         bgrepeat   = opt[BACKGROUND_REPEAT]
+        bgsize     = opt[BACKGROUND_SIZE]
 
-        # No need to set any CSS if there is no background image present on this
-        # element.  Previously, it would also set the background-color attribute
-        # for unnecessary duplication.
-        background_css(element.style, bgcolor, bgimage, bgposition, bgrepeat, nil, false, ctx)  unless bgimage.blank?
-
-        m_bgcolor = detect(opt[MOBILE_BACKGROUND_COLOR], opt[MOBILE_BGCOLOR])
-        m_bgimage = detect(opt[MOBILE_BACKGROUND_IMAGE], opt[MOBILE_BACKGROUND])
-
-        mobile_background = background_css(
-            {},
-            m_bgcolor,
-            m_bgimage,
-            detect(opt[MOBILE_BACKGROUND_POSITION], bgposition),
-            detect(opt[MOBILE_BACKGROUND_REPEAT], bgrepeat),
-            detect(opt[MOBILE_BACKGROUND_SIZE]),
-            (m_bgcolor && bgcolor) || (m_bgimage && bgimage),
+        # Sets the background image attributes in the element's style
+        # attribute.  These values take precedence on the desktop
+        # version of the email.
+        desktop_background = mix_background_shorthand(
+            bgcolor,
+            bgimage,
+            bgposition,
+            bgrepeat,
+            bgsize,
             ctx
         )
 
-        unless mobile_background.blank?
+        element.style[:background] = desktop_background unless bgimage.blank?
+
+        # Set the mobile background image attributes.  These values take
+        # precedence on the mobile version of the email.  If unset the
+        # mobile version inherits from the desktop version.
+        mobile_background = mix_background_shorthand(
+            detect(opt[MOBILE_BACKGROUND_COLOR], opt[MOBILE_BGCOLOR], bgcolor),
+            detect(opt[MOBILE_BACKGROUND_IMAGE], opt[MOBILE_BACKGROUND], bgimage),
+            detect(opt[MOBILE_BACKGROUND_POSITION], bgposition),
+            detect(opt[MOBILE_BACKGROUND_REPEAT], bgrepeat),
+            detect(opt[MOBILE_BACKGROUND_SIZE], bgsize),
+            ctx
+        )
+
+        unless mobile_background.blank? || mobile_background == desktop_background
+
+          mobile_background << ' !important' unless desktop_background.blank?
 
           # Add the responsive rule that applies to this element.
-          rule = Rule.new(element.tag, unique_klass(ctx), mobile_background)
+          rule = Rule.new(element.tag, unique_klass(ctx), { :background => mobile_background })
 
           # Add the rule to the view and the element
           ctx.media_query << rule
@@ -87,61 +96,43 @@ module Inkcite
 
       private
 
-      def background_css into, bgcolor, img, position, repeat, size, important, ctx
+      def mix_background_shorthand bgcolor, img, position, repeat, size, ctx
 
-        unless bgcolor.blank? && img.blank?
+        values = []
 
-          bgcolor = hex(bgcolor) unless bgcolor.blank?
+        values << hex(bgcolor) unless none?(bgcolor)
+
+        unless img.blank?
 
           # If no image has been provided or if the image provided is equal
           # to "none" then we'll set the values independently.  Otherwise
           # we'll use a composite background declaration.
           if none?(img)
-
-            unless bgcolor.blank?
-              bgcolor << ' !important' if important
-              into[BACKGROUND_COLOR] = bgcolor
-            end
-
-            # Check specifically for a value of "none" which allows the email
-            # designer to the background that is otherwise present on the
-            # desktop version of the email.
-            if img == NONE
-              img = 'none'
-              img << ' !important' if important
-              into[BACKGROUND_IMAGE] = img
-            end
+            values << 'none'
 
           else
+
+            values << "url(#{ctx.image_url(img)})"
+
+            position = '0% 0%' if position.blank? && !size.blank?
+            unless position.blank?
+              values << position
+              unless size.blank?
+                values << '/'
+                values << (size == 'fill' ? '100% auto' : size)
+              end
+            end
 
             # Default to no-repeat if a position has been supplied or replace
             # 'none' as a convenience (cause none is easier to type than no-repeat).
             repeat = 'no-repeat' if (repeat.blank? && !position.blank?) || repeat == NONE
+            values << repeat unless repeat.blank?
 
-            sty = []
-            sty << bgcolor unless bgcolor.blank?
-
-            ctx.assert_image_exists(img)
-
-            sty << "url(#{ctx.image_url(img)})"
-            sty << position unless position.blank?
-            sty << repeat unless repeat.blank?
-            sty << '!important' if important
-
-            into[:background] = sty.join(' ')
-
-          end
-
-          # Background size needs to be set independently.  Perhaps it can be
-          # mixed into background: but I couldn't make it work.
-          unless size.blank?
-            into[BACKGROUND_SIZE] = size
-            into[BACKGROUND_SIZE] << ' !important' if important
           end
 
         end
 
-        into
+        values.blank?? nil : values.join(' ')
       end
 
     end

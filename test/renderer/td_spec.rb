@@ -91,12 +91,12 @@ describe Inkcite::Renderer::Td do
 
   it 'can have a custom background color on mobile' do
     Inkcite::Renderer.render('{td mobile-bgcolor=#f09}', @view).must_equal('<td class="m1">')
-    @view.media_query.find_by_klass('m1').to_css.must_equal('td[class~="m1"] { background-color:#ff0099 }')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('td[class~="m1"] { background:#ff0099 }')
   end
 
   it 'can override background color on mobile' do
     Inkcite::Renderer.render('{td bgcolor=#f00 mobile-bgcolor=#00f}', @view).must_equal('<td bgcolor=#ff0000 class="m1">')
-    @view.media_query.find_by_klass('m1').to_css.must_equal('td[class~="m1"] { background-color:#0000ff !important }')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('td[class~="m1"] { background:#0000ff !important }')
   end
 
   it 'can have a background image' do
@@ -109,18 +109,18 @@ describe Inkcite::Renderer::Td do
   end
 
   it 'can override background image on mobile' do
-    Inkcite::Renderer.render('{td background=floor.jpg background-position=bottom mobile-background-image=sky.jpg mobile-background-position=top}', @view).must_equal('<td class="m1" style="background:url(images/floor.jpg) bottom no-repeat">')
-    @view.media_query.find_by_klass('m1').to_css.must_equal('td[class~="m1"] { background:url(images/sky.jpg) top no-repeat !important }')
+    Inkcite::Renderer.render('{td background=floor.jpg mobile-background-image=sky.jpg }', @view).must_equal('<td class="m1" style="background:url(images/floor.jpg)">')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('td[class~="m1"] { background:url(images/sky.jpg) !important }')
+  end
+
+  it 'can override background position on mobile' do
+    Inkcite::Renderer.render('{td background=floor.jpg background-position=bottom mobile-background-position=top}', @view).must_equal('<td class="m1" style="background:url(images/floor.jpg) bottom no-repeat">')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('td[class~="m1"] { background:url(images/floor.jpg) top no-repeat !important }')
   end
 
   it 'can disable background image on mobile' do
-    Inkcite::Renderer.render('{td bgcolor=#f00 background=floor.jpg background-position=bottom mobile-bgcolor=#0f0 mobile-background-image=none}', @view).must_equal('<td bgcolor=#ff0000 class="m1" style="background:#ff0000 url(images/floor.jpg) bottom no-repeat">')
-    @view.media_query.find_by_klass('m1').to_css.must_equal('td[class~="m1"] { background-color:#00ff00 !important;background-image:none !important }')
-  end
-
-  it 'inherits background position and repeat on mobile' do
-    Inkcite::Renderer.render('{td background=floor.jpg background-position=bottom mobile-background-image=sky.jpg}', @view).must_equal('<td class="m1" style="background:url(images/floor.jpg) bottom no-repeat">')
-    @view.media_query.find_by_klass('m1').to_css.must_equal('td[class~="m1"] { background:url(images/sky.jpg) bottom no-repeat !important }')
+    Inkcite::Renderer.render('{td background=floor.jpg mobile-background-image=none}', @view).must_equal('<td class="m1" style="background:url(images/floor.jpg)">')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('td[class~="m1"] { background:none !important }')
   end
 
 end
