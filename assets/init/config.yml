@@ -39,6 +39,15 @@ smtp:
   password: ''
   from: 'Your Name <email@domain.com>'
 
+# Mailgun settings for sending previews via their 3x faster API.  Sign up for
+# a free account and retrieve your API key and sending domain from your
+# Mailgun account dashboard.
+#
+# mailgun:
+#  api-key: 'key-your-api-key'
+#  domain: 'mg.sending-domain.com'
+#  from: 'Your Name <email@domain.com>'
+
 # Specify the distribution lists for preview versions of your email.
 recipients:
   client:
