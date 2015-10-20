@@ -75,6 +75,10 @@ module Inkcite
       # The preview version defines the configuration for the server to which
       # the files will be sftp'd.
       config = email.config[:sftp]
+      if config.nil? || config.blank?
+        puts "Unable to upload assets to CDN ('sftp:' section not found in config.yml)"
+        return
+      end
 
       # TODO: Verify SFTP configuration
       host     = config[:host]
