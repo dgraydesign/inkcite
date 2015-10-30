@@ -12,8 +12,9 @@ copy-alt-to-title: false
 # usually be disabled in development to make debugging easier.
 minify: true
 
-# When true (recommended), enables image optimization using ImageOptim.
-# http://imageoptim.com
+# When true (recommended), enables automatic image optimization of GIF,
+# JPG and PNG images used in your email.
+# https://inkcite.readme.io/v1.0/docs/image-optimization
 optimize-images: true
 
 # When empty links are found in content, this is the URL that will be
@@ -21,9 +22,26 @@ optimize-images: true
 # and needs to be provided.
 missing-link-url: 'https://github.com/404'
 
+# Add Google Fonts (https://www.google.com/fonts) to your emails.  Add
+# the URLs to the family and sizes needed in your email.  Then reference
+# the font family in either source.html:
+#
+#   {td font-family="'Open Sans Condensed', sans-serif"
+#
+# or inside of helpers.tsv:
+#
+#   default-font-family 'Open Sans Condensed', sans-serif
+#
+# https://inkcite.readme.io/docs/fonts#section-google-fonts
+#
+#fonts:
+# - 'https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700'
+
 # Inkcite can generate multiple versions of an email from a single source
 # file which is useful for targeted mailings and a/b testing.  Specify a
 # unique, single-word identifier for each version.
+# https://dash.readme.io/project/inkcite/v1.0/docs/ab-testing-and-versioning
+#
 #versions:
 #  - past_customer
 #  - prospect
@@ -31,6 +49,8 @@ missing-link-url: 'https://github.com/404'
 # SMTP settings for sending previews to the small list of internal and client
 # addresses specified below.  Most importantly, specify the address your test
 # emails will be sent 'from:'
+# https://dash.readme.io/project/inkcite/v1.0/docs/email-previews
+#
 smtp:
   host: 'smtp.gmail.com'
   port: 587
@@ -42,6 +62,7 @@ smtp:
 # Mailgun settings for sending previews via their 3x faster API.  Sign up for
 # a free account and retrieve your API key and sending domain from your
 # Mailgun account dashboard.
+# https://inkcite.readme.io/v1.0/docs/email-previews#section-sending-via-mailgun
 #
 # mailgun:
 #  api-key: 'key-your-api-key'
@@ -49,6 +70,7 @@ smtp:
 #  from: 'Your Name <email@domain.com>'
 
 # Specify the distribution lists for preview versions of your email.
+#
 recipients:
   client:
     - 'Awesome Client <awesome.client@domain.com>'
@@ -57,7 +79,8 @@ recipients:
     - 'Proofreader <proof.reader@domain.com>'
 
 # Easy Litmus integration for compatibility testing.
-# http://litmusapp.com
+# https://inkcite.readme.io/docs/compatibility-testing
+#
 litmus:
   subdomain: ''
   username: ''
@@ -65,6 +88,8 @@ litmus:
 
 # Easy deployment of static assets to a CDN or publicly-accessible
 # server - required when your email has images.
+# https://dash.readme.io/project/inkcite/v1.0/docs/cdn-upload
+#
 sftp:
   host: ''
   path: ''
@@ -76,16 +101,21 @@ sftp:
 # website analytics.  {id} will be replaced with the unique ID
 # from the link if you're concerned about which link the
 # recipient clicked to get to your website.
+# https://inkcite.readme.io/v1.0/docs/links
+#
 tag-links: "from_email=myemail|{id}"
 
 # Optionally, if your email newsletter links to multiple websites
 # and you only want to tag links to a specific domain, include
 # that domain in this setting.
+# https://inkcite.readme.io/v1.0/docs/links
+#
 #tag-links-domain: 'clientdomain.com'
 
 
 # Environment-specific overrides allow you to change any setting
 # for each environment (e.g local development vs. client preview).
+# https://dash.readme.io/project/inkcite/v1.0/docs/environments
 
 # These overrides apply to your local development environment when
 # you are viewing the email in your browser via Inkcite's server.
@@ -103,4 +133,3 @@ production:
   cache-bust: false
   image-host: "http://production.imagehost.com/emails/myemail"
   view-in-browser-url: 'http://production.contenthost.com/path/{filename}'
-
