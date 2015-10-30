@@ -99,7 +99,7 @@ module Inkcite
 
         # Check to see if images should be optimized and if so, perform said
         # optimization on new or updated images.
-        email.optimize_images if email.optimize_images?
+        email.optimize_images
 
         # For each of the production views, build the HTML and links files.
         email.views(:production) do |ev|
