@@ -131,24 +131,25 @@ module Inkcite
           # curved corners and a lower bevel (border).
           html << "{table bgcolor=#{cfg.bgcolor}"
           html << " padding=#{cfg.padding}" if cfg.padding > 0
-          html << " border=#{cfg.border}" if cfg.border
+          html << %Q( border="#{cfg.border}") if cfg.border
           html << " border-radius=#{cfg.border_radius}" if cfg.border_radius > 0
+          html << %Q( border-bottom="#{cfg.border_bottom}") if cfg.bevel > 0
 
           # Need to separate borders that are collapsed by default - otherwise, the bevel
           # renders incorrectly.
-          html << " border-bottom=\"#{cfg.border_bottom}\" border-collapse=separate" if cfg.bevel > 0
+          html << " border-collapse=separate" if cfg.border || cfg.bevel > 0
 
           html << " margin-top=#{cfg.margin_top}" if cfg.margin_top > 0
           html << " width=#{cfg.width}" if cfg.width > 0
           html << " float=#{cfg.float}" if cfg.float
-          html << " mobile=\"fill\"}\n"
+          html << %Q( mobile="fill"}\n)
           html << "{td align=center"
           html << " height=#{cfg.height} valign=middle" if cfg.height > 0
           html << " font=\"#{cfg.font}\""
           html << " line-height=#{cfg.line_height}" unless cfg.line_height.blank?
-          html << " font-size=\"#{cfg.font_size}\"" if cfg.font_size > 0
-          html << " font-weight=\"#{cfg.font_weight}\"" unless cfg.font_weight.blank?
-          html << " shadow=\"#{cfg.text_shadow}\" shadow-offset=-1}"
+          html << %Q( font-size="#{cfg.font_size}") if cfg.font_size > 0
+          html << %Q( font-weight="#{cfg.font_weight}") unless cfg.font_weight.blank?
+          html << %Q( shadow="#{cfg.text_shadow}" shadow-offset=-1})
 
           # Second, internal link for Outlook users that makes the inside of the button
           # clickable.
