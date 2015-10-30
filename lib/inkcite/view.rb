@@ -215,7 +215,12 @@ module Inkcite
 
       # Prepend the image host onto the src if one is specified in the properties.
       # During local development, images are always expected in an images/ subdirectory.
-      image_host = development?? "#{Email::IMAGES}/" : self[Email::IMAGE_HOST]
+      image_host = if development?
+        (@email.optimize_images?? Minifier::IMAGE_CACHE : Email::IMAGES) + '/'
+      else
+        self[Email::IMAGE_HOST]
+      end
+
       src_url << image_host unless image_host.blank?
 
       # Add the source of the image.

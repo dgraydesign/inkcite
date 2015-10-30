@@ -92,6 +92,11 @@ module Inkcite
             puts ''
             puts "#{ts} Rendering your email [environment=#{environment}, format=#{format}, version=#{version || 'default'}]"
 
+            # Before the rendering takes place, trigger image optimization of any
+            # new or updated images.  The {image} tag takes care of injecting the
+            # right path (optimized or not) depending on which version is needed.
+            @email.optimize_images
+
             view = @email.view(environment, format, version)
 
             html = view.render!

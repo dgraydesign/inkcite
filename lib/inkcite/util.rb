@@ -45,6 +45,10 @@ module Inkcite
 
     end
 
+    def self.last_modified file
+      file && File.exists?(file) ? File.mtime(file).to_i : 0
+    end
+
     def self.read *argv
       path = File.join(File.expand_path('../..', File.dirname(__FILE__)), argv)
       if File.exists?(path)

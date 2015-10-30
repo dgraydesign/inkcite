@@ -52,12 +52,12 @@ module Inkcite
     # Optimizes this email's images if optimize-images is enabled
     # in the email configuration.
     def optimize_images
-      optimize_images! if optimize_images?
+      Minifier.images(self, false) if optimize_images?
     end
 
     # Optimizes all of the images in this email.
     def optimize_images!
-      Minifier.images(self)
+      Minifier.images(self, true)
     end
 
     def optimize_images?
