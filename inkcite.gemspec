@@ -27,6 +27,8 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'builder'
   spec.add_dependency 'erubis'
   spec.add_dependency 'faker'
+  spec.add_dependency 'image_optim'
+  spec.add_dependency 'image_optim_pack'
   spec.add_dependency 'litmus'
   spec.add_dependency 'mail'
   spec.add_dependency 'mailgun-ruby'

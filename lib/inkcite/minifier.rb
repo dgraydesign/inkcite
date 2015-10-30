@@ -1,3 +1,4 @@
+require 'image_optim'
 require 'yui/compressor'
 
 module Inkcite
@@ -62,60 +63,62 @@ module Inkcite
 
     def self.images email
 
-      image_optim_path = '/Applications/ImageOptim.app/Contents/MacOS/ImageOptim'
-      image_optim = File.exists?(image_optim_path)
-      abort "Can't find ImageOptim (#{image_optim_path}) - download it from https://imageoptim.com" unless image_optim
-
       images_path = email.image_dir
       cache_path = email.project_file(IMAGE_CACHE)
+
+      # Grab a list of all of the images in the project
+      all_images = Dir.glob(File.join(images_path, '*.*'))
 
       # If the image cache exists, we need to check to see if any images have been
       # removed since the last build.
       if File.exists?(cache_path)
 
         # Get a list of the files in the cache that do not also exist in the
-        # project's images/ directory.
-        removed_images = Dir.entries(cache_path) - Dir.entries(images_path)
-        unless removed_images.blank?
-
-          # Convert the images to fully-qualified paths and then remove
-          # those files from the cache
-          removed_images = removed_images.collect { |img| File.join(cache_path, img ) }
-          FileUtils.rm (removed_images)
-
-        end
+        # project's images/ directory.  If that list is non-empty then delete
+        # those images as they are no longer needed.
+        removed_images = Dir.glob(File.join(cache_path, '*.*')) - all_images
+        FileUtils.rm (removed_images) unless removed_images.blank?
 
       end
 
       # Check to see if there are new or updated images that need to be re-optimized.
-      updated_images = Dir.entries(images_path).select do |img|
-        unless img.start_with?('.')
-          cimg = File.join(cache_path, img)
-          !File.exists?(cimg) || (File.stat(File.join(images_path, img)).mtime > File.stat(cimg).mtime)
-        end
+      updated_images = all_images.select do |img|
+        cached_img = File.join(cache_path, File.basename(img))
+        !File.exists?(cached_img) || File.mtime(img) > File.mtime(cached_img)
       end
 
+      # Return unless there is something to compress
       return if updated_images.blank?
 
-      # This is the temporary path into which new or updated images will
-      # be copied and then optimized.
-      temp_path = email.project_file(IMAGE_TEMP)
+      FileUtils.mkpath(cache_path)
 
-      # Make sure there is no existing temporary directory to interfere
-      # with the image processing.
-      FileUtils.rm_rf(temp_path)
-      FileUtils.mkpath(temp_path)
+      # Check to see if there is an image_optim.yml file in this directory that
+      # overrides the default settings.
+      image_optim_opts = if File.exists?(email.project_file(IMAGE_OPTIM_CONFIG_YML))
+        {
+            :config_paths => [IMAGE_OPTIM_CONFIG_YML]
+        }
+      else
+        {
+            :allow_lossy => true,
+            :gifsicle => { :level => 3 },
+            :jpegoptim => { :max_quality => 50 },
+            :jpegrecompress => { :quality => 1 },
+            :pngout => false,
+            :svgo => false
+        }
+      end
+
+      image_optim = ImageOptim.new(image_optim_opts)
 
       # Copy all of the images that need updating into the temporary directory.
       # Specifically joining the images_path to the image to avoid Email's
       # image_path which may change it's directory if optimization is enabled.
-      updated_images.each { |img| FileUtils.cp(File.join(images_path, img), File.join(temp_path, img)) }
-
-      # Optimize all of the images.
-      system("#{image_optim_path} #{temp_path}") if image_optim
-
-      FileUtils.cp_r(File.join(temp_path, "."), cache_path)
-      FileUtils.rm_rf(temp_path)
+      updated_images.each do |img|
+        cached_img = File.join(cache_path, File.basename(img))
+        FileUtils.cp(img, cached_img)
+        image_optim.optimize_image!(cached_img)
+      end
 
     end
 
@@ -125,9 +128,11 @@ module Inkcite
 
     private
 
-    # Temporary directory that new or updated images will be copied into
-    # to be optimized and then cached in .images
-    IMAGE_TEMP = ".images-temp"
+    # Name of the Image Optim configuration yml file that can be
+    # put in the project directory to explicitly control the image
+    # optimization process.
+    IMAGE_OPTIM_CONFIG_YML = 'image_optim.yml'
+
 
     NEW_LINE = "\n"
     MAXIMUM_LINE_LENGTH = 800
@@ -145,7 +150,7 @@ module Inkcite
     end
 
     def self.css_compressor ctx
-      ctx.css_compressor ||= YUI::CssCompressor.new(:line_break => (ctx.email?? MAXIMUM_LINE_LENGTH : nil))
+      ctx.css_compressor ||= YUI::CssCompressor.new(:line_break => (ctx.email? ? MAXIMUM_LINE_LENGTH : nil))
     end
 
   end
