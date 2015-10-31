@@ -84,9 +84,6 @@ module Inkcite
       CLOSE_TD = '/td'
       LEFT = 'left'
 
-      # Property which controls the color of text
-      TEXT_COLOR = :'#text'
-
     end
   end
 end
