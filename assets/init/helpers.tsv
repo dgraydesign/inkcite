@@ -8,10 +8,10 @@
 
 // This controls the subject line used for email prevents and text that is
 // written into the <title> of the HTML created by Inkcite.
-title Welcome to Inkcite
+title	Welcome to Inkcite
 
 // This sets the color for all links generated with Inkcite's {a} helper.
-#link #0099cc
+#link	#0099cc
 
 // This defines the default font family used throughout your email.
-font-family sans-serif
+font-family	sans-serif
