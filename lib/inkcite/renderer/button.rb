@@ -12,7 +12,7 @@ module Inkcite
         end
 
         def bgcolor
-          hex(@opt[:bgcolor] || @ctx[BUTTON_BACKGROUND_COLOR] || @ctx[Base::LINK_COLOR])
+          hex(@opt[:bgcolor] || @ctx[BUTTON_BGCOLOR] || @ctx[BUTTON_BACKGROUND_COLOR] || @ctx[Base::LINK_COLOR])
         end
 
         def border
@@ -89,6 +89,7 @@ module Inkcite
         BEVEL_COLOR = :'bevel-color'
 
         BUTTON_BACKGROUND_COLOR = :'button-background-color'
+        BUTTON_BGCOLOR = :'button-bgcolor'
         BUTTON_BEVEL = :'button-bevel'
         BUTTON_BEVEL_COLOR = :'button-bevel-color'
         BUTTON_BORDER = :'button-border'
@@ -129,7 +130,8 @@ module Inkcite
 
           # Responsive button is just a highly styled table/td combination with optional
           # curved corners and a lower bevel (border).
-          html << "{table bgcolor=#{cfg.bgcolor}"
+          bgcolor = cfg.bgcolor
+          html << "{table bgcolor=#{bgcolor}"
           html << " padding=#{cfg.padding}" if cfg.padding > 0
           html << %Q( border="#{cfg.border}") if cfg.border
           html << " border-radius=#{cfg.border_radius}" if cfg.border_radius > 0
@@ -149,7 +151,13 @@ module Inkcite
           html << " line-height=#{cfg.line_height}" unless cfg.line_height.blank?
           html << %Q( font-size="#{cfg.font_size}") if cfg.font_size > 0
           html << %Q( font-weight="#{cfg.font_weight}") unless cfg.font_weight.blank?
-          html << %Q( shadow="#{cfg.text_shadow}" shadow-offset=-1})
+
+          # Text on the button gets a shadow automatically unless the shadow
+          # color matches the background color of the button.
+          shadow = cfg.text_shadow
+          html << %Q( shadow="#{shadow}" shadow-offset=-1) if shadow != bgcolor
+
+          html << '}'
 
           # Second, internal link for Outlook users that makes the inside of the button
           # clickable.
