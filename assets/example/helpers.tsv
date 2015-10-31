@@ -1,0 +1,37 @@
+// This file helps you keep your email code DRY (don't repeat yourself) by
+// allowing you to easily define constants and custom tags.
+//
+// https://inkcite.readme.io/docs/helpers
+//
+// NOTE! The keys and values in this file are TAB-delimited.
+
+
+// This controls the subject line used for email prevents and text that is
+// written into the <title> of the HTML created by Inkcite.
+title	Welcome to Inkcite
+
+// This sets the color for all links generated with Inkcite's {a} helper.
+#link	#000099
+
+// This defines the default font family used throughout your email.
+font-family sans-serif
+
+// Default font styles
+font-family	sans-serif
+font-size	15
+line-height	19
+
+// This custom Helper wraps content in a specially formatted <span></span>
+// that changes its font family, size, color and applies custom padding.
+code	{span font-family=monospace font-size=16 padding=3 color=#999}	{/span}
+
+// Bullet-proof buttons
+button-border-radius	5
+button-float	center
+button-padding	8
+button-width	175
+
+// Dimensions
+width	500
+
+wrap	{table width=100% bgcolor=#fff}{td font-family="{font-family}" align=center}	{/td}{/table}

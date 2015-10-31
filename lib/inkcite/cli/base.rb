@@ -23,9 +23,13 @@ module Inkcite
       end
 
       desc 'init NAME [options]', 'Initialize a new email project in the NAME directory'
+      option :'empty',
+          :aliases => '-e',
+          :desc => 'Prevents Inkcite from copying the example email files into the new project',
+          :type => :boolean
       option :from,
           :aliases => '-f',
-          :desc => 'Clones an existing Inkcite project into a new one'
+          :desc => 'Clones an existing Inkcite project (all images, helpers, partials, etc.) into the new one'
 
       def init name
         require_relative 'init'
