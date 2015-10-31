@@ -377,10 +377,10 @@ module Inkcite
         # Render the body statement and apply the email's background color to it.
         bgcolor = Renderer.hex(self[BACKGROUND])
 
-        # Intentially not setting the link colors because those should be entirely
+        # Intentionally not setting the link colors because those should be entirely
         # controlled by the styles and attributes of the links themselves.  By not
         # setting it, links created sans-helper should be visually distinct.
-        html << Renderer.render("<body bgcolor=\"#{bgcolor}\" style=\"background-color: #{bgcolor}; width: 100% !important; min-width: 100% !important; margin: 0; padding: 0; -webkit-text-size-adjust: none; -ms-text-size-adjust: none;\">", self)
+        html << Renderer.render("<body bgcolor=\"#{bgcolor}\" style=\"background-color: #{bgcolor}; width: 100% !important; min-width: 100% !important; margin: 0 !important; padding: 0; -webkit-text-size-adjust: none; -ms-text-size-adjust: none;\">", self)
 
         html << minified
 
@@ -748,6 +748,10 @@ module Inkcite
 
         # Ensure that telephone numbers are displayed using the same style as links.
         reset << "a[href^=tel] { color: #{self[Renderer::Base::LINK_COLOR]}; text-decoration:none;}"
+
+        # Remove extraneous left-margins on Android 4.4
+        # https://litmus.com/community/code/4194-why-is-email-not-centered-on-android-4-4#comment-5727
+        reset << 'div[style*="margin: 16px 0"] { margin:0 !important; }'
 
       end
 
