@@ -31,7 +31,6 @@ module Inkcite
   def self.blueprint_image64
     @blueprint64 ||= begin
       blueprint_path = File.join(asset_path, 'blueprint.png')
-      puts "Loading #{blueprint_path} ..."
       Base64.encode64(File.read(blueprint_path)).gsub(/[\r\f\n]/, '')
     end
   end
