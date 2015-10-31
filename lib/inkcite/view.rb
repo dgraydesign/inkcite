@@ -374,13 +374,19 @@ module Inkcite
         html << '</style>'
         html << '</head>'
 
-        # Render the body statement and apply the email's background color to it.
-        bgcolor = Renderer.hex(self[BACKGROUND])
-
         # Intentionally not setting the link colors because those should be entirely
         # controlled by the styles and attributes of the links themselves.  By not
         # setting it, links created sans-helper should be visually distinct.
-        html << Renderer.render("<body bgcolor=\"#{bgcolor}\" style=\"background-color: #{bgcolor}; width: 100% !important; min-width: 100% !important; margin: 0 !important; padding: 0; -webkit-text-size-adjust: none; -ms-text-size-adjust: none;\">", self)
+        html << '<body style="width: 100% !important; min-width: 100% !important; margin: 0 !important; padding: 0; -webkit-text-size-adjust: none; -ms-text-size-adjust: none;'
+
+        # A pleasing but obvious background exposed in development mode to alert
+        # the designer that they have exposed the body background - which means
+        # unpredictable results if sent.
+        if development?
+          html << " background: #ccc url('data:image/png;base64,#{Inkcite.blueprint_image64}');"
+        end
+
+        html << %q(">)
 
         html << minified
 
@@ -509,7 +515,6 @@ module Inkcite
     private
 
     ASSETS          = 'assets'
-    BACKGROUND      = :'#background'
     FILE_SCHEME     = 'file'
     FILE_NAME       = :'file-name'
     HTML_EXTENSION  = '.html'

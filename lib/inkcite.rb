@@ -23,7 +23,17 @@ require 'inkcite/renderer'
 module Inkcite
 
   def self.asset_path
-    File.expand_path('../../..', File.dirname(__FILE__))
+    File.join(File.expand_path('../', File.dirname(__FILE__)), 'assets')
+  end
+
+  # Loads (and caches) the base64-encoded PNG data for the subtle background
+  # texture that Inkcite installs on the <body> tag in development mode.
+  def self.blueprint_image64
+    @blueprint64 ||= begin
+      blueprint_path = File.join(asset_path, 'blueprint.png')
+      puts "Loading #{blueprint_path} ..."
+      Base64.encode64(File.read(blueprint_path)).gsub(/[\r\f\n]/, '')
+    end
   end
 
 end
