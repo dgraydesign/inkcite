@@ -142,8 +142,8 @@ module Inkcite
         # Brian Graves' Column Switch Pattern: Allows columns in a table to
         # be reordered based on up and down states.
         # http://www.degdigital.com/blog/content-choreography-in-responsive-email/
-        styles << Rule.new('td', SWITCH, 'display: table-footer-group; width: 100% !important; background-size: 100% auto !important;')
-        styles << Rule.new('td', SWITCH_UP, 'display: table-header-group; width: 100% !important; background-size: 100% auto !important;')
+        styles << Rule.new('td', SWITCH, 'display: table-footer-group; width: 100% !important; background-size: 100% auto !important;', false)
+        styles << Rule.new('td', SWITCH_UP, 'display: table-header-group; width: 100% !important; background-size: 100% auto !important;', false)
 
         # FILL causes specific types of elements to expand to 100% of the available
         # width of the mobile device.
