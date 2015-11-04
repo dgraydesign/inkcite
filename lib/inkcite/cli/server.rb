@@ -1,6 +1,8 @@
-require 'webrick'
+require 'guard'
+require 'guard/commander'
 require 'rack'
-require 'socket'
+require 'rack-livereload'
+require 'webrick'
 
 module Inkcite
   module Cli
@@ -26,9 +28,30 @@ module Inkcite
           nil
         end
 
+        fork do
+
+          # Programmatically construct a Guard configuration file that
+          # instructs it to monitor all of the HTML, TSV, YML and images
+          # that can be used in the email project.
+          guardfile = <<-EOF
+            guard :livereload do
+              watch(%r{^*.+\.(html|tsv|yml)})
+              watch(%r{^images/.+\.*})
+            end
+
+            logger level: :error
+          EOF
+
+          # You can omit the call to Guard.setup, Guard.start will call Guard.setup
+          # under the hood if Guard has not been setuped yet
+          Guard.start :guardfile_contents => guardfile, :no_interactions => true
+
+        end
+
         # Assemble the Rack app with the static content middleware and the
         # InkciteApp to server the email as the root index page.
         app = Rack::Builder.new do
+          use Rack::LiveReload
           use Rack::Static, :urls => %w( /images /images-optim ), :root => '.'
           run InkciteApp.new(email, opts)
         end
