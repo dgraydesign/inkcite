@@ -8,82 +8,81 @@ module Inkcite
 
       def self.start email, opts
 
-        # Port should always be an integer.
+        puts
+        puts "Inkcite #{Inkcite::VERSION} is starting up ..."
+        puts 'Documentation available at http://inkcite.readme.io'
+        puts
+
+        # Read the hostname and port from the opts provided on the command
+        # line - or inherit the default of localhost:4567
         port = opts[:port].to_i
         host = opts[:host]
 
-        # Resolve local public IP for mobile device address
+        # Attempt to resolve the machine's public IP so we can display the
+        # address for mobile devices.
         ip = begin
           IPSocket.getaddress(Socket.gethostname)
         rescue
           nil
         end
 
-        puts
-        puts "Inkcite #{Inkcite::VERSION} is starting up ..."
-        puts 'Documentation available at http://inkcite.readme.io'
-        puts 'Press CTRL-C to exit server mode'
-        puts
-
-        begin
-          @server = ::WEBrick::HTTPServer.new({
-              :BindAddress => host,
-              :Port => port,
-              :AccessLog => [],
-              :Logger => WEBrick::Log.new(nil, 0)
-          })
-        rescue Errno::EADDRINUSE
-          raise "== Port #{port} is unavailable. Either close the instance of Inkcite already running on #{port} or start this Inkcite instance on a new port with: --port=#{port+1}"
-          exit(1)
+        # Assemble the Rack app with the static content middleware and the
+        # InkciteApp to server the email as the root index page.
+        app = Rack::Builder.new do
+          use Rack::Static, :urls => %w( /images /images-optim ), :root => '.'
+          run InkciteApp.new(email, opts)
         end
-
-        # Listen to all of the things in order to properly
-        # shutdown the server.
-        %w(INT HUP TERM QUIT).each do |sig|
-          if Signal.list[sig]
-            Signal.trap(sig) do
-              @server.shutdown
-            end
-          end
-        end
-
-        @server.mount "/", Rack::Handler::WEBrick, Inkcite::Cli::Server.new(email, opts)
 
         puts "Your email is being served at http://#{host}:#{port}"
         puts "Point your mobile device to http://#{ip}:#{port}" if ip
-        puts
+        puts 'Press CTRL-C to exit server mode'
+        puts ''
 
-        @server.start
-
-      end
-
-      def initialize email, opts
-        @email = email
-        @opts = opts
-      end
-
-      def call env
         begin
 
-          path = env[REQUEST_PATH]
+          # Start the server and disable WEBrick's verbose logging.
+          Rack::Server.start({
+                  :Host => host,
+                  :Port => port,
+                  :AccessLog => [],
+                  :Logger => WEBrick::Log.new(nil, 0),
+                  :app => app
+              })
+        rescue Errno::EADDRINUSE
+          abort("Oops!  Port #{port} is unavailable. Either close the instance of Inkcite already running on #{port} or start this Inkcite instance on a new port with: --port=#{port+1}")
+        end
+
+      end
+
+      private
+
+      class InkciteApp
+
+        def initialize email, opts
+          @email = email
+          @opts = opts
+        end
+
+        def call env
+
+          request = Rack::Request.new(env)
 
           # If this request is for the root index page, render the email.  Otherwise
           # render the static asset.
-          if path == REQUEST_ROOT
+          return if request.path_info != REQUEST_ROOT
 
-            # Check for and convert query string parameters to a symolized
-            # key hash so the designer can override the environment, format
-            # and version attributes during a given rendering.
-            # Courtesy of http://stackoverflow.com/questions/21990997/how-do-i-create-a-hash-from-a-querystring-in-ruby
-            params = CGI::parse(env[QUERY_STRING] || '')
-            params = Hash[params.map { |key, values| [ key.to_sym, values[0] || true ] }].symbolize_keys
+          response = Rack::Response.new
+          response[Rack::CONTENT_TYPE] = 'text/html'
+
+          begin
 
             # Allow the designer to specify both short- and long-form versions of
             # the (e)nvironment, (f)ormat and (v)ersion.  Otherwise, use the values
             # that Inkcite was started with.
-            environment = Util.detect(params[:e], params[:environment], @opts[:environment])
-            format = Util.detect(params[:f], params[:format], @opts[:format])
-            version = Util.detect(params[:v], params[:view], @opts[:version])
+            params = request.params
+            environment = Util.detect(params['e'], params['environment'], @opts[:environment])
+            format = Util.detect(params['f'], params['format'], @opts[:format])
+            version = Util.detect(params['v'], params['version'], @opts[:version])
 
             # Timestamp all of the messages from this rendering so it is clear which
             # messages are associated with this reload.
@@ -107,24 +106,24 @@ module Inkcite
               puts "#{ts} - #{view.errors.join("\n#{ts} - ")}"
             end
 
-            [200, {}, [html]]
-          else
-            Rack::File.new(Dir.pwd).call(env)
+            response.write html
 
+          rescue Exception => e
+            response.write "<html><head><title>Oops! There was a problem!</title></head><body style='padding: 30px; font-family: sans-serif;'>"
+            response.write '<h2>Oops!</h2>'
+            response.write "<p>There was a problem rendering your email: #{e.message}</p>"
+            response.write "<pre>#{e.backtrace.join('<br>')}</pre>"
+            response.write 'Please correct the problem and try reloading the page.'
+            response.write '</body></html>'
           end
 
-        rescue Exception => e
-          puts e.message
-          puts e.backtrace.inspect
+          response.finish
+
         end
 
       end
 
-      private
-
-      REQUEST_PATH = 'REQUEST_PATH'
       REQUEST_ROOT = '/'
-      QUERY_STRING = 'QUERY_STRING'
 
       DATEFORMAT = '%Y-%m-%d %H:%M:%S'
 
