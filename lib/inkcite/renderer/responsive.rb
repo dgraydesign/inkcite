@@ -5,6 +5,7 @@ module Inkcite
       BUTTON    = 'button'
       DROP      = 'drop'
       FILL      = 'fill'
+      FLUID     = 'fluid'
       HIDE      = 'hide'
       IMAGE     = 'img'
       SHOW      = 'show'

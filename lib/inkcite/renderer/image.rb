@@ -75,9 +75,33 @@ module Inkcite
 
         mobile = opt[:mobile]
 
-        # Check to see if this image is inside of a mobile-image declaration.
-        # If so, the image defaults to hide on mobile.
-        mobile = HIDE if mobile.blank? && !ctx.parent_opts(:mobile_image).blank?
+        # Fluid-hybrid responsive images courtesy of @moonstrips and @CourtFantinato.
+        # http://webdesign.tutsplus.com/tutorials/creating-a-future-proof-responsive-email-without-media-queries--cms-23919#comment-2074740905
+        if mobile == FLUID
+
+          # Set the inline styles of the image to scale with aspect ratio
+          # intact up to the maximum width of the image itself.
+          img.style[MAX_WIDTH] = px(opt[:width])
+          img.style[:width] = '100%'
+          img.style[:height] = 'auto'
+
+          # Leave the explicit width attribute set (this prevents Outlook from
+          # blowing up) but clear the height attribute as Gmail images will not
+          # maintain aspect ratio if present.
+          img[:height] = nil
+
+          # Prevent any further mobile styles from being applied in ResponsiveBase.
+          # Gotta use an empty string so that the base class doesn't re-acquire the
+          # value from the opts.
+          mobile = ''
+
+        else
+
+          # Check to see if this image is inside of a mobile-image declaration.
+          # If so, the image defaults to hide on mobile.
+          mobile = HIDE if mobile.blank? && !ctx.parent_opts(:mobile_image).blank?
+
+        end
 
         mix_responsive img, opt, ctx, mobile
 

@@ -79,4 +79,8 @@ describe Inkcite::Renderer::Image do
     @view.media_query.find_by_klass('i01').to_css.must_equal('img[class~="i01"] { content: url("images/inkcite-mobile.jpg") !important; }')
   end
 
+  it 'supports fluid-hybrid desktop and style' do
+    Inkcite::Renderer.render('{img src=inkcite.jpg height=200 width=325 mobile=fluid}', @view).must_equal('<img border=0 src="images/inkcite.jpg" style="display:block;height:auto;max-width:325px;width:100%" width=325>')
+  end
+
 end

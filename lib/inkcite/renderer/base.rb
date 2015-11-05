@@ -24,6 +24,7 @@ module Inkcite
       MARGIN_LEFT = :'margin-left'
       MARGIN_RIGHT = :'margin-right'
       MARGIN_TOP = :'margin-top'
+      MAX_WIDTH = :'max-width'
       PADDING_X = :'padding-x'
       PADDING_Y = :'padding-y'
       TEXT_ALIGN = :'text-align'
