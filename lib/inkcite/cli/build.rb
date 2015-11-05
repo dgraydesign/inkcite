@@ -113,7 +113,8 @@ module Inkcite
 
         # Copy all of the source images into the build directory in preparation
         # for optimization
-        FileUtils.cp_r(File.join(email.optimized_image_dir, '.'), build_images_to)
+        build_images_from = email.optimized_image_dir
+        FileUtils.cp_r(File.join(build_images_from, '.'), build_images_to) if File.exists?(build_images_from)
 
       end
 
