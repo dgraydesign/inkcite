@@ -21,6 +21,7 @@ module Inkcite
         # activate but those read from footnotes.tsv are inactive until
         # referenced in the source.
         attr_accessor :active
+        alias_method :active?, :active
 
         def initialize id, symbol, text, active=true
           @id = id
@@ -94,8 +95,8 @@ module Inkcite
           # Grab the last numeric footnote that was specified and, assuming
           # there is one, increment the count.  Otherwise, start the count
           # off at one.
-          last_instance = ctx.footnotes.select(&:numeric?).last
-          instance.symbol = last_instance.nil? ? 1 : last_instance.symbol.to_i + 1
+          last_instance = ctx.footnotes.select { |fn| fn.numeric? && fn.active? }.collect(&:number).max.to_i
+          instance.symbol = last_instance + 1
 
         end
 
