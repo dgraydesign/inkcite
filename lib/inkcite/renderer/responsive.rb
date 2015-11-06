@@ -221,54 +221,72 @@ module Inkcite
         # The element's tag - e.g. table, td, etc.
         tag = element.tag
 
-        # Special handling for TOGGLE-able elements which are made
-        # visible by another element being clicked.
-        if klass == TOGGLE
+        # Custom handling for FLUID-FILL elements which are achieve responsiveness
+        # sans media queries whenever possible.
+        if klass == FLUID
 
-          id = opt[:id]
-          if id.blank?
-            ctx.errors 'Mobile elements with toggle behavior require an ID attribute', { :tag => tag} if id.blank?
+          # Grab the element's width (warning the user if one isn't present)
+          width = opt[:width].to_i
+          ctx.error("Width is required when '#{FLUID}' mobile enabled", opt.merge(:tag => tag)) unless width > 0
 
-          else
+          # Fluid-hybrid allows elements to scale at all times up to a maximum
+          # width. Note! Elements (such as Image) may do extra adjustments at
+          # the Helper level to make FLUID work.
+          element.style[:width] = '100%'
+          element.style[MAX_WIDTH] = px(width)
 
-            # Make sure the element's ID field is populated
-            element[:id] = id
+        else
 
-            # Add a rule which makes this element visible when the target
-            # field matches the identity.
-            mq << TargetRule.new(tag, id)
+          # Special handling for TOGGLE-able elements which are made
+          # visible by another element being clicked.
+          if klass == TOGGLE
 
-            # Toggle-able elements are HIDE on mobile by default.
-            klass = HIDE
+            id = opt[:id]
+            if id.blank?
+              ctx.errors 'Mobile elements with toggle behavior require an ID attribute', { :tag => tag } if id.blank?
 
+            else
+
+              # Make sure the element's ID field is populated
+              element[:id] = id
+
+              # Add a rule which makes this element visible when the target
+              # field matches the identity.
+              mq << TargetRule.new(tag, id)
+
+              # Toggle-able elements are HIDE on mobile by default.
+              klass = HIDE
+
+            end
           end
-        end
 
-        # Check to see if there is already a rule that specifically matches this klass
-        # and tag combination - e.g. td.hide
-        rule = mq.find_by_tag_and_klass(tag, klass)
-        if rule.nil?
-
-          # If no rule was found then find the first that matches the klass.
-          rule = mq.find_by_klass(klass)
-
-          # If no rule was found and the declaration is blank then we have
-          # an unknown mobile behavior.
+          # Check to see if there is already a rule that specifically matches this klass
+          # and tag combination - e.g. td.hide
+          rule = mq.find_by_tag_and_klass(tag, klass)
           if rule.nil?
-            ctx.error 'Undefined mobile behavior - are you missing a mobile-style declaration?', { :tag => tag, :mobile => klass }
-            return nil
+
+            # If no rule was found then find the first that matches the klass.
+            rule = mq.find_by_klass(klass)
+
+            # If no rule was found and the declaration is blank then we have
+            # an unknown mobile behavior.
+            if rule.nil?
+              ctx.error 'Undefined mobile behavior - are you missing a mobile-style declaration?', { :tag => tag, :mobile => klass }
+              return nil
+            end
+
+            rule << tag if !rule.include?(tag)
+
           end
 
-          rule << tag if !rule.include?(tag)
+          # If the rule is SHOW (only on mobile) we need to restyle the element
+          # so it is hidden.
+          element.style[:display] = 'none' if klass == SHOW
+
+          # Add the responsive rule to the element
+          element.add_rule rule
 
         end
-
-        # If the rule is SHOW (only on mobile) we need to restyle the element
-        # so it is hidden.
-        element.style[:display] = 'none' if klass == SHOW
-
-        # Add the responsive rule to the element
-        element.add_rule rule
 
       end
 

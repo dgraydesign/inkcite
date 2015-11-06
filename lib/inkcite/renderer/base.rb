@@ -79,6 +79,10 @@ module Inkcite
         Renderer.hex(color)
       end
 
+      def if_mso html
+        %Q(\n<!--[if mso]>#{html.to_s}<![endif]-->\n)
+      end
+
       def none? val
         val.blank? || val == NONE
       end

@@ -81,19 +81,12 @@ module Inkcite
 
           # Set the inline styles of the image to scale with aspect ratio
           # intact up to the maximum width of the image itself.
-          img.style[MAX_WIDTH] = px(opt[:width])
-          img.style[:width] = '100%'
           img.style[:height] = 'auto'
 
           # Leave the explicit width attribute set (this prevents Outlook from
           # blowing up) but clear the height attribute as Gmail images will not
           # maintain aspect ratio if present.
           img[:height] = nil
-
-          # Prevent any further mobile styles from being applied in ResponsiveBase.
-          # Gotta use an empty string so that the base class doesn't re-acquire the
-          # value from the opts.
-          mobile = ''
 
         else
 
