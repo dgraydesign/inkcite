@@ -32,11 +32,22 @@ describe Inkcite::Renderer::Table do
   end
 
   it 'supports fluid-hybrid desktop and style' do
-     Inkcite::Renderer.render('{table width=500 mobile=fluid}', @view).must_equal(%Q(\n<!--[if mso]><table border=0 cellpadding=0 cellspacing=0 width=500><tr><td><![endif]-->\n<table border=0 cellpadding=0 cellspacing=0 style="max-width:500px;width:100%" width=500><tr>))
+     Inkcite::Renderer.render('{table width=500 mobile=fluid}', @view).must_equal(%Q(<!--[if mso]><table border=0 cellpadding=0 cellspacing=0 width=500><tr><td><![endif]--><table border=0 cellpadding=0 cellspacing=0 style="max-width:500px" width=100%><tr>))
    end
 
   it 'carries table alignment into the Outlook wrap table in fluid-hybrid' do
-     Inkcite::Renderer.render('{table align=center width=500 mobile=fluid}', @view).must_equal(%Q(\n<!--[if mso]><table align=center border=0 cellpadding=0 cellspacing=0 width=500><tr><td><![endif]-->\n<table align=center border=0 cellpadding=0 cellspacing=0 style="max-width:500px;width:100%" width=500><tr>))
-   end
+     Inkcite::Renderer.render('{table align=center width=500 mobile=fluid}', @view).must_equal(%Q(<!--[if mso]><table align=center border=0 cellpadding=0 cellspacing=0 width=500><tr><td><![endif]--><table align=center border=0 cellpadding=0 cellspacing=0 style="max-width:500px" width=100%><tr>))
+  end
+
+  it 'supports fluid-drop desktop and style' do
+
+    markup = ''
+    markup << %Q({table font-size=25 bgcolor=#090 border="5px solid #f0f" padding=15 width=600 mobile="fluid-drop" valign=top})
+    markup << %Q({td width=295 bgcolor=#009 color=#fff}left{/td})
+    markup << %Q({td width=295 bgcolor=#900 color=#fff font-size=30}right<br>and<br>tall{/td})
+    markup << %Q({/table})
+
+    Inkcite::Renderer.render(markup, @view).must_equal(%Q(<!--[if mso]><table border=0 cellpadding=0 cellspacing=0 width=600><tr><td><![endif]--><table bgcolor=#009900 border=0 cellpadding=0 cellspacing=0 style=\"border:5px solid #f0f;max-width:600px\" width=100%><tr><td style=\"font-size:0;text-align:center;vertical-align:top\"><!--[if mso]><table align=center border=0 cellpadding=0 cellspacing=0 width=100%><tr><![endif]--><!--[if mso]><td valign=top width=295><![endif]--><div class=\"fill\" style=\"display:inline-block;vertical-align:top;width:295px\"><table border=0 cellpadding=15 cellspacing=0 width=100%><tr><td bgcolor=#000099 style=\"color:#ffffff;font-size:25px;padding:15px\" valign=top>left</td></tr></table></div><!--[if mso]></td><![endif]--><!--[if mso]><td valign=top width=295><![endif]--><div class=\"fill\" style=\"display:inline-block;vertical-align:top;width:295px\"><table border=0 cellpadding=15 cellspacing=0 width=100%><tr><td bgcolor=#990000 style=\"color:#ffffff;font-size:30px;padding:15px\" valign=top>right<br>and<br>tall</td></tr></table></div><!--[if mso]></td><![endif]--><!--[if mso]></tr></table><![endif]--></td></tr></table><!--[if mso]></td></tr></table><![endif]-->))
+  end
 
 end

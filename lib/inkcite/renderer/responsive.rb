@@ -2,16 +2,17 @@ module Inkcite
   module Renderer
     class Responsive < Base
 
-      BUTTON    = 'button'
-      DROP      = 'drop'
-      FILL      = 'fill'
-      FLUID     = 'fluid'
-      HIDE      = 'hide'
-      IMAGE     = 'img'
-      SHOW      = 'show'
-      SWITCH    = 'switch'
-      SWITCH_UP = 'switch-up'
-      TOGGLE    = 'toggle'
+      BUTTON     = 'button'
+      DROP       = 'drop'
+      FILL       = 'fill'
+      FLUID      = 'fluid'
+      FLUID_DROP = 'fluid-drop'
+      HIDE       = 'hide'
+      IMAGE      = 'img'
+      SHOW       = 'show'
+      SWITCH     = 'switch'
+      SWITCH_UP  = 'switch-up'
+      TOGGLE     = 'toggle'
 
       # For elements that take on different background properties
       # when they go responsive
@@ -181,6 +182,12 @@ module Inkcite
 
       protected
 
+      # Returns true if the mobile klass provided matches any of the
+      # Fluid-Hybrid classes.
+      def is_fluid? mobile
+        mobile == FLUID || mobile == FLUID_DROP
+      end
+
       def mix_font element, opt, ctx, parent=nil
 
         # Let the super class do its thing and grab the name of the font
@@ -216,77 +223,64 @@ module Inkcite
         # Nothing to do if there is no class specified.s
         return nil if klass.blank?
 
+        # The Fluid-Hybrid klass is also ignored because it doesn't involve
+        # media queries - aborting early to avoid the "missing mobile class"
+        # warning normally generated.
+        return nil if is_fluid?(klass)
+
         mq = ctx.media_query
 
         # The element's tag - e.g. table, td, etc.
         tag = element.tag
 
-        # Custom handling for FLUID-FILL elements which are achieve responsiveness
-        # sans media queries whenever possible.
-        if klass == FLUID
+        # Special handling for TOGGLE-able elements which are made
+        # visible by another element being clicked.
+        if klass == TOGGLE
 
-          # Grab the element's width (warning the user if one isn't present)
-          width = opt[:width].to_i
-          ctx.error("Width is required when '#{FLUID}' mobile enabled", opt.merge(:tag => tag)) unless width > 0
+          id = opt[:id]
+          if id.blank?
+            ctx.errors 'Mobile elements with toggle behavior require an ID attribute', { :tag => tag } if id.blank?
 
-          # Fluid-hybrid allows elements to scale at all times up to a maximum
-          # width. Note! Elements (such as Image) may do extra adjustments at
-          # the Helper level to make FLUID work.
-          element.style[:width] = '100%'
-          element.style[MAX_WIDTH] = px(width)
+          else
 
-        else
+            # Make sure the element's ID field is populated
+            element[:id] = id
 
-          # Special handling for TOGGLE-able elements which are made
-          # visible by another element being clicked.
-          if klass == TOGGLE
+            # Add a rule which makes this element visible when the target
+            # field matches the identity.
+            mq << TargetRule.new(tag, id)
 
-            id = opt[:id]
-            if id.blank?
-              ctx.errors 'Mobile elements with toggle behavior require an ID attribute', { :tag => tag } if id.blank?
+            # Toggle-able elements are HIDE on mobile by default.
+            klass = HIDE
 
-            else
-
-              # Make sure the element's ID field is populated
-              element[:id] = id
-
-              # Add a rule which makes this element visible when the target
-              # field matches the identity.
-              mq << TargetRule.new(tag, id)
-
-              # Toggle-able elements are HIDE on mobile by default.
-              klass = HIDE
-
-            end
           end
+        end
 
-          # Check to see if there is already a rule that specifically matches this klass
-          # and tag combination - e.g. td.hide
-          rule = mq.find_by_tag_and_klass(tag, klass)
+        # Check to see if there is already a rule that specifically matches this klass
+        # and tag combination - e.g. td.hide
+        rule = mq.find_by_tag_and_klass(tag, klass)
+        if rule.nil?
+
+          # If no rule was found then find the first that matches the klass.
+          rule = mq.find_by_klass(klass)
+
+          # If no rule was found and the declaration is blank then we have
+          # an unknown mobile behavior.
           if rule.nil?
-
-            # If no rule was found then find the first that matches the klass.
-            rule = mq.find_by_klass(klass)
-
-            # If no rule was found and the declaration is blank then we have
-            # an unknown mobile behavior.
-            if rule.nil?
-              ctx.error 'Undefined mobile behavior - are you missing a mobile-style declaration?', { :tag => tag, :mobile => klass }
-              return nil
-            end
-
-            rule << tag if !rule.include?(tag)
-
+            ctx.error 'Undefined mobile behavior - are you missing a mobile-style declaration?', { :tag => tag, :mobile => klass }
+            return nil
           end
 
-          # If the rule is SHOW (only on mobile) we need to restyle the element
-          # so it is hidden.
-          element.style[:display] = 'none' if klass == SHOW
-
-          # Add the responsive rule to the element
-          element.add_rule rule
+          rule << tag if !rule.include?(tag)
 
         end
+
+        # If the rule is SHOW (only on mobile) we need to restyle the element
+        # so it is hidden.
+        element.style[:display] = 'none' if klass == SHOW
+
+        # Add the responsive rule to the element
+        element.add_rule rule
 
       end
 

@@ -80,7 +80,7 @@ module Inkcite
       end
 
       def if_mso html
-        %Q(\n<!--[if mso]>#{html.to_s}<![endif]-->\n)
+        %Q(<!--[if mso]>#{html.to_s}<![endif]-->)
       end
 
       def none? val

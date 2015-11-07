@@ -4,6 +4,12 @@ module Inkcite
 
       protected
 
+      # Returns cellpadding specified from the provided attributes by
+      # Checking both :padding and :cellpadding.
+      def get_padding opt
+        (opt[:padding] || opt[:cellpadding]).to_i
+      end
+
       def mix_all element, opt, ctx
 
         mix_background element, opt, ctx
