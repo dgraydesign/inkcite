@@ -13,7 +13,19 @@ module Inkcite
         # True if the tag self-closes as in "<img .../>"
         @self_close = att.delete(:self_close) == true
 
+        # For caller convenience, accept a style hash from the attributes
+        # or initialize it here.
+        @styles = att.delete(:style) || {}
+
       end
+
+      # I found myself doing a lot of Element.new('tag', { }).to_s + 'more html'
+      # so this method makes it easier by allowing elements to be added to
+      # strings.
+      def + html
+        to_s << html.to_s
+      end
+      alias_method :concat, :+
 
       def [] key
         @att[key]
@@ -52,7 +64,7 @@ module Inkcite
       end
 
       def style
-        @styles ||= {}
+        @styles
       end
 
       def to_s
