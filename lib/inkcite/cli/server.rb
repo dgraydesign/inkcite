@@ -1,5 +1,6 @@
 require 'guard'
 require 'guard/commander'
+require 'htmlbeautifier'
 require 'rack'
 require 'rack-livereload'
 require 'webrick'
@@ -122,6 +123,10 @@ module Inkcite
             view = @email.view(environment, format, version)
 
             html = view.render!
+
+            # If we're rendering the development version of the email, beautify the
+            # output so that
+            html = HtmlBeautifier.beautify(html) if view.development?
 
             unless view.errors.blank?
               error_count = view.errors.count

@@ -29,6 +29,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'faker'
   spec.add_dependency 'guard'
   spec.add_dependency 'guard-livereload'
+  spec.add_dependency 'htmlbeautifier'
   spec.add_dependency 'image_optim'
   spec.add_dependency 'image_optim_pack'
   spec.add_dependency 'litmus'
