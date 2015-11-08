@@ -19,7 +19,7 @@ module Inkcite
         is_empty = opts[:empty]
 
         # True if we're initializing a project from the built-in files.
-        is_new = opts[:from].blank?
+        is_new = from_path.blank?
         if is_new
 
           # Use the default, bundled path if a from-path wasn't specified.
@@ -51,7 +51,7 @@ module Inkcite
 
         # If the example email is required, switch to the example root and
         # copy the files within over the existing files.
-        unless is_empty
+        if is_new && !is_empty
           from_path = File.join(Inkcite.asset_path, 'example')
           FileUtils.cp_r(File.join(from_path, '.'), full_init_path)
           puts 'Copied example email files'
