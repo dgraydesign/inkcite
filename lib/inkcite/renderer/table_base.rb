@@ -13,7 +13,7 @@ module Inkcite
       def mix_all element, opt, ctx
 
         mix_background element, opt, ctx
-        mix_border element, opt, ctx
+        mix_border element, opt
         mix_dimensions element, opt, ctx
 
       end
@@ -69,21 +69,6 @@ module Inkcite
           ctx.media_query << rule
           element.add_rule rule
 
-        end
-
-      end
-
-      def mix_border element, opt, ctx
-
-        border = opt[:border]
-        element.style[:border] = border unless border.blank?
-
-        # Iterate through each of the possible borders and apply them individually
-        # to the style if they are defined.
-        DIRECTIONS.each do |dir|
-          key = :"border-#{dir}"
-          border = opt[key]
-          element.style[key] = border unless border.blank? || border == NONE
         end
 
       end

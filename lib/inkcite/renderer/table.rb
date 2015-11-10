@@ -116,7 +116,12 @@ module Inkcite
 
             # Fluid-Drop tables need a default alignment specified which is inherited
             # by the child TD elements if not otherwise specified.
-            valign = opt[:valign] ||= 'top'
+            #
+            # 11/8/2015: For reasons I don't understand, if the table is not valigned
+            # middle by default, then we lose the ability to valign-middle individual
+            # TD children.  So, if we force 'middle' here, then the TDs can override
+            # with 'top' or 'bottom' alignment when desired.
+            valign = opt[:valign] ||= 'middle'
 
             # According to @campaignmonitor this is the secret weapon of Fluid-Hyrbid
             # drop which wraps the floating elements and centers them appropriately.

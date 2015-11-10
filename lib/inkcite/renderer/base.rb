@@ -97,6 +97,21 @@ module Inkcite
 
       end
 
+      def mix_border element, opt
+
+        border = opt[:border]
+        element.style[:border] = border unless border.blank?
+
+        # Iterate through each of the possible borders and apply them individually
+        # to the style if they are defined.
+        DIRECTIONS.each do |dir|
+          key = :"border-#{dir}"
+          border = opt[key]
+          element.style[key] = border unless border.blank? || border == NONE
+        end
+
+      end
+
       def mix_font element, opt, ctx, parent=nil
 
         # Always ensure we have a parent to inherit from.
