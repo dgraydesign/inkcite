@@ -14,6 +14,7 @@ module Inkcite
         img[:src] = image_url(opt[:src], opt, ctx)
 
         mix_background img, opt
+        mix_border img, opt
 
         # Check to see if there is alt text specified for this image.  We are
         # testing against nil because sometimes the author desires an empty
@@ -35,6 +36,9 @@ module Inkcite
             opt[:font] ||= 'small'
 
             mix_font img, opt, ctx
+
+            text_align = opt[TEXT_ALIGN]
+            img.style[TEXT_ALIGN] = text_align unless text_align.blank?
 
           end
 
