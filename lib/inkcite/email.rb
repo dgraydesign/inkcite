@@ -1,6 +1,7 @@
 module Inkcite
   class Email
 
+    BROWSER_VERSION     = :'browser-version'
     CACHE_BUST          = :'cache-bust'
     IMAGE_HOST          = :'image-host'
     IMAGE_PLACEHOLDERS  = :'image-placeholders'
@@ -28,7 +29,11 @@ module Inkcite
 
     def formats env
 
-      f = [ :email, :browser ]
+      # Inkcite is always capable of producing an email version of
+      # the project.
+      f = [ :email ]
+
+      f << :browser if config[BROWSER_VERSION] == true
 
       # Need to make sure a source.txt exists before we can include
       # it in the list of known formats.
@@ -61,7 +66,7 @@ module Inkcite
     end
 
     def optimize_images?
-      config[Inkcite::Email::OPTIMIZE_IMAGES] == true
+      config[OPTIMIZE_IMAGES] == true
     end
 
     # Returns the directory that optimized, compressed images
@@ -102,7 +107,9 @@ module Inkcite
       version = (version || versions.first).to_sym
 
       raise "Unknown environment \"#{environment}\" - must be one of #{ENVIRONMENTS.join(',')}" unless ENVIRONMENTS.include?(environment)
-      raise "Unknown format \"#{format}\" - must be one of #{FORMATS.join(',')}" unless FORMATS.include?(format)
+
+      _formats = formats(environment)
+      raise "Unknown format \"#{format}\" - must be one of #{_formats.join(',')}" unless _formats.include?(format)
       raise "Unknown version: \"#{version}\" - must be one of #{versions.join(',')}" unless versions.include?(version)
 
       # Instantiate a new view of this email with the desired view and
@@ -129,9 +136,6 @@ module Inkcite
     end
 
     private
-
-    # Allowed formats.
-    FORMATS = [ :browser, :email, :text ].freeze
 
     # Name of the property controlling the meta data file name and
     # the default file name.
