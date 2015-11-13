@@ -61,8 +61,15 @@ module Inkcite
       @config[FILE_NAME] = file_name
 
       # The MediaQuery object manages the responsive styles that are applied to
-      # the email during rendering.
-      @media_query = MediaQuery.new(self, 480)
+      # the email during rendering.  Check to see if a breakwidth has been supplied
+      # in helpers.tsv so the designer can control the primary breakpoint.
+      breakpoint = @config[:'mobile-breakpoint'].to_i
+      if breakpoint <= 0
+        breakpoint = @config[:width].to_i - 1
+        breakpoint = 480 if breakpoint <= 0
+      end
+
+      @media_query = MediaQuery.new(self, breakpoint)
 
       # Set the version index based on the position of this
       # version in the list of those defined.
@@ -218,7 +225,11 @@ module Inkcite
       image_host = if development?
         (@email.optimize_images?? Minifier::IMAGE_CACHE : Email::IMAGES) + '/'
       else
-        self[Email::IMAGE_HOST]
+
+        # Use the image host defined in config.yml or, out-of-the-box refer to images/
+        # in the build directory.
+        self[Email::IMAGE_HOST] || (Email::IMAGES + '/')
+
       end
 
       src_url << image_host unless image_host.blank?
@@ -227,7 +238,7 @@ module Inkcite
       src_url << src
 
       # Cache-bust the image if the caller is expecting it to be there.
-      src_url << "?#{Time.now.to_i}" if is_enabled?(Email::CACHE_BUST)
+      src_url << "?#{Time.now.to_i}" if !production? && is_enabled?(Email::CACHE_BUST)
 
       # Transpose any embedded tags into actual values.
       Renderer.render(src_url, self)
@@ -361,7 +372,15 @@ module Inkcite
         html << '<meta name="viewport" content="width=device-width"/>'
         html << "<meta name=\"generator\" content=\"Inkcite #{Inkcite::VERSION}\"/>"
 
-        html << "<title>#{self.title}</title>"
+        # Enable responsive media queries on Windows phones courtesy of @jamesmacwhite
+        # https://blog.jmwhite.co.uk/2014/03/01/windows-phone-does-support-css3-media-queries-in-html-email/
+        html << '<!--[if !mso]><!-->'
+        html << '<meta http-equiv="X-UA-Compatible" content="IE=edge" />'
+        html << '<!--<![endif]-->'
+
+        # Some native Android clients display the title before the preheader so
+        # don't include it in non-development or email rendering per @moonstrips
+        html << "<title>#{self.title if (development? || browser?)}</title>"
 
         # Add external script sources.
         html += external_scripts
