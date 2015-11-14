@@ -146,7 +146,8 @@ module Inkcite
           # In Fluid-Drop, the font-size is set to zero to overcome Outlook rendering
           # problems so it is important to warn the designer that they need to set
           # it back to a reasonable size on the TD element.
-          ctx.error("Font-size must be declared on either the {table} or {td} when #{FLUID_DROP} is specified", opt) if td.style[FONT_SIZE].blank? && is_fluid_drop
+          # TODO [JDH 11/14/2015] Decide if the warning re: font-size should ever
+          # be restored based on whether or not users are finding it confusing.
 
           if mobile.blank?
 
