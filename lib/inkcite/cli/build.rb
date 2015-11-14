@@ -7,24 +7,23 @@ module Inkcite
         errors = false
 
         # Don't allow production files to be built if there are errors.
-        email.views(:production) do |ev|
+        email.views(opts[:environment]) do |ev|
 
           ev.render!
+          next if ev.errors.blank?
 
-          if !ev.errors.blank?
-            puts "The #{ev.version} version (#{ev.format}) has #{ev.errors.size} errors:"
-            puts " - #{ev.errors.join("\n - ")}"
-            errors = true
-          end
+          puts "The #{ev.version} version (#{ev.format}) has #{ev.errors.size} errors:"
+          puts " - #{ev.errors.join("\n - ")}"
+          errors = true
 
         end
 
-        abort("Fix errors or use --force to build") if errors && !opts[:force]
+        abort('Fix errors or use --force to build') if errors && !opts[:force]
 
         # First, compile all assets to the build directory.
         build_to_dir email, opts
 
-        # No archive? Build to files instead.
+        # Compress the directory into an archive if so desired.
         archive = opts[:archive]
         build_archive(email, opts) unless archive.blank?
 
@@ -102,7 +101,7 @@ module Inkcite
         email.optimize_images
 
         # For each of the production views, build the HTML and links files.
-        email.views(:production) do |ev|
+        email.views(opts[:environment]) do |ev|
 
           File.open(File.join(build_html_to, ev.file_name), 'w') { |f| ev.write(f) }
 

@@ -9,6 +9,10 @@ module Inkcite
       option :archive,
           :aliases => '-a',
           :desc => 'The name of the archive to compress final assets into'
+      option :environment,
+          :aliases => '-e',
+          :desc => 'The environment (development, preview or production) to build',
+          :default => :production
       option :force,
           :aliases => '-f',
           :desc => 'Build even if there are errors (not recommended)',
@@ -16,10 +20,7 @@ module Inkcite
 
       def build
         require_relative 'build'
-        Cli::Build.invoke(email, {
-            :archive => options['archive'],
-            :force => options['force']
-        })
+        Cli::Build.invoke(email, options)
       end
 
       desc 'init NAME [options]', 'Initialize a new email project in the NAME directory'
