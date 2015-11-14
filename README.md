@@ -5,12 +5,13 @@ Like [Middleman] is to static web sites, Inkcite makes it easy for email
 developers to keep their code DRY (don’t repeat yourself) and integrate
 versioning, testing and minification into their workflow.
 
-* Easy, flexible templates, variables and helpers
-* ERB for easy A/B testing and versioning
+* Easy, flexible templates, variables and Helpers
+* ERB for dynamic content and easy A/B Testing and Versioning
 * Automatic link tagging and tracking
-* [Litmus] integration for compatibility
-* Preview distribution lists
-* Content inclusion/exclusion rules
+* [Litmus]-integrated compatibility testing and analytics
+* Email preview distribution lists
+* Automatic image optimization using ImageOptim
+* Failsafe rules to double-check your work
 
 ## Installation
 
