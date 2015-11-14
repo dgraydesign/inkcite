@@ -25,7 +25,7 @@ module Inkcite
 
           # Retrieve the opts that were used to open this TD.  We'll need them to
           # check for the private _fluid_drop attribute.
-          open_opt = tag_stack.pop
+          tag_stack.pop
 
           # Normal HTML produced by the Helper to close the cell.
           html << '</td>'
@@ -67,6 +67,8 @@ module Inkcite
           padding = get_padding(table_opt)
           td.style[:padding] = px(padding) if padding > 0
 
+          mobile = opt[:mobile]
+
           # Need to handle Fluid-Drop HTML injection here before the rest of the
           # TD is formalized.  Fluid-Drop removes the width attribute of the cell
           # as it is wrapped in a 100%-width table.
@@ -88,7 +90,9 @@ module Inkcite
             # they'll obey the text-align property on the parent cell (text-align affects
             # all inline or inline-block elements in a container).
             # https://www.campaignmonitor.com/blog/email-marketing/2014/07/creating-a-centred-responsive-design-without-media-queries/
-            html << %Q({div width=#{width} display=inline-block valign=#{valign} mobile=fill})
+
+            div_mobile = mobile == HIDE ? HIDE : FILL
+            html << %Q({div width=#{width} display=inline-block valign=#{valign} mobile="#{div_mobile}"})
 
             # One last wrapper table within the div.  This 100%-wide table is also where any
             # padding applied to the elements belongs.
@@ -97,6 +101,14 @@ module Inkcite
 
             # Remove the width attribute from the TDs declaration.
             opt.delete(:width)
+
+            # The TD nested within the floating div and additional table will inherit center-aligned
+            # text which means fluid-drop cells would have a default layout inconsistent with a regular
+            # TD - which will typically be left-aligned.  So, unless otherwise specified, presume that
+            # the TD should have left-aligned text.
+            opt[:align] = 'left' if opt[:align].blank?
+
+            mobile = ''
 
           end
 
@@ -136,7 +148,6 @@ module Inkcite
           # it back to a reasonable size on the TD element.
           ctx.error("Font-size must be declared on either the {table} or {td} when #{FLUID_DROP} is specified", opt) if td.style[FONT_SIZE].blank? && is_fluid_drop
 
-          mobile = opt[:mobile]
           if mobile.blank?
 
             # If the cell doesn't define it's own responsive behavior, check to
