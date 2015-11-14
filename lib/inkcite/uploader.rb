@@ -8,7 +8,7 @@ module Inkcite
 
       times = []
 
-      [ 'source.html', 'source.txt', 'helpers.tsv' ].each do |file|
+      ['source.html', 'source.txt', 'helpers.tsv'].each do |file|
         file = email.project_file(file)
         times << File.mtime(file).to_i if File.exists?(file)
       end
@@ -81,8 +81,8 @@ module Inkcite
       end
 
       # TODO: Verify SFTP configuration
-      host     = config[:host]
-      path     = config[:path]
+      host = config[:host]
+      path = config[:path]
       username = config[:username]
       password = config[:password]
 
@@ -107,7 +107,7 @@ module Inkcite
         # Upload each version of the email.
         email.versions.each do |version|
 
-          view = email.view(:preview, :browser, version)
+          view = email.view(:preview, :email, version)
 
           # Need to pass the upload path through the renderer to ensure
           # that embedded tags will be converted into data.
@@ -117,28 +117,34 @@ module Inkcite
           # the content and images is present.
           mkdir! sftp, remote_root
 
+          # Upload the images to the remote directory.  We use the last_remote_root
+          # to ensure that we're not repeatedly uploading the same images over and
+          # over when force is enabled -- but will re-upload images to distinct
+          # remote roots.
+          copy! sftp, local_images, remote_root, force && last_remote_root != remote_root
+          last_remote_root = remote_root
+
+          # Check to see if we're creating an in-browser version of the email.
+          next unless email.formats.include?(:browser)
+
+          browser_view = email.view(:preview, :browser, version)
+
           # Check to see if there is a HTML version of this preview.  Some emails
           # do not have a hosted version and so it is not necessary to upload the
           # HTML version of the email - but this is a bad practice.
           file_name = view.file_name
-          unless file_name.blank?
+          next if file_name.blank?
 
-            remote_file_name = File.join(remote_root, file_name)
-            puts "Uploading #{remote_file_name}"
+          remote_file_name = File.join(remote_root, file_name)
+          puts "Uploading #{remote_file_name}"
 
-            # We need to use StringIO to write the email to a buffer in order to upload
-            # the email's content in binary so that its encoding is honored.  SFTP defaults
-            # to ASCII-8bit in non-binary mode, so it was blowing up on UTF-8 special
-            # characters (e.g. "Mäkinen").
-            # http://stackoverflow.com/questions/9439289/netsftp-transfer-mode-binary-vs-text
-            io = StringIO.new(view.render!)
-            sftp.upload!(io, remote_file_name)
-
-          end
-
-          # Upload the images to the remote directory
-          copy! sftp, local_images, remote_root, force && last_remote_root != remote_root
-          last_remote_root = remote_root
+          # We need to use StringIO to write the email to a buffer in order to upload
+          # the email's content in binary so that its encoding is honored.  SFTP defaults
+          # to ASCII-8bit in non-binary mode, so it was blowing up on UTF-8 special
+          # characters (e.g. "Mäkinen").
+          # http://stackoverflow.com/questions/9439289/netsftp-transfer-mode-binary-vs-text
+          io = StringIO.new(browser_view.render!)
+          sftp.upload!(io, remote_file_name)
 
         end
 
