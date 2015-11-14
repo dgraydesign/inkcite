@@ -5,6 +5,7 @@
 .ruby-gemset
 .ruby-version
 bin/build-test
+bin/release-*
 coverage
 Gemfile.lock
 InstalledFiles
