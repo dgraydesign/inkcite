@@ -548,10 +548,6 @@ module Inkcite
     # Empty hash used when there is no environment or format-specific configuration
     EMPTY_HASH = {}
 
-    # Name of the property holding the email field used to ensure that an unsubscribe has
-    # been placed into emails.
-    EMAIL_MERGE_TAG = :'email-merge-tag'
-
     # Used when there is no subject or title for this email.
     UNTITLED_EMAIL = 'Untitled Email'
 
