@@ -7,19 +7,26 @@ module Inkcite
 
       def self.invoke email, opt
 
-        # Verify that a litmus: section is defined in the config.yml
-        config = email.config[:litmus]
-        if !config || config.blank?
-          puts "Unable to test with Litmus ('litmus:' section not found in config.yml)"
-          return false
+        # Check to see if the test-address has been specified.
+        send_to = email.config[TEST_ADDRESS]
+        if send_to.blank?
+
+          # Deprecated check for the test address buried in the Litmus section.
+          litmus_config = email.config[:litmus]
+          send_to = litmus_config[TEST_ADDRESS] unless litmus_config.blank?
+
         end
 
-        # The new Litmus launched in October, 2015 no longer uses the API for creating
-        # tests and instead just accepts emails sent to the account's static email address.
-        # Check to see if a test-address has been defined.
-        send_to = config[:'test-address']
-        if send_to.nil? || send_to.blank?
-          puts "Unable to test with Litmus! ('test-address' entry missing from 'litmus:' section in the config.yml)"
+        if send_to.blank?
+          puts ''
+          puts "Oops! Inkcite can't start a compatibility test because of a missing"
+          puts 'configuration value. In config.yml, please uncomment or add:'
+          puts ''
+          puts "test-address: '(your.static.address@testingservice.com)'"
+          puts ''
+          puts 'Insert your static testing email address from Litmus (litmus.com) or'
+          puts 'Email on Acid (emailonacid.com).'
+          puts ''
           return false
         end
 
@@ -34,12 +41,17 @@ module Inkcite
 
           puts "Sending '#{view.subject}' to #{send_to} ..."
 
-          Inkcite::Mailer.litmus(email, version, send_to)
+          Inkcite::Mailer.test_service(email, version, send_to)
 
         end
 
         true
       end
+
+      private
+
+      # Name of the config property that
+      TEST_ADDRESS = :'test-address'
 
     end
   end

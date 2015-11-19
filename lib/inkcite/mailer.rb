@@ -46,8 +46,8 @@ module Inkcite
 
     end
 
-    def self.litmus email, version, litmus_email
-      self.send_version(email, version, { :to => litmus_email })
+    def self.test_service email, version, test_address
+      self.send_version(email, version, { :to => test_address })
     end
 
     def self.internal email

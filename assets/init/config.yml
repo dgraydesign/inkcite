@@ -22,6 +22,13 @@ optimize-images: true
 # and needs to be provided.
 missing-link-url: 'https://github.com/404'
 
+# Litmus (litmus.com) and Email on Acid (emailonacid.com) (paid services)
+# customers enter your static testing address here to enable instant
+# compatibility testing.
+# https://inkcite.readme.io/docs/compatibility-testing
+#
+test-address: ''
+
 # Add Google Fonts (https://www.google.com/fonts) to your emails.  Add
 # the URLs to the family and sizes needed in your email.  Then reference
 # the font family in either source.html:
@@ -78,14 +85,6 @@ recipients:
     - 'Creative Director <creative.director@domain.com>'
     - 'Proofreader <proof.reader@domain.com>'
 
-# Easy Litmus integration for compatibility testing.
-# https://inkcite.readme.io/docs/compatibility-testing
-#
-litmus:
-  subdomain: ''
-  username: ''
-  password: ''
-
 # Easy deployment of static assets to a CDN or publicly-accessible
 # server - required when your email has images.
 # https://dash.readme.io/project/inkcite/v1.0/docs/cdn-upload
@@ -111,6 +110,17 @@ tag-links: "from_email=myemail|{id}"
 # https://inkcite.readme.io/v1.0/docs/links
 #
 #tag-links-domain: 'clientdomain.com'
+
+# Easy Litmus (litmus.com) analytics integration. Provide your account
+# information here and Inkcite will automatically request a new
+# analytics ID for each version of your email.
+# https://inkcite.readme.io/docs/litmus-analytics
+#
+litmus:
+  subdomain: ''
+  username: ''
+  password: ''
+  merge-tag: ''
 
 
 # Environment-specific overrides allow you to change any setting
