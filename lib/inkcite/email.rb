@@ -27,7 +27,7 @@ module Inkcite
       Util.read_yml(File.join(path, 'config.yml'), :fail_if_not_exists => true)
     end
 
-    def formats env
+    def formats env=nil
 
       # Inkcite is always capable of producing an email version of
       # the project.
