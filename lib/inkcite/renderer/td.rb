@@ -12,6 +12,7 @@ module Inkcite
         # Grab the attributes of the parent table so that the TD can inherit
         # specific values like padding, valign, responsiveness, etc.
         table_opt = ctx.parent_opts(:table)
+        table_mobile = table_opt[:mobile]
 
         # Check to see if the parent table was set to fluid-drop which causes
         # the table cells to be wrapped in <div> elements and floated to
@@ -19,7 +20,7 @@ module Inkcite
         #
         # Fluid-Hybrid TD courtesy of @moonstrips and our friends at Campaign Monitor
         # https://www.campaignmonitor.com/blog/email-marketing/2014/07/creating-a-centred-responsive-design-without-media-queries/
-        is_fluid_drop = table_opt[:mobile] == FLUID_DROP
+        is_fluid_drop = is_fluid_drop?(table_mobile)
 
         if tag == CLOSE_TD
 
@@ -77,8 +78,8 @@ module Inkcite
             # Width must be specified for Fluid-Drop cells.  Vertical-alignment is
             # also important but should have been preset by the Table Helper if it
             # was omitted by the designer.
-            ctx.error("Width is a required attribute when #{FLUID_DROP} is specified", opt) unless width > 0
-            ctx.error("Vertical alignment should be specified when #{FLUID_DROP} is specified", opt) if valign.blank?
+            ctx.error("Width is a required attribute when #{table_mobile} is specified", opt) unless width > 0
+            ctx.error("Vertical alignment should be specified when #{table_mobile} is specified", opt) if valign.blank?
 
             # Conditional Outlook cell to prevent the 100%-wide table within from
             # stretching beyond the max-width.  Also, valign necessary to get float
