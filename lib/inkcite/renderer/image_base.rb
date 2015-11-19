@@ -5,9 +5,9 @@ module Inkcite
       protected
 
       # Display mode constants
-      BLOCK   = 'block'
+      BLOCK = 'block'
       DEFAULT = 'default'
-      INLINE  = 'inline'
+      INLINE = 'inline'
 
       def image_url _src, opt, ctx
 
@@ -36,15 +36,25 @@ module Inkcite
 
           elsif DIMENSIONS.all? { |dim| opt[dim].to_i > MINIMUM_DIMENSION_FOR_PLACEHOLDER }
 
+            width = opt[:width]
+            height = opt[:height]
+
             # As a convenience, replace missing images with placehold.it as long as they
             # meet the minimum dimensions.  No need to spam the design with tiny, tiny
             # placeholders.
-            src = "http://placehold.it/#{opt[:width]}x#{opt[:height]}#{File.extname(src)}"
+            src = "http://placehold.it/#{width}x#{height}.jpg"
+
+            # Check to see if the image has a background color.  If so, we'll use that
+            # to set the background color of the placeholder.
+            bgcolor = detect_bgcolor(opt)
+            src << "/#{bgcolor}".gsub('#', '') unless none?(bgcolor)
 
             # Check to see if the designer specified FPO text for this placeholder -
             # otherwise default to the dimensions of the image.
             fpo = opt[:fpo]
-            src << "&text=#{URI::encode(fpo)}" unless fpo.blank?
+            fpo = _src.dup if fpo.blank?
+            fpo << "\n(#{width}×#{height})"
+            src << "?text=#{URI::encode(fpo)}"
 
           end
 

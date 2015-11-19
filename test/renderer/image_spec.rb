@@ -20,12 +20,12 @@ describe Inkcite::Renderer::Image do
 
   it 'substitutes a placeholder for a missing image of sufficient size' do
     @view.config[Inkcite::Email::IMAGE_PLACEHOLDERS] = true
-    Inkcite::Renderer.render('{img src=missing.jpg height=50 width=100}', @view).must_equal('<img border=0 height=50 src="http://placehold.it/100x50.jpg" style="display:block" width=100>')
+    Inkcite::Renderer.render('{img src=missing.jpg height=50 width=100}', @view).must_equal('<img border=0 height=50 src="http://placehold.it/100x50.jpg?text=missing.jpg%0A(100%C3%9750)" style="display:block" width=100>')
   end
 
   it 'has configurable placeholder text' do
     @view.config[Inkcite::Email::IMAGE_PLACEHOLDERS] = true
-    Inkcite::Renderer.render('{img src=missing.jpg height=50 width=100 fpo="F P O"}', @view).must_equal('<img border=0 height=50 src="http://placehold.it/100x50.jpg&text=F%20P%20O" style="display:block" width=100>')
+    Inkcite::Renderer.render('{img src=missing.jpg height=50 width=100 fpo="F P O"}', @view).must_equal('<img border=0 height=50 src="http://placehold.it/100x50.jpg?text=F%20P%20O%0A(100%C3%9750)" style="display:block" width=100>')
   end
 
   it 'does not substitute placeholders for small images' do

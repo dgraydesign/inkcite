@@ -74,6 +74,10 @@ module Inkcite
         val
       end
 
+      def detect_bgcolor opt
+        detect(opt[:bgcolor], opt[BACKGROUND_COLOR])
+      end
+
       # Convenience pass-thru to Renderer's static helper method.
       def hex color
         Renderer.hex(color)
@@ -92,7 +96,7 @@ module Inkcite
       def mix_background element, opt
 
         # Background color of the image, if populated.
-        bgcolor = detect(opt[:bgcolor], opt[BACKGROUND_COLOR])
+        bgcolor = detect_bgcolor(opt)
         element.style[BACKGROUND_COLOR] = hex(bgcolor) unless none?(bgcolor)
 
       end
