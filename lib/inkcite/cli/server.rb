@@ -37,7 +37,7 @@ module Inkcite
           guardfile = <<-EOF
             guard :livereload do
               watch(%r{^*.+\.(html|tsv|yml)})
-              watch(%r{^images/.+\.*})
+              watch(%r{images/.+\.(gif|jpg|png)})
             end
 
             logger level: :error
@@ -124,9 +124,9 @@ module Inkcite
 
             html = view.render!
 
-            # If we're rendering the development version of the email, beautify the
-            # output so that
-            html = HtmlBeautifier.beautify(html) if view.development?
+            # If minification is disabled, then beautify the output to make it easier
+            # for the designer to inspect the code being produced by Inkcite.
+            html = HtmlBeautifier.beautify(html) unless view.is_enabled?(:minify)
 
             unless view.errors.blank?
               error_count = view.errors.count
