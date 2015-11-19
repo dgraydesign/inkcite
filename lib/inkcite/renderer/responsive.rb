@@ -2,17 +2,18 @@ module Inkcite
   module Renderer
     class Responsive < Base
 
-      BUTTON     = 'button'
-      DROP       = 'drop'
-      FILL       = 'fill'
-      FLUID      = 'fluid'
-      FLUID_DROP = 'fluid-drop'
-      HIDE       = 'hide'
-      IMAGE      = 'img'
-      SHOW       = 'show'
-      SWITCH     = 'switch'
-      SWITCH_UP  = 'switch-up'
-      TOGGLE     = 'toggle'
+      BUTTON      = 'button'
+      DROP        = 'drop'
+      FILL        = 'fill'
+      FLUID       = 'fluid'
+      FLUID_DROP  = 'fluid-drop'
+      FLUID_STACK = 'fluid-stack'
+      HIDE        = 'hide'
+      IMAGE       = 'img'
+      SHOW        = 'show'
+      SWITCH      = 'switch'
+      SWITCH_UP   = 'switch-up'
+      TOGGLE      = 'toggle'
 
       # For elements that take on different background properties
       # when they go responsive
@@ -185,7 +186,14 @@ module Inkcite
       # Returns true if the mobile klass provided matches any of the
       # Fluid-Hybrid classes.
       def is_fluid? mobile
-        mobile == FLUID || mobile == FLUID_DROP
+        mobile == FLUID || is_fluid_drop?(mobile)
+      end
+
+      # Returns true if the mobile klass provided matches any of the
+      # Fluid-Hybrid classes that result in a table's columns stacking
+      # vertically.
+      def is_fluid_drop? mobile
+        mobile == FLUID_DROP || mobile == FLUID_STACK
       end
 
       def mix_font element, opt, ctx, parent=nil
