@@ -4,5 +4,5 @@ require 'rake/testtask'
 Rake::TestTask.new do |t|
   t.libs.push "lib"
   t.test_files = FileList['test/*_spec.rb', 'test/renderer/*_spec.rb']
-  t.verbose = true
+  t.verbose = false
 end
