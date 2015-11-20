@@ -33,6 +33,10 @@ describe Inkcite::Renderer::Image do
     Inkcite::Renderer.render('{img src=missing.jpg height=5 width=15}', @view).must_equal('<img border=0 height=5 src="missing.jpg" style="display:block" width=15>')
   end
 
+  it 'does not alter externally referenced images' do
+    Inkcite::Renderer.render('{img src=://i.imgur.com/YJOX1PC.png height=5 width=15}', @view).must_equal('<img border=0 height=5 src="://i.imgur.com/YJOX1PC.png" style="display:block" width=15>')
+  end
+
   it 'has configurable dimensions' do
     Inkcite::Renderer.render('{img src=inkcite.jpg height=73 width=73}', @view).must_equal('<img border=0 height=73 src="images/inkcite.jpg" style="display:block" width=73>')
   end

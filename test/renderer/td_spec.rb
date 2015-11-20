@@ -103,6 +103,10 @@ describe Inkcite::Renderer::Td do
     Inkcite::Renderer.render('{td background=floor.jpg background-position=bottom}', @view).must_equal('<td style="background:url(images/floor.jpg) bottom no-repeat">')
   end
 
+  it 'can have an externally hosted background image' do
+    Inkcite::Renderer.render('{td background=//i.imgur.com/YJOX1PC.png background-position=bottom}', @view).must_equal('<td style="background:url(//i.imgur.com/YJOX1PC.png) bottom no-repeat">')
+  end
+
   it 'can have a background image on mobile' do
     Inkcite::Renderer.render('{td mobile-background-image=wall.jpg mobile-background-position=right mobile-background-repeat=repeat-y}', @view).must_equal('<td class="m1">')
     @view.media_query.find_by_klass('m1').to_css.must_equal('td[class~="m1"] { background:url(images/wall.jpg) right repeat-y }')

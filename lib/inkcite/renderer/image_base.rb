@@ -9,6 +9,9 @@ module Inkcite
       DEFAULT = 'default'
       INLINE = 'inline'
 
+      # For the given image source URL provided, returns either the fully-qualfied
+      # path to the image (via View's image_url method) or returns a placeholder
+      # if the image is missing.
       def image_url _src, opt, ctx
 
         src = _src
@@ -18,7 +21,7 @@ module Inkcite
 
         # Fully-qualify the image path for this version of the email unless it
         # is already includes a full address.
-        unless src.include?('://')
+        unless Util::is_fully_qualified?(src)
 
           # Verify that the image exists.
           if ctx.assert_image_exists(src) || ctx.is_disabled?(Inkcite::Email::IMAGE_PLACEHOLDERS)

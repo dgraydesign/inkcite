@@ -3,6 +3,22 @@
 module Inkcite
   module Util
 
+    def self.add_query_param href, value
+
+      # Start with either a question mark or an ampersand depending on
+      # whether or not there is already a question mark in the URI.
+      param = href.include?('?') ? '&' : '?'
+      param << value.to_s
+
+      if hash_position = href.index('#')
+        href[hash_position..0] = param
+      else
+        href << param
+      end
+
+      href
+    end
+
     def self.brightness_value color
       color.nil? ? 0 : (color.gsub('#', '').scan(/../).map { |c| c.hex }).inject { |sum, c| sum + c }
     end
@@ -43,6 +59,10 @@ module Inkcite
         raise "File not found: #{path}"
       end
 
+    end
+
+    def self.is_fully_qualified? href
+      href.include?('//')
     end
 
     def self.last_modified file

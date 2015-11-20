@@ -216,29 +216,47 @@ module Inkcite
       fn
     end
 
+    # Returns the fully-qualified URL to the designated image (e.g. logo.gif)
+    # appropriate for the current rendering environment.  In development
+    # mode, local will have either images/ or images-optim/ prepended on them
+    # depending on the status of image optimization.
+    #
+    # For non-development builds, fully-qualified URLs may be returned depending
+    # on the state of the config.yml and how image-host attributes have been
+    # configured.
+    #
+    # If a fully-qualified URL is provided, the URL will be returned with the
+    # possible addition of the cache-breaker tag.
     def image_url src
 
       src_url = ''
 
-      # Prepend the image host onto the src if one is specified in the properties.
-      # During local development, images are always expected in an images/ subdirectory.
-      image_host = if development?
-        (@email.optimize_images?? Minifier::IMAGE_CACHE : Email::IMAGES) + '/'
+      if Util.is_fully_qualified?(src)
+        src_url << src
+
       else
 
-        # Use the image host defined in config.yml or, out-of-the-box refer to images/
-        # in the build directory.
-        self[Email::IMAGE_HOST] || (Email::IMAGES + '/')
+        # Prepend the image host onto the src if one is specified in the properties.
+        # During local development, images are always expected in an images/ subdirectory.
+        image_host = if development?
+          (@email.optimize_images?? Minifier::IMAGE_CACHE : Email::IMAGES) + '/'
+        else
+
+          # Use the image host defined in config.yml or, out-of-the-box refer to images/
+          # in the build directory.
+          self[Email::IMAGE_HOST] || (Email::IMAGES + '/')
+
+        end
+
+        src_url << image_host unless image_host.blank?
+
+        # Add the source of the image.
+        src_url << src
 
       end
 
-      src_url << image_host unless image_host.blank?
-
-      # Add the source of the image.
-      src_url << src
-
       # Cache-bust the image if the caller is expecting it to be there.
-      src_url << "?#{Time.now.to_i}" if !production? && is_enabled?(Email::CACHE_BUST)
+      Util::add_query_param(src_url, Time.now.to_i) if !production? && is_enabled?(Email::CACHE_BUST)
 
       # Transpose any embedded tags into actual values.
       Renderer.render(src_url, self)
