@@ -132,7 +132,7 @@ module Inkcite
           # Check to see if there is a HTML version of this preview.  Some emails
           # do not have a hosted version and so it is not necessary to upload the
           # HTML version of the email - but this is a bad practice.
-          file_name = view.file_name
+          file_name = browser_view.file_name
           next if file_name.blank?
 
           remote_file_name = File.join(remote_root, file_name)
