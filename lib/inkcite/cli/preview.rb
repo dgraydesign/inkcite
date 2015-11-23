@@ -10,15 +10,13 @@ module Inkcite
         # latest images and "view in browser" versions are available.
         email.upload
 
-        puts "Sending preview to #{to} ..."
-
         case to.to_sym
           when :client
-            Inkcite::Mailer.client(email)
+            Inkcite::Mailer.client(email, opt)
           when :internal
-            Inkcite::Mailer.internal(email)
+            Inkcite::Mailer.internal(email, opt)
           when :developer
-            Inkcite::Mailer.developer(email)
+            Inkcite::Mailer.developer(email, opt)
           else
             raise "Invalid preview distribution target"
         end

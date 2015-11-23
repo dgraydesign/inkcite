@@ -18,30 +18,37 @@ module Inkcite
         end
 
         if send_to.blank?
-          puts ''
-          puts "Oops! Inkcite can't start a compatibility test because of a missing"
-          puts 'configuration value. In config.yml, please uncomment or add:'
-          puts ''
-          puts "test-address: '(your.static.address@testingservice.com)'"
-          puts ''
-          puts 'Insert your static testing email address from Litmus (litmus.com) or'
-          puts 'Email on Acid (emailonacid.com).'
-          puts ''
-          return false
+          abort <<-USAGE.strip_heredoc
+
+            Oops! Inkcite can't start a compatibility test because of a missing
+            configuration value. In config.yml, please add or uncomment this line
+            and insert your Litmus or Email on Acid static testing email address:
+
+              test-address: '(your.static.address@testingservice.com)'
+
+          USAGE
         end
 
         # Push the browser preview up to the server to ensure that the
         # latest images are available.
         email.upload
 
-        # Send each version to Litmus separately
-        email.versions.each do |version|
+        # Typically the user will only provide a single test address but here
+        # we convert to an array in case the user is sending to multiple
+        # addresses for their own compatibility testing.
+        send_to = Array(send_to)
+
+        # Check to see if the user wants to test a specific version of the
+        # email - otherwise test all of them.
+        versions = Array(opt[:version] || email.versions)
+
+        # Send each version to the testing service separately
+        versions.each do |version|
 
           view = email.view(:preview, :email, version)
+          puts "Sending '#{view.subject}' to #{send_to.join(', ')} ..."
 
-          puts "Sending '#{view.subject}' to #{send_to} ..."
-
-          Inkcite::Mailer.test_service(email, version, send_to)
+          Inkcite::Mailer.send_version(email, version, { :to => send_to })
 
         end
 

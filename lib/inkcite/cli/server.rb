@@ -73,7 +73,15 @@ module Inkcite
                   :app => app
               })
         rescue Errno::EADDRINUSE
-          abort("Oops!  Port #{port} is unavailable. Either close the instance of Inkcite already running on #{port} or start this Inkcite instance on a new port with: --port=#{port+1}")
+          abort <<-USAGE.strip_heredoc
+
+            Oops!  Inkcite can't start its preview server.  Port #{port} is
+            unavailable. Either close the instance of Inkcite already running
+            on that port or start this Inkcite instance on a new port with:
+
+              inkcit server --port=#{port+1}
+
+          USAGE
         end
 
       end

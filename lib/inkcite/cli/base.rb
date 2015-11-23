@@ -1,6 +1,10 @@
 require 'thor'
 require 'fileutils'
 
+# For improved heredoc
+# http://stackoverflow.com/a/9654275
+require 'active_support/core_ext/string/strip'
+
 module Inkcite
   module Cli
     class Base < Thor
@@ -37,8 +41,10 @@ module Inkcite
         Cli::Init.invoke(name, options)
       end
 
-      desc 'preview TO [options]', 'Send a preview of the email  recipient list: developer, internal or client'
-
+      desc 'preview TO [options]', 'Send a preview of the email to a recipient list: developer, internal or client'
+      option :version,
+          :aliases => '-v',
+          :desc => 'Preview a specific version of the email'
       def preview to=:developer
         require_relative 'preview'
         Cli::Preview.invoke(email, to, options)
@@ -80,12 +86,10 @@ module Inkcite
 
       end
 
-      desc 'test [options]', 'Tests (or re-tests) the email with Litmus'
-      option :new,
-          :aliases => '-n',
-          :desc => 'Forces a new test to be created, otherwise will revision an existing test if present',
-          :type => :boolean
-
+      desc 'test [options]', 'Tests (or re-tests) the email with Litmus or Email on Acid'
+      option :version,
+          :aliases => '-v',
+          :desc => 'Test a specific version of the email'
       def test
         require_relative 'test'
         Cli::Test.invoke(email, options)
