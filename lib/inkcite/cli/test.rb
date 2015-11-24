@@ -5,7 +5,7 @@ module Inkcite
   module Cli
     class Test
 
-      def self.invoke email, opt
+      def self.invoke email, opts
 
         # Check to see if the test-address has been specified.
         send_to = email.config[TEST_ADDRESS]
@@ -33,24 +33,7 @@ module Inkcite
         # latest images are available.
         email.upload
 
-        # Typically the user will only provide a single test address but here
-        # we convert to an array in case the user is sending to multiple
-        # addresses for their own compatibility testing.
-        send_to = Array(send_to)
-
-        # Check to see if the user wants to test a specific version of the
-        # email - otherwise test all of them.
-        versions = Array(opt[:version] || email.versions)
-
-        # Send each version to the testing service separately
-        versions.each do |version|
-
-          view = email.view(:preview, :email, version)
-          puts "Sending '#{view.subject}' to #{send_to.join(', ')} ..."
-
-          Inkcite::Mailer.send_version(email, version, { :to => send_to })
-
-        end
+        Inkcite::Mailer.send(email, opts.merge({ :to => send_to }))
 
         true
       end
