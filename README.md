@@ -5,10 +5,12 @@ Like [Middleman] is to static web sites, Inkcite makes it easy for email
 developers to keep their code DRY (don’t repeat yourself) and integrate
 versioning, testing and minification into their workflow.
 
+* Powerful media query and fluid-hybrid responsive support
 * Easy, flexible templates, variables and Helpers
 * ERB for dynamic content and easy A/B Testing and Versioning
 * Automatic link tagging and tracking
-* [Litmus]-integrated compatibility testing and analytics
+* Instant compatibility testing with [Email on Acid] or [Litmus]
+* Automatic [Litmus] Engagement analytics integration
 * Email preview distribution lists
 * Automatic image optimization using ImageOptim
 * Failsafe rules to double-check your work
@@ -92,6 +94,9 @@ of other preflight features.
 
 ## Learn More
 
+A step-by-step [tutorial] for building a modern, responsive email from start to
+finish is available on the Inkceptional blog.
+
 Documentation for Inkcite is generously hosted by the friendly folks at [Readme].
 Get started here: https://inkcite.readme.io/
 
@@ -111,7 +116,9 @@ Copyright (c) 2014-2015 Jeffrey D. Hoffman. MIT Licensed, see [LICENSE] for
 details.
 
 [Middleman]: http://middlemanapp.com
+[Email On Acid]: http://emailonacid.com
 [Litmus]: http://litmus.com
 [rubyinstaller]: http://rubyinstaller.org/
 [LICENSE]: https://github.com/inkceptional/inkcite/blob/master/LICENSE
 [Readme]: https://readme.io
+[tutorial]: http://blog.inkceptional.com/build-a-modern-responsive-email-with-inkcite/
