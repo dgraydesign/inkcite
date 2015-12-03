@@ -42,22 +42,36 @@ module Inkcite
             width = opt[:width]
             height = opt[:height]
 
-            # As a convenience, replace missing images with placehold.it as long as they
-            # meet the minimum dimensions.  No need to spam the design with tiny, tiny
-            # placeholders.
-            src = "http://placehold.it/#{width}x#{height}.jpg"
-
-            # Check to see if the image has a background color.  If so, we'll use that
-            # to set the background color of the placeholder.
-            bgcolor = detect_bgcolor(opt)
-            src << "/#{bgcolor}".gsub('#', '') unless none?(bgcolor)
+            # Will hold the query parameters being passed to the placeholder service.
+            # I didn't name these parameters - they're from the imgix.net API.
+            query = {
+                :txtsize => 18,
+                :txttrack => 0,
+                :w => width,
+                :h => height,
+                :fm => :jpg,
+            }
 
             # Check to see if the designer specified FPO text for this placeholder -
             # otherwise default to the dimensions of the image.
             fpo = opt[:fpo]
             fpo = _src.dup if fpo.blank?
             fpo << "\n(#{width}×#{height})"
-            src << "?text=#{URI::encode(fpo)}"
+            query[:txt] = fpo
+
+            # Check to see if the image has a background color.  If so, we'll use that
+            # to set the background color of the placeholder.  We'll also pick a
+            # contrasting color for the foreground text.
+            bgcolor = detect_bgcolor(opt)
+            unless none?(bgcolor)
+              query[:bg] = bgcolor.gsub('#', '')
+              query[:txtclr] = Util::contrasting_text_color(bgcolor).gsub('#', '')
+            end
+
+            # Replace the missing image with an imgix.net-powered placeholder using
+            # the query parameters assembled above.
+            # e.g. https://placeholdit.imgix.net/~text?txtsize=18&txt=left.jpg%0A%28155%C3%97155%29&w=155&h=155&fm=jpg&txttrack=0
+            src = "//placeholdit.imgix.net/~text?#{query.to_query}"
 
           end
 
