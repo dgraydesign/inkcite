@@ -333,11 +333,10 @@ module Inkcite
       @environment == :production
     end
 
-    def render!
-      raise "Already rendered" unless @content.blank?
-
-      source_file = 'source'
-      source_file << (text?? TXT_EXTENSION : HTML_EXTENSION)
+    # Helper method which reads the designated file (e.g. source.html) and
+    # performs ERB on it, strips illegal characters and comments (if minified)
+    # and returns the filtered content.
+    def read_source source_file
 
       # Will be used to assemble the parameters passed to File.open.
       # First, always open the file in read mode.
@@ -346,19 +345,35 @@ module Inkcite
       # Detect abnormal file encoding and construct the string to
       # convert such encoding to UTF-8 if specified.
       encoding = self[SOURCE_ENCODING]
-      if !encoding.blank? && encoding != UTF_8
+      unless encoding.blank? || encoding == UTF_8
         mode << encoding
         mode << UTF_8
       end
 
       # Read the original source which may include embedded Ruby.
-      source = File.open(@email.project_file(source_file), mode.join(':')).read
+      source = File.open(source_file, mode.join(':')).read
 
       # Run the content through Erubis
-      filtered = self.eval_erb(source, source_file)
+      source = self.eval_erb(source, source_file)
+
+      # If minification is enabled this will remove anything that has been
+      # <!-- commented out --> to ensure the email is as small as possible.
+      source = Minifier.remove_comments(source, self)
 
       # Protect against unsupported characters
-      Renderer.fix_illegal_characters filtered, self
+      source = Renderer.fix_illegal_characters(source, self)
+
+      source
+    end
+
+    def render!
+      raise "Already rendered" unless @content.blank?
+
+      source_file = 'source'
+      source_file << (text?? TXT_EXTENSION : HTML_EXTENSION)
+
+      # Read the original source which may include embedded Ruby.
+      filtered = read_source(@email.project_file(source_file))
 
       # Filter each of the lines of text and push them onto the stack of lines
       # that we be written into the text or html file.

@@ -136,6 +136,10 @@ module Inkcite
       minify?(ctx) ? js_compressor(ctx).compress(code) : code
     end
 
+    def self.remove_comments html, ctx
+      minify?(ctx) ? html.gsub(HTML_COMMENT_REGEX, '') : html
+    end
+
     private
 
     # Name of the Image Optim configuration yml file that can be
@@ -143,13 +147,17 @@ module Inkcite
     # optimization process.
     IMAGE_OPTIM_CONFIG_YML = 'image_optim.yml'
 
-
     NEW_LINE = "\n"
     MAXIMUM_LINE_LENGTH = 800
 
     # Used to match inline styles that will be compressed when minifying
     # the entire email.
     INLINE_STYLE_REGEX = /style=\"([^\"]+)\"/
+
+    # Regex to match HTML comments when removal is necessary. The ? makes
+    # the regex ungreedy.  The /m at the end ensures the regex matches
+    # multiple lines.
+    HTML_COMMENT_REGEX = /<!--(.*?)-->/m
 
     def self.minify? ctx
       ctx.is_enabled?(:minify)

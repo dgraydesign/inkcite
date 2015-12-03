@@ -17,4 +17,12 @@ describe Inkcite::View do
     Inkcite::Minifier.html(["This string has trailing line-breaks.\n\r\f"], @view).must_equal('This string has trailing line-breaks.')
   end
 
+  it "removes HTML comments" do
+    Inkcite::Minifier.remove_comments(%Q(I am <!-- This is an HTML comment -->not commented<!-- This is another comment --> out), @view).must_equal('I am not commented out')
+  end
+
+  it "removes multi-line HTML comments" do
+    Inkcite::Minifier.remove_comments(%Q(I am not <!-- This is a\n\nmulti-line HTML\ncomment -->commented out), @view).must_equal('I am not commented out')
+  end
+
 end

@@ -12,7 +12,7 @@ module Inkcite
         # Verify the file exists and route it through ERB.  Otherwise
         # let the designer know that the file is missing.
         if File.exist?(file)
-          ctx.eval_erb(File.open(file).read, file_name)
+          ctx.read_source(file)
 
         else
           ctx.error "Include not found", :file => file
