@@ -44,8 +44,8 @@ module Inkcite
         value.gsub!(/…/, '...')
 
       else
-        value.gsub!(/[–—]/, '&#8211;')
-        value.gsub!(/\-\-/, '&#8211;')
+        value.gsub!(/–/, '&ndash;')
+        value.gsub!(/—/, '&mdash;')
         value.gsub!(/™/, '&trade;')
         value.gsub!(/®/, '&reg;')
         value.gsub!(/[‘’`]/, '&#8217;')
