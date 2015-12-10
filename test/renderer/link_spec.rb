@@ -34,6 +34,14 @@ describe Inkcite::Renderer::Link do
     Inkcite::Renderer.render('{a href="#news"}Latest News{/a}', @view).must_equal('<a href="#news" style="color:#0099cc;text-decoration:none">Latest News</a>')
   end
 
+  it 'tags a reused link once and only once' do
+    @view.config[:'tag-links'] = "tag=inkcite|{id}"
+    @view.links_tsv['litmus'] = 'http://litmus.com'
+
+    Inkcite::Renderer.render('{a id="litmus"}Test Emails Here{/a}{a id="litmus"}Also Here{/a}', @view).must_equal('<a href="http://litmus.com?tag=inkcite|litmus" style="color:#0099cc;text-decoration:none" target=_blank>Test Emails Here</a><a href="http://litmus.com?tag=inkcite|litmus" style="color:#0099cc;text-decoration:none" target=_blank>Also Here</a>')
+
+  end
+
   it 'raises a warning and generates an ID if one is not present' do
     Inkcite::Renderer.render('{a href="http://inkceptional.com"}Click Here{/a}', @view).must_equal('<a href="http://inkceptional.com" style="color:#0099cc;text-decoration:none" target=_blank>Click Here</a>')
     @view.errors.must_include('Link missing ID (line 0) [href=http://inkceptional.com]')

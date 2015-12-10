@@ -43,8 +43,12 @@ module Inkcite
         href = opt[:href]
 
         # If a URL wasn't provided in the HTML, then check to see if there is
-        # a link declared in the project's links_tsv file.
-        href = ctx.links_tsv[id] if href.blank?
+        # a link declared in the project's links_tsv file.  If so, we need to
+        # duplicate it so that tagging doesn't get applied multiple times.
+        if href.blank?
+          links_tsv_href = ctx.links_tsv[id]
+          href = links_tsv_href.dup unless links_tsv_href.blank?
+        end
 
         # True if the href is missing.  If so, we may try to look it up by it's ID
         # or we'll insert a default TBD link.
@@ -200,20 +204,7 @@ module Inkcite
           # href matches the desired domain name.
           tag_domain = ctx[TAG_LINKS_DOMAIN]
           if tag_domain.blank? || href =~ /^https?:\/\/[^\/]*#{tag_domain}/
-
-            # Prepend it with a question mark or an ampersand depending on the current
-            # state of the lin.
-            stag = href.include?('?') ? '&' : '?'
-            stag << replace_tag(tag, id, ctx)
-
-            # Inject before the pound sign if present - otherwise, just tack it on
-            # to the end of the href.
-            if hash = href.index(POUND_SIGN)
-              href[hash..0] = stag
-            else
-              href << stag
-            end
-
+            Util::add_query_param(href, replace_tag(tag, id, ctx))
           end
 
         end
