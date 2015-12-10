@@ -50,6 +50,15 @@ module Inkcite
         Cli::Preview.invoke(email, to, options)
       end
 
+      desc 'scope [options]', 'Share this email using Litmus Scope (https://litmus.com/scope/)'
+      option :version,
+          :aliases => '-v',
+          :desc => 'Scope a specific version of the email'
+      def scope
+        require_relative 'scope'
+        Cli::Scope.invoke(email, options)
+      end
+
       desc 'server [options]', 'Start the preview server'
       option :environment,
           :aliases => '-e',
