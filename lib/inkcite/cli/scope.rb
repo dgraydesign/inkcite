@@ -21,20 +21,17 @@ module Inkcite
         # so the email is associated with their account.
         config = email.config[:litmus]
 
-        # True if the designer has a Litmus account
+        # True if the designer has a Litmus account.  We'll use their
+        # username and password to authenticate the request in an effort
+        # to associate it with their Litmus account.
         has_litmus = !config.blank?
         if has_litmus
           username = config[:username]
           password = config[:password]
-          subdomain = config[:subdomain]
         end
 
-        # Assemble the Litmus Scope endpoint using the customer's
-        # optional subdomain.
-        endpoint = 'https://'
-        endpoint << 'litmus.com/scope/api/v1/emails/'
-
-        uri = URI.parse(endpoint)
+        # Litmus Scope endpoint
+        uri = URI.parse('https://litmus.com/scope/api/v1/emails/')
         https = Net::HTTP.new(uri.host, uri.port)
         https.use_ssl = true
 
@@ -69,12 +66,52 @@ module Inkcite
           scope_request.basic_auth(username, password) unless username.blank?
           scope_request.set_form_data('email[source]' => mail.to_s)
 
-          scope_response = https.request(scope_request)
+          begin
 
-          result = JSON.parse(scope_response.body)
+            response = https.request(scope_request)
+            case response
+              when Net::HTTPSuccess
+                result = JSON.parse(response.body)
+                slug = result['email']['slug']
+                puts "'#{subject}' shared to https://litmus.com/scope/#{slug}"
 
-          slug = result['email']['slug']
-          puts "- '#{subject}' viewable at https://litmus.com/scope/#{slug}"
+              when Net::HTTPUnauthorized
+                abort <<-ERROR.strip_heredoc
+
+                          Oops! Inkcite wasn't able to scope your email because of an
+                          authentication problem with Litmus.  Please check the settings
+                          in config.yml:
+
+                            litmus:
+                              username: '#{username}'
+                              password: '#{password}'
+
+                ERROR
+
+              when Net::HTTPServerError
+                abort <<-ERROR.strip_heredoc
+
+                           Oops! Inkcite wasn't able to scope your email because Litmus'
+                           server returned an error.  Please try again later.
+
+                           #{response.message}
+
+                ERROR
+              else
+                raise response.message
+            end
+
+          rescue Exception => e
+            abort <<-ERROR.strip_heredoc
+
+               Oops! Inkcite wasn't able to scope your email because of an
+               unexpected error.  Please try again later.
+
+                  #{e.message}
+
+            ERROR
+          end
+
 
         end
 
