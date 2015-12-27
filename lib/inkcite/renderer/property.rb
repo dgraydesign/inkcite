@@ -33,7 +33,14 @@ module Inkcite
           tag_stack = ctx.tag_stack(open_tag)
 
           # The provided opts take precedence over the ones passed to the open tag.
-          opt = tag_stack.pop.merge(opt) if tag_stack
+          if tag_stack
+
+            # Need to verify that there are open opts to pop - if a tag is closed that
+            # hasn't been opened (e.g. {h3}...{/h2}) the open_opt can be nil.
+            open_opt = tag_stack.pop
+            opt = open_opt.merge(opt) if open_opt
+
+          end
 
         end
 
