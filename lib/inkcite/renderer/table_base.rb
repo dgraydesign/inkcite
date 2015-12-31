@@ -13,7 +13,7 @@ module Inkcite
       def mix_all element, opt, ctx
 
         mix_background element, opt, ctx
-        mix_border element, opt
+        mix_border element, opt, ctx
         mix_dimensions element, opt, ctx
 
       end

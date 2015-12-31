@@ -93,7 +93,7 @@ module Inkcite
 
       # Sets the element's in-line bgcolor style if it has been defined
       # in the provided options.
-      def mix_background element, opt
+      def mix_background element, opt, ctx
 
         # Background color of the image, if populated.
         bgcolor = detect_bgcolor(opt)
@@ -101,7 +101,7 @@ module Inkcite
 
       end
 
-      def mix_border element, opt
+      def mix_border element, opt, ctx
 
         border = opt[:border]
         element.style[:border] = border unless border.blank?
@@ -113,6 +113,13 @@ module Inkcite
           border = opt[key]
           element.style[key] = border unless border.blank? || border == NONE
         end
+
+      end
+
+      def mix_border_radius element, opt, ctx
+
+        border_radius = opt[BORDER_RADIUS].to_i
+        element.style[BORDER_RADIUS] = px(border_radius) if border_radius > 0
 
       end
 

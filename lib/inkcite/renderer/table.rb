@@ -69,12 +69,10 @@ module Inkcite
           align = opt[:align] || opt[:float]
           table[:align] = align unless align.blank?
 
-          border_radius = opt[BORDER_RADIUS].to_i
-          table.style[BORDER_RADIUS] = px(border_radius) if border_radius > 0
+          mix_border_radius table, opt, ctx
 
           border_collapse = opt[BORDER_COLLAPSE]
           table.style[BORDER_COLLAPSE] = border_collapse unless border_collapse.blank?
-
 
           # For both fluid and fluid-drop share certain setup which is performed here.
           if is_fluid?(mobile)

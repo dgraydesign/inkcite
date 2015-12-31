@@ -7,14 +7,14 @@ module Inkcite
         img = Element.new('img', { :border => 0 })
 
         # Ensure that height and width are defined in the image's attributes.
-        mix_dimensions img, opt
+        mix_dimensions img, opt, ctx
 
         # Get the fully-qualified URL to the image or placeholder image if it's
         # missing from the images directory.
         img[:src] = image_url(opt[:src], opt, ctx)
 
-        mix_background img, opt
-        mix_border img, opt
+        mix_background img, opt, ctx
+        mix_border img, opt, ctx
 
         # Check to see if there is alt text specified for this image.  We are
         # testing against nil because sometimes the author desires an empty

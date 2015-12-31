@@ -21,9 +21,9 @@ module Inkcite
         # email is viewed on a mobile device.
         img = Element.new('mobile-img')
 
-        mix_dimensions img, opt
+        mix_dimensions img, opt, ctx
 
-        mix_background img, opt
+        mix_background img, opt, ctx
 
         display = opt[:display]
         img.style[:display] = "#{display}" if display && display != BLOCK && display != DEFAULT

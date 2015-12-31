@@ -1,6 +1,6 @@
 module Inkcite
   module Renderer
-    class Link < Responsive
+    class Link < ContainerBase
 
       def render tag, opt, ctx
 
@@ -37,7 +37,9 @@ module Inkcite
 
         a = Element.new('a')
 
-        mix_font a, opt, ctx
+        # Mixes the attributes common to all container elements
+        # including font, background color, border, etc.
+        mix_all a, opt, ctx
 
         id   = opt[:id]
         href = opt[:href]

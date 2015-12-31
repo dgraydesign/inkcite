@@ -92,7 +92,7 @@ module Inkcite
         DIMENSIONS.any? { |dim| att[dim].to_i <= 0 }
       end
 
-      def mix_dimensions img, opt
+      def mix_dimensions img, opt, ctx
         DIMENSIONS.each { |dim| img[dim] = opt[dim].to_i }
       end
 
