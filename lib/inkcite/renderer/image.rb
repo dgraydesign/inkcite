@@ -40,6 +40,12 @@ module Inkcite
             text_align = opt[TEXT_ALIGN]
             img.style[TEXT_ALIGN] = text_align unless text_align.blank?
 
+            # Check to see if the alt text contains line breaks.  If so, automatically add
+            # the white-space style set to 'pre' which forces the alt text to render with
+            # that line breaks visible.
+            # https://litmus.com/community/discussions/418-line-breaks-within-alt-text
+            img.style[WHITE_SPACE] = 'pre' if alt.match(/[\n\r\f]/)
+
           end
 
         end

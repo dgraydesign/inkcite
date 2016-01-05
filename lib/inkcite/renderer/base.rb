@@ -33,6 +33,7 @@ module Inkcite
       TEXT_SHADOW_BLUR = :'shadow-blur'
       TEXT_SHADOW_OFFSET = :'shadow-offset'
       VERTICAL_ALIGN = :'vertical-align'
+      WHITE_SPACE = :'white-space'
 
       # CSS Margins
       MARGINS = [MARGIN_TOP, MARGIN_LEFT, MARGIN_BOTTOM, MARGIN_RIGHT]
