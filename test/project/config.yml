@@ -91,7 +91,7 @@ preview:
 # These overrides apply to the final, ready-to-send files.
 production:
   cache-bust: false
-  image-host: "http://production.imagehost.com/emails/myemail"
+  image-host: "http://production.imagehost.com/emails/myemail/"
 
   email:
     view-in-browser-url: 'http://production.contenthost.com/path/{filename}'
