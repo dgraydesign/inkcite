@@ -81,6 +81,15 @@ module Inkcite
             params[key] = value
             value = ''
             key = nil
+
+          # If a space is encountered but a value has been previously collected,
+          # a boolean attribute has been encountered - e.g. 'selected' or 'flush'.
+          # Use the value as the symbolized key and set the value to true.
+          elsif !value.blank?
+
+            params[value.to_sym] = true
+            value = ''
+
           end
 
         else

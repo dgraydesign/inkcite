@@ -8,6 +8,15 @@ describe Inkcite::Parser do
     Inkcite::Parser.parameters('border=1').must_equal({ :border => '1' })
   end
 
+  it 'can resolve name-only boolean parameters' do
+    Inkcite::Parser.parameters('selected').must_equal({ :selected => true })
+  end
+
+  it 'can resolve combinations of name=value and boolean parameters' do
+    Inkcite::Parser.parameters('border=1 selected').must_equal({ :border => '1', :selected => true })
+    Inkcite::Parser.parameters('selected border=1').must_equal({ :border => '1', :selected => true })
+  end
+
   it 'can resolve parameters with dashes in the name' do
     Inkcite::Parser.parameters('border-radius=5').must_equal({ :'border-radius' => '5' })
   end
