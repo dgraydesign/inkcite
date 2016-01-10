@@ -22,6 +22,10 @@ module Inkcite
         alt = opt[:alt]
         if alt
 
+          # Allow "\n" to be placed within alt text and converted into a line
+          # break for convenience.
+          alt.gsub!('\n', "\n")
+
           # Ensure that the alt-tag has quotes around it.
           img[:alt] = quote(alt)
 
