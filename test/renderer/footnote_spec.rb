@@ -50,7 +50,7 @@ describe Inkcite::Renderer::Footnote do
   end
 
   it 'can be defined silently' do
-    Inkcite::Renderer.render('{footnote hidden=1 text="EPA-estimated fuel economy."}{footnotes}', @view).must_equal("<sup>1</sup> EPA-estimated fuel economy.<br><br>\n")
+    Inkcite::Renderer.render('{footnote hidden text="EPA-estimated fuel economy."}{footnotes}', @view).must_equal("<sup>1</sup> EPA-estimated fuel economy.<br><br>\n")
   end
 
   it 'converts "\n" within footnotes template to new-lines' do
