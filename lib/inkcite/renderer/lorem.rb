@@ -14,15 +14,17 @@ module Inkcite
 
         # Always warn the creator that there is Lorem Ipsum in the email because
         # we don't want it to ship accidentally.
-        ctx.error 'Email contains Lorem Ipsum'
+        ctx.error 'Email contains Lorem Ipsum' unless opt[:force]
 
         if type == :headline
-
           words = (limit || 4).to_i
           Faker::Lorem.words(words).join(SPACE).titlecase
 
-        else
+        elsif type == :words
+          words = (limit || 7).to_i
+          Faker::Lorem.words(words).join(SPACE)
 
+        else
           sentences = (limit || 3).to_i
           Faker::Lorem.sentences(sentences).join(SPACE)
 
