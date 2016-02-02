@@ -85,7 +85,16 @@ module Inkcite
 
       hash.keys.sort.each do |att|
         val = hash[att]
-        pairs << "#{att}#{equal}#{val}" unless val.blank?
+        next if val.blank?
+
+        # First add the attribute name - e.g. "padding" or "bgcolor"
+        pair = "#{att}"
+
+        # Only append the value if the attribute value is a non-boolean.
+        # e.g. support boolean attributes via booleans ":nowrap => true"
+        pair << "#{equal}#{val}" unless val == true
+
+        pairs << pair
       end
 
       pairs.join(sep)

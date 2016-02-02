@@ -68,6 +68,9 @@ module Inkcite
           padding = get_padding(table_opt)
           td.style[:padding] = px(padding) if padding > 0
 
+          # Apply the no-wrap attribute if provided.
+          td[:nowrap] = true if opt[:nowrap]
+
           mobile = opt[:mobile]
 
           # Need to handle Fluid-Drop HTML injection here before the rest of the

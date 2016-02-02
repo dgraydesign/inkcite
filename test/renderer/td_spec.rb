@@ -127,4 +127,8 @@ describe Inkcite::Renderer::Td do
     @view.media_query.find_by_klass('m1').to_css.must_equal('td[class~="m1"] { background:none !important }')
   end
 
+  it 'supports nowrap' do
+    Inkcite::Renderer.render('{td nowrap}', @view).must_equal('<td nowrap>')
+  end
+
 end
