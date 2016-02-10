@@ -841,7 +841,7 @@ module Inkcite
       path = @email.path
       file = File.join(path, filename)
       unless File.exists?(file)
-        abort("Can't find #{filename} in #{path} - are you sure this is an Inkcite project?") if abort_on_fail
+        error("Unable to load helper file", :file => file) if abort_on_fail
         return
       end
 
@@ -892,6 +892,11 @@ module Inkcite
       _helpers = {
         :n => NEW_LINE
       }
+
+      # Check to see if the config.yml includes a "helpers:" array which allows
+      # additional out-of-project, shared helper files to be loaded.
+      included_helpers = [*@email.config[:helpers]]
+      included_helpers.each { |file| load_helper_file(file, _helpers) }
 
       # Load the project's properties, which may include references to additional
       # properties in other directories.
