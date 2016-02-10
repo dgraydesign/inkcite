@@ -51,6 +51,18 @@ module Inkcite
         # Snowflake color.
         color = hex(opt[:color] || '#fff')
 
+        # Check to see if a source image has been specified for the snowflakes.
+        src = opt[:src]
+
+        # If the image is missing, record an error to the console and
+        # clear the image allowing the color to take precedence instead.
+        src = nil unless ctx.assert_image_exists(src)
+
+        # Flake rotation, used if an image is present.  (Rotating a colored
+        # circle has no visual distinction.)  For convenience this tag accepts
+        # boolean rotate and rotation
+        rotation_enabled = src && (opt[:rotate] || opt[:rotation])
+
         # Initialize the wrap that will hold each of the snowflakes and the
         # content within that will have it's
         div_wrap = Element.new('div')
@@ -101,7 +113,17 @@ module Inkcite
         style << "  .#{all_flakes_class} {"
         style << '    position: absolute;'
         style << "    top: -#{flake_max_size + 4}px;"
-        style << "    background-color: #{color};"
+
+        # If no image has been provided, make the background a solid color
+        # otherwise set the background to the image source and fill the
+        # available space.
+        if src.blank?
+          style << "    background-color: #{color};"
+        else
+          style << "    background-image: url(#{ctx.image_url(src)});"
+          style << "    background-size: 100%;"
+        end
+
         style << '  }'
 
         # Space the snowflakes generally equally across the width of the
@@ -112,7 +134,7 @@ module Inkcite
         # Now build up a pool of equally-spaced starting positions.
         # TODO: This is probably a perfect spot to use inject()
         start_left = flake_spacing / 2.0
-        start_positions = [ start_left ]
+        start_positions = [start_left]
         (flakes - 1).times { |f| start_positions << start_left += flake_spacing }
 
         # Randomize the starting positions - otherwise they draw right-to-left
@@ -142,7 +164,10 @@ module Inkcite
           style << "  .#{flake_prefix}#{flake + 1} {"
           style << "    height: #{px(size)};"
           style << "    width: #{px(size)};"
-          style << "    border-radius: #{px((size / 2.0).round)};"
+
+          # Only apply a border radius if the snowflake lacks an image.
+          style << "    border-radius: #{px((size / 2.0).round)};" unless src
+
           style << "    opacity: #{opacity};" if opacity < OPACITY_CEIL
           style << with_browser_prefixes('    ', "animation: #{anim_prefix}#{flake + 1} #{speed}s linear #{start_time.round(1)}s infinite;", webkit_only)
           style << '  }'
@@ -164,9 +189,14 @@ module Inkcite
             end_left = POSITION_CEIL
           end
 
-          _style =  "keyframes #{anim_prefix}#{flake + 1} {\n"
+          # Calculate the ending rotation for the flake, if rotation is enabled.
+          end_rotation = rotation_enabled ? rand(ROTATION_RANGE) : 0
+
+          _style = "keyframes #{anim_prefix}#{flake + 1} {\n"
           _style << "    0%   { top: -3%; left: #{start_left}%; }\n"
-          _style << "    100% { top: 100%; left: #{end_left}%; }\n"
+          _style << "    100% { top: 100%; left: #{end_left}%;"
+          _style << with_browser_prefixes(' ', "transform: rotate(#{end_rotation}deg);", webkit_only, '') if end_rotation != 0
+          _style << " }\n"
           _style << '  }'
 
           style << with_browser_prefixes("  @", _style, webkit_only)
@@ -185,7 +215,7 @@ module Inkcite
 
       # Renders the CSS with the appropriate browser prefixes based
       # on whether or not this version of the email is webkit only.
-      def with_browser_prefixes indentation, css, webkit_only
+      def with_browser_prefixes indentation, css, webkit_only, separator="\n"
 
         # Determine which prefixes will be applied.
         browser_prefixes = webkit_only ? WEBKIT_BROWSERS : ALL_BROWSERS
@@ -199,7 +229,7 @@ module Inkcite
           _css << indentation
           _css << prefix
           _css << css
-          _css << "\n"
+          _css << separator
         end
 
         _css
@@ -219,6 +249,9 @@ module Inkcite
       OPACITY_FLOOR = 0.2
       OPACITY_CEIL = 1.0
 
+      # Rotation angles when image rotation is enabled.
+      ROTATION_RANGE = (-270..270)
+
       # Position min and max preventing snow flakes
       # from leaving the bounds of the container.
       POSITION_FLOOR = 0
@@ -228,8 +261,8 @@ module Inkcite
       # Firefox, IE and Opera don't require a prefix so to
       # target everything we need the non-prefixed version
       # (hence the blank entry) plus the webkit prefix.
-      WEBKIT_BROWSERS = [ '-webkit-' ]
-      ALL_BROWSERS    = [ '' ] + WEBKIT_BROWSERS
+      WEBKIT_BROWSERS = ['-webkit-']
+      ALL_BROWSERS = [''] + WEBKIT_BROWSERS
 
     end
 
