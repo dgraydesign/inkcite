@@ -81,8 +81,13 @@ module Inkcite
         # Will hold all of the styles as they're assembled.
         style = []
 
+        # True if we're limiting the animation to webkit only.  In development
+        # or in the browser version of the email, the animation should be as
+        # compatible as possible but in all other cases it should be webkit only.
+        webkit_only = !(ctx.development? || ctx.browser?)
+
         # Hide the snow effect from any non-webkit email clients.
-        style << '@media screen and (-webkit-min-device-pixel-ratio: 0) {'
+        style << '@media screen and (-webkit-min-device-pixel-ratio: 0) {' if webkit_only
 
         # Snow wrapping element in-which the snow flakes will be animated.
         style << "  .#{wrap_class} {"
@@ -139,7 +144,7 @@ module Inkcite
           style << "    width: #{px(size)};"
           style << "    border-radius: #{px((size / 2.0).round)};"
           style << "    opacity: #{opacity};" if opacity < OPACITY_CEIL
-          style << "    -webkit-animation: #{anim_prefix}#{flake + 1} #{speed}s linear #{start_time.round(1)}s infinite;"
+          style << with_browser_prefixes('    ', "animation: #{anim_prefix}#{flake + 1} #{speed}s linear #{start_time.round(1)}s infinite;", webkit_only)
           style << '  }'
 
           start_time += start_interval
@@ -159,14 +164,16 @@ module Inkcite
             end_left = POSITION_CEIL
           end
 
-          style << "  @-webkit-keyframes #{anim_prefix}#{flake + 1} {"
-          style << "    0%   { top: -3%; left: #{start_left}%; }"
-          style << "    100% { top: 100%; left: #{end_left}%; }"
-          style << '  }'
+          _style =  "keyframes #{anim_prefix}#{flake + 1} {\n"
+          _style << "    0%   { top: -3%; left: #{start_left}%; }\n"
+          _style << "    100% { top: 100%; left: #{end_left}%; }\n"
+          _style << '  }'
+
+          style << with_browser_prefixes("  @", _style, webkit_only)
 
         end
 
-        style << '}'
+        style << '}' if webkit_only
 
         ctx.styles << style.join("\n")
 
@@ -175,6 +182,28 @@ module Inkcite
       end
 
       private
+
+      # Renders the CSS with the appropriate browser prefixes based
+      # on whether or not this version of the email is webkit only.
+      def with_browser_prefixes indentation, css, webkit_only
+
+        # Determine which prefixes will be applied.
+        browser_prefixes = webkit_only ? WEBKIT_BROWSERS : ALL_BROWSERS
+
+        # This will hold the completed CSS with all prefixes applied.
+        _css = ''
+
+        # Iterate through the prefixes and apply them with the indentation
+        # and CSS declaration with line breaks.
+        browser_prefixes.each do |prefix|
+          _css << indentation
+          _css << prefix
+          _css << css
+          _css << "\n"
+        end
+
+        _css
+      end
 
       # Size constraints on the flakes.
       FLAKE_SIZE_MIN = :'min-size'
@@ -194,6 +223,13 @@ module Inkcite
       # from leaving the bounds of the container.
       POSITION_FLOOR = 0
       POSITION_CEIL = 100
+
+      # Static arrays with browser prefixes.  Turns out that
+      # Firefox, IE and Opera don't require a prefix so to
+      # target everything we need the non-prefixed version
+      # (hence the blank entry) plus the webkit prefix.
+      WEBKIT_BROWSERS = [ '-webkit-' ]
+      ALL_BROWSERS    = [ '' ] + WEBKIT_BROWSERS
 
     end
 
