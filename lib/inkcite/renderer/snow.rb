@@ -56,7 +56,7 @@ module Inkcite
 
         # If the image is missing, record an error to the console and
         # clear the image allowing the color to take precedence instead.
-        src = nil unless ctx.assert_image_exists(src)
+        src = nil if src && !ctx.assert_image_exists(src)
 
         # Flake rotation, used if an image is present.  (Rotating a colored
         # circle has no visual distinction.)  For convenience this tag accepts
