@@ -77,6 +77,9 @@ module Inkcite
         # snow effect.
         mix_background div_wrap, opt, ctx
 
+        # Text alignment within the wrapper
+        mix_text_align div_wrap, opt, ctx
+
         # Kick things off by rendering the wrapping div.
         html = div_wrap.to_s
 
@@ -193,7 +196,7 @@ module Inkcite
           end_rotation = rotation_enabled ? rand(ROTATION_RANGE) : 0
 
           _style = "keyframes #{anim_prefix}#{flake + 1} {\n"
-          _style << "    0%   { top: -3%; left: #{start_left}%; }\n"
+          _style << "    0%   { top: -3%; left: #{start_left.round}%; }\n"
           _style << "    100% { top: 100%; left: #{end_left}%;"
           _style << with_browser_prefixes(' ', "transform: rotate(#{end_rotation}deg);", webkit_only, '') if end_rotation != 0
           _style << " }\n"
