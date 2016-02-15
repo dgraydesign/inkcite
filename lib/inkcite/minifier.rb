@@ -8,7 +8,54 @@ module Inkcite
     IMAGE_CACHE = "images-optim"
 
     def self.css code, ctx
-      minify?(ctx) ? css_compressor(ctx).compress(code) : code
+
+      # Do nothing to the code unless minification is enabled.
+      if minify?(ctx)
+
+        # After YUI's CSS compressor started introducing problems into CSS3
+        # animations, I've switched to a homegrown, extremely simple compression
+        # algorithm for CSS.  Instead of messing with parameters, we're simply
+        # eliminating whitespace.
+
+        # Replace all line breaks with spaces
+        code.gsub!(/[\n\r\f]/, ' ')
+
+        # Remove whitespace at the beginning or ending of the code
+        code.gsub!(/^\s+/, '')
+        code.gsub!(/\s+$/, '')
+
+        # Compress multiple whitespace characters into a single space.
+        code.gsub!(/\s{2,}/, ' ')
+
+        # Remove whitespace preceding or following open and close curly brackets.
+        code.gsub!(/\s*([{};:])\s*/, "\\1")
+
+        # Remove semicolons preceding close brackets.
+        code.gsub!(';}', '}')
+
+        # Certain versions of outlook have a problem with excessively long lines
+        # so if this minified code now exceeds the maximum line limit, re-introduce
+        # wrapping in spots where it won't break anything to do so - e.g. following
+        # a semicolon or close bracket.
+        if ctx.email? && code.length > MAXIMUM_LINE_LENGTH
+
+          # Start the beginning of the code
+          start_at = 0
+
+          # Work through the code injecting line breaks until either no further
+          # breakable characters are found or we've reached the end of the code.
+          while start_at < code.length
+            break_at = code.rindex(/[;}]/, start_at + MAXIMUM_LINE_LENGTH)
+            break unless break_at
+            code.insert(break_at + 1, "\n")
+            start_at += break_at
+          end
+
+        end
+
+      end
+
+      code
     end
 
     def self.html lines, ctx
@@ -167,8 +214,14 @@ module Inkcite
       ctx.js_compressor ||= YUI::JavaScriptCompressor.new(:munge => true)
     end
 
-    def self.css_compressor ctx
-      ctx.css_compressor ||= YUI::CssCompressor.new(:line_break => (ctx.email? ? MAXIMUM_LINE_LENGTH : nil))
+    private
+
+    class InkciteCompressor
+
+      def initialize ctx
+        @ctx = ctx
+      end
+
     end
 
   end

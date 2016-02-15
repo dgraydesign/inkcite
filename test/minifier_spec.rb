@@ -25,4 +25,54 @@ describe Inkcite::View do
     Inkcite::Minifier.remove_comments(%Q(I am not <!-- This is a\n\nmulti-line HTML\ncomment -->commented out), @view).must_equal('I am not commented out')
   end
 
+  it "compresses CSS whitespace" do
+    css = <<-EOF
+          table {
+            border-spacing: 0;
+          }
+
+          table, td {
+            border-collapse: collapse;
+          }
+
+          a[href^=tel] {
+            color: #336699;
+            text-decoration: none;
+          }
+
+          div[style*="margin:16px 0"] {
+            margin: 0 !important;
+          }
+    EOF
+
+    Inkcite::Minifier.css(css, @view).must_equal(%Q(table{border-spacing:0}table, td{border-collapse:collapse}a[href^=tel]{color:#336699;text-decoration:none}div[style*="margin:16px 0"]{margin:0 !important}))
+  end
+
+  it "does not interfere with CSS3 animation keyframe at 0%" do
+    css = <<-EOF
+        @-webkit-keyframes s1a2 {
+           0% {
+             top: -3%;
+             left: 68.75%
+           }
+           100% {
+             top: 100%;
+             left: 66%
+           }
+         }
+    EOF
+    Inkcite::Minifier.css(css, @view).must_equal('@-webkit-keyframes s1a2{0%{top:-3%;left:68.75%}100%{top:100%;left:66%}}')
+  end
+
+  it "does not interfere with CSS3 animation rotation in degrees" do
+    css = <<-EOF
+      @-webkit-keyframes snow1-anim8 {
+        0%   { top: -3%; left: 57%; }
+        100% { top: 100%; left: 60%; transform: rotate(-93deg); -webkit-transform: rotate(-93deg); }
+      }
+    EOF
+
+    Inkcite::Minifier.css(css, @view).must_equal('@-webkit-keyframes snow1-anim8{0%{top:-3%;left:57%}100%{top:100%;left:60%;transform:rotate(-93deg);-webkit-transform:rotate(-93deg)}}')
+  end
+
 end

@@ -35,7 +35,6 @@ module Inkcite
     # Will be populated with the css and js compressor objects
     # after first use.  Ensures we can reset the compressors
     # after a rendering is complete.
-    attr_accessor :css_compressor
     attr_accessor :js_compressor
 
     def initialize email, environment, format, version
