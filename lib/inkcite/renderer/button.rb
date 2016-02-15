@@ -12,7 +12,7 @@ module Inkcite
         end
 
         def bgcolor
-          hex(@opt[:bgcolor] || @ctx[BUTTON_BGCOLOR] || @ctx[BUTTON_BACKGROUND_COLOR] || @ctx[Base::LINK_COLOR])
+          hex(@opt[:bgcolor] || @ctx[BUTTON_BGCOLOR] || @ctx[BUTTON_BACKGROUND_COLOR])
         end
 
         def border
@@ -28,8 +28,7 @@ module Inkcite
         end
 
         def bevel_color
-          bc = @opt[BEVEL_COLOR] || @ctx[BUTTON_BEVEL_COLOR]
-          !bc.blank?? hex(bc) : text_shadow
+          @opt[BEVEL_COLOR] || @ctx[BUTTON_BEVEL_COLOR]
         end
 
         def border_radius
@@ -37,7 +36,7 @@ module Inkcite
         end
 
         def color
-          hex(@opt[:color] || @ctx[BUTTON_COLOR] || Util::contrasting_text_color(bgcolor))
+          hex(@opt[:color] || @ctx[BUTTON_COLOR])
         end
 
         def float
@@ -73,11 +72,7 @@ module Inkcite
         end
 
         def text_shadow
-          ts = @opt[Base::TEXT_SHADOW] || @ctx[BUTTON_TEXT_SHADOW]
-          unless ts
-            ts = Util::brightness_value(bgcolor) > 382.5 ? Util::lighten(bgcolor, 0.25) : Util::darken(bgcolor)
-          end
-          hex(ts)
+          hex(@opt[Base::TEXT_SHADOW] || @ctx[BUTTON_TEXT_SHADOW])
         end
 
         def width
@@ -131,7 +126,8 @@ module Inkcite
           # Responsive button is just a highly styled table/td combination with optional
           # curved corners and a lower bevel (border).
           bgcolor = cfg.bgcolor
-          html << "{table bgcolor=#{bgcolor}"
+          html << '{table'
+          html << %Q( bgcolor="#{bgcolor}") unless bgcolor.blank?
           html << " padding=#{cfg.padding}" if cfg.padding > 0
           html << %Q( border="#{cfg.border}") if cfg.border
           html << " border-radius=#{cfg.border_radius}" if cfg.border_radius > 0
@@ -139,7 +135,7 @@ module Inkcite
 
           # Need to separate borders that are collapsed by default - otherwise, the bevel
           # renders incorrectly.
-          html << " border-collapse=separate" if cfg.border || cfg.bevel > 0
+          html << ' border-collapse=separate' if cfg.border || cfg.bevel > 0
 
           html << " margin-top=#{cfg.margin_top}" if cfg.margin_top > 0
           html << " width=#{cfg.width}" if cfg.width > 0

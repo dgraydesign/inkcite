@@ -162,11 +162,10 @@ module Inkcite
 
         button_styles = {
             :color => "#{cfg.color} !important",
-            :display => 'block',
-            BACKGROUND_COLOR => cfg.bgcolor,
-            TEXT_SHADOW => "0 -1px 0 #{cfg.text_shadow}"
+            :display => 'block'
         }
 
+        button_styles[BACKGROUND_COLOR] = cfg.bgcolor unless cfg.bgcolor.blank?
         button_styles[:border] = cfg.border unless cfg.border.blank?
         button_styles[BORDER_BOTTOM] = cfg.border_bottom if cfg.bevel > 0
         button_styles[BORDER_RADIUS] = Renderer.px(cfg.border_radius) unless cfg.border_radius.blank?
@@ -175,6 +174,7 @@ module Inkcite
         button_styles[MARGIN_TOP] = Renderer.px(cfg.margin_top) if cfg.margin_top > 0
         button_styles[:padding] = Renderer.px(cfg.padding) unless cfg.padding.blank?
         button_styles[TEXT_ALIGN] = 'center'
+        button_styles[TEXT_SHADOW] = "0 -1px 0 #{cfg.text_shadow}" unless cfg.text_shadow.blank?
 
         styles << Rule.new('a', BUTTON, button_styles, false)
 

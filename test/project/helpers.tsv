@@ -36,9 +36,12 @@ small-font-size	11
 big	<div style="font-size: 18px; font-weight: bold; color: $color=#444444$">	</div>
 
 // Bullet-proof buttons
+button-bgcolor	#0099cc
 button-border-radius	5
+button-color  #99ffff
 button-float	center
 button-padding	8
+button-text-shadow	#003d52
 button-width	175
 
 // Dimensions
