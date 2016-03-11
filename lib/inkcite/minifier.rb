@@ -7,6 +7,10 @@ module Inkcite
     # Directory of optimized images
     IMAGE_CACHE = "images-optim"
 
+    # Maximum line length for CSS and HTML - lines exceeding this length cause
+    # problems in certain email clients.
+    MAXIMUM_LINE_LENGTH = 800
+
     def self.css code, ctx
 
       # Do nothing to the code unless minification is enabled.
@@ -39,16 +43,14 @@ module Inkcite
         # a semicolon or close bracket.
         if ctx.email? && code.length > MAXIMUM_LINE_LENGTH
 
-          # Start the beginning of the code
-          start_at = 0
+          # Position at which a line break will be inserted at.
+          break_at = 0
 
           # Work through the code injecting line breaks until either no further
           # breakable characters are found or we've reached the end of the code.
-          while start_at < code.length
-            break_at = code.rindex(/[;}]/, start_at + MAXIMUM_LINE_LENGTH)
-            break unless break_at
-            code.insert(break_at + 1, "\n")
-            start_at += break_at
+          while break_at < code.length
+            break_at = code.rindex(/[;}]/, break_at + MAXIMUM_LINE_LENGTH) + 1
+            code.insert(break_at, "\n") if break_at && break_at < code.length
           end
 
         end
@@ -195,7 +197,6 @@ module Inkcite
     IMAGE_OPTIM_CONFIG_YML = 'image_optim.yml'
 
     NEW_LINE = "\n"
-    MAXIMUM_LINE_LENGTH = 800
 
     # Used to match inline styles that will be compressed when minifying
     # the entire email.
@@ -212,16 +213,6 @@ module Inkcite
 
     def self.js_compressor ctx
       ctx.js_compressor ||= YUI::JavaScriptCompressor.new(:munge => true)
-    end
-
-    private
-
-    class InkciteCompressor
-
-      def initialize ctx
-        @ctx = ctx
-      end
-
     end
 
   end
