@@ -23,11 +23,14 @@ module Inkcite
         display = opt[:display]
         element.style[:display] = display unless display.blank?
 
+        # If boolean 'nowrap' attribute is present, apply the 'white-space: nowrap'
+        # style to the element.
+        element.style[WHITE_SPACE] = :nowrap if opt[:nowrap]
+
         mix_responsive element, opt, ctx
 
         element.to_s
       end
-
 
       # Text alignment - left, right, center.
       def mix_text_align element, opt, ctx
