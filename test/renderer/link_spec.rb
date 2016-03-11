@@ -89,4 +89,14 @@ describe Inkcite::Renderer::Link do
     Inkcite::Renderer.render('{a id="order-now" href="http://inkceptional.com" mobile="button"}Order Now{/a}', @view).must_equal('<div><a class="button" href="http://inkceptional.com" style="color:#0099cc;text-decoration:none" target=_blank>Order Now</a></div>')
   end
 
+  it 'detects invalid URLs' do
+    Inkcite::Renderer.render(%Q({a id="oops" href="http://ink\nceptional.com"}), @view)
+    @view.errors.must_include(%Q(Link href appears to be invalid (line 0) [id=oops, href=http://ink\nceptional.com]))
+  end
+
+  it 'accepts invalid URLs if forced' do
+    Inkcite::Renderer.render(%Q({a id="oops" href="http://ink\nceptional.com" force}), @view)
+    @view.errors.must_be_nil
+  end
+
 end
