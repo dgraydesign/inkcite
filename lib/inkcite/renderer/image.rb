@@ -38,9 +38,6 @@ module Inkcite
             # Copy the text to the title attribute if enabled for this issue
             img[:title] = img[:alt] if ctx.is_enabled?(COPY_ALT_TO_TITLE)
 
-            # All images with alt text inherit small font unless otherwise specified.
-            opt[:font] ||= 'small'
-
             mix_font img, opt, ctx
 
             text_align = opt[TEXT_ALIGN]

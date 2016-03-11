@@ -49,17 +49,24 @@ describe Inkcite::Renderer::Image do
     Inkcite::Renderer.render('{img src=inkcite.jpg height=73 width=73 display=inline}', @view).must_equal('<img align=absmiddle border=0 height=73 src="images/inkcite.jpg" style="display:inline;vertical-align:middle" width=73>')
   end
 
-  it 'defaults to "small" font styling when alt text is present' do
-    Inkcite::Renderer.render('{img src=inkcite.jpg height=73 width=73 alt="Inkcite Avatar"}', @view).must_equal('<img alt="Inkcite Avatar" border=0 height=73 src="images/inkcite.jpg" style="color:#cccccc;display:block;font-size:11px" width=73>')
+  it 'has no font styling unless specified' do
+    Inkcite::Renderer.render('{img src=inkcite.jpg height=73 width=73 alt="Inkcite Avatar"}', @view).must_equal('<img alt="Inkcite Avatar" border=0 height=73 src="images/inkcite.jpg" style="display:block" width=73>')
   end
 
   it 'supports blank alt text' do
     Inkcite::Renderer.render('{img src=inkcite.jpg height=73 width=73 alt=""}', @view).must_equal('<img alt="" border=0 height=73 src="images/inkcite.jpg" style="display:block" width=73>')
+  end
 
+  it 'supports configurable font attributes' do
+    Inkcite::Renderer.render('{img src=inkcite.jpg height=73 width=73 font="small" alt="Inkcite Avatar"}', @view).must_equal('<img alt="Inkcite Avatar" border=0 height=73 src="images/inkcite.jpg" style="color:#cccccc;display:block;font-size:11px" width=73>')
   end
 
   it 'has configurable font size' do
-    Inkcite::Renderer.render('{img src=inkcite.jpg height=73 width=73 font-size=18 alt="Inkcite Avatar"}', @view).must_equal('<img alt="Inkcite Avatar" border=0 height=73 src="images/inkcite.jpg" style="color:#cccccc;display:block;font-size:18px" width=73>')
+    Inkcite::Renderer.render('{img src=inkcite.jpg height=73 width=73 font-size=18 alt="Inkcite Avatar"}', @view).must_equal('<img alt="Inkcite Avatar" border=0 height=73 src="images/inkcite.jpg" style="display:block;font-size:18px" width=73>')
+  end
+
+  it 'supports font-size override' do
+    Inkcite::Renderer.render('{img src=inkcite.jpg height=73 width=73 font="small" font-size=18 alt="Inkcite Avatar"}', @view).must_equal('<img alt="Inkcite Avatar" border=0 height=73 src="images/inkcite.jpg" style="color:#cccccc;display:block;font-size:18px" width=73>')
   end
 
   it 'ignores font attributes when alt text is not present' do
