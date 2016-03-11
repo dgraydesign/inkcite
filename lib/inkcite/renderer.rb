@@ -25,6 +25,7 @@ require_relative 'renderer/preheader'
 require_relative 'renderer/property'
 require_relative 'renderer/redacted'
 require_relative 'renderer/snow'
+require_relative 'renderer/social'
 require_relative 'renderer/span'
 require_relative 'renderer/table'
 require_relative 'renderer/td'
@@ -166,6 +167,7 @@ module Inkcite
           :a                  => Link.new,
           :button             => Button.new,
           :div                => Div.new,
+          :facebook           => Social::Facebook.new,
           :footnote           => Footnote.new,
           :footnotes          => Footnotes.new,
           :google             => GoogleAnalytics.new,
@@ -179,12 +181,14 @@ module Inkcite
           :'mobile-style'     => MobileStyle.new,
           :'mobile-toggle-on' => MobileToggleOn.new,
           :'outlook-bg'       => OutlookBackground.new,
+          :pintrest           => Social::Pintrest.new,
           :preheader          => Preheader.new,
           :redacted           => Redacted.new,
           :snow               => Snow.new,
           :span               => Span.new,
           :table              => Table.new,
-          :td                 => Td.new
+          :td                 => Td.new,
+          :twitter            => Social::Twitter.new
       }
 
     end
