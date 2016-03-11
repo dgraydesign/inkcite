@@ -41,7 +41,7 @@ module Inkcite
         # including font, background color, border, etc.
         mix_all a, opt, ctx
 
-        id   = opt[:id]
+        id = opt[:id]
         href = opt[:href]
 
         # If a URL wasn't provided in the HTML, then check to see if there is
@@ -92,6 +92,10 @@ module Inkcite
             ctx.error "Link missing href", { :id => id } unless last_href
 
           else
+
+            # Ensure the validity of the URL in the link to prevent problems -
+            # e.g. unexpected carriage return in the href.
+            ctx.error('Link href appears to be invalid', { :id => id, :href => href }) unless opt[:force] || valid?(href)
 
             # Optionally tag the link's query string for post-send log analytics.
             href = add_tagging(id, href, ctx)
@@ -233,6 +237,17 @@ module Inkcite
         tag = tag.gsub('{id}', id)
 
         Inkcite::Renderer.render(tag, ctx)
+      end
+
+      # Tests whether or not the href provided is a valid http(s) link.
+      # Courtest http://stackoverflow.com/questions/7167895/whats-a-good-way-to-validate-links-urls-in-rails
+      def valid? url
+        begin
+          uri = URI.parse(url)
+          uri.kind_of?(URI::HTTP)
+        rescue URI::InvalidURIError
+          false
+        end
       end
 
     end
