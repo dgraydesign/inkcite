@@ -1,10 +1,19 @@
 module Inkcite
   module Renderer
-    class OutlookBackground < Base
+
+    # Outlook background image support courtesy of @stigm via Campaign Monitor's
+    # Bulletproof Background Images: https://backgrounds.cm/
+    #
+    # {outlook-bg src=YJOX1PC.png bgcolor=#7bceeb height=92 width=120}
+    #   ...
+    # {/outlook-bg}
+    #
+    class OutlookBackground < ImageBase
 
       def render tag, opt, ctx
 
-        # Do nothing if vml is disabled globally.
+        # Do nothing if vml is disabled globally.  Disable by setting
+        # 'vml: false' in config.yml
         return nil unless ctx.vml_enabled?
 
         html = '<!--[if gte mso 9]>'
@@ -16,21 +25,54 @@ module Inkcite
 
         else
 
-          src = opt[:src]
-          raise 'Outlook background missing required src attribute' if src.blank?
+          # Get the fully-qualified URL to the image or placeholder image if it's
+          # missing from the images directory.
+          src = image_url(opt[:src], opt, ctx, false)
 
-          width = opt[:width].to_i
+          rect = Element.new('v:rect', {
+                  :'xmlns:v' => quote('urn:schemas-microsoft-com:vml'),
+                  :fill => quote(true),
+                  :stroke => quote(false)
+              })
+
+          width = opt[:width]
           height = opt[:height].to_i
-          raise "Outlook background requires dimensions: #{width}x#{height} " if width <= 0 || height <= 0
 
-          html << render_tag('v:rect',
-              { :'xmlns:v' => quote('urn:schemas-microsoft-com:vml'), :fill => quote(true), :stroke => quote(false) },
-              { :width => px(width), :height => px(height) }
-          )
+          # When width is omitted, set to 100% or marked as 'fill' then
+          # make the image fill the available space.  It will tile.
+          if width.nil? || width == 'fill' || width == '100%' || width.to_i <= 0
 
-          html << render_tag('v:fill', { :type => 'tile', :src => quote(ctx.image_url(src)), :color => hex(opt[:bgcolor]), :self_close => true })
+            # The number you pass to 'mso-width-percent' is ten times the percentage you'd like.
+            # https://www.emailonacid.com/blog/article/email-development/emailology_vector_markup_language_and_backgrounds
+            rect.style[:'mso-width-percent'] = 1000
 
-          html << render_tag('v:textbox', { :inset => '0,0,0,0' })
+          else
+            rect.style[:width] = px(width)
+
+          end
+
+          # True if the height of the background image will fit to content within the
+          # background element (specified by omitting the 'height' attribute).
+          fit_to_shape = height <= 0
+          rect.style[:height] = px(height) unless fit_to_shape
+
+          fill = Element.new('v:fill', {
+                  :type => '"tile"',
+                  :src => src,
+                  :self_close => true
+              })
+
+          # Check for a background color.
+          bgcolor = opt[:bgcolor]
+          fill[:color] = quote(hex(bgcolor)) unless bgcolor.blank?
+
+          textbox = Element.new('v:textbox', :inset => '"0,0,0,0"')
+          textbox.style[:'mso-fit-shape-to-text'] = 'true' if fit_to_shape
+
+          html << rect.to_s
+          html << fill.to_s
+          html << textbox.to_s
+
           html << '<div>'
 
           # Flag the context as having had VML used within it.

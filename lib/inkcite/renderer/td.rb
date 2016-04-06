@@ -24,9 +24,12 @@ module Inkcite
 
         if tag == CLOSE_TD
 
-          # Retrieve the opts that were used to open this TD.  We'll need them to
-          # check for the private _fluid_drop attribute.
-          tag_stack.pop
+          # Retrieve the opts that were used to open this TD.
+          open_opt = tag_stack.pop
+
+          # If the opening tag initiated an automatic outlook background
+          # then we need to inject the close tag here.
+          html << "{/outlook-bg}\n" if outlook_bg?(open_opt)
 
           # Normal HTML produced by the Helper to close the cell.
           html << '</td>'
@@ -165,10 +168,22 @@ module Inkcite
 
           mix_responsive td, opt, ctx, mobile
 
-          #outlook-bg	<!-&#45;&#91;if gte mso 9]>[n]<v:rect style="width:%width%px;height:%height%px;" strokecolor="none"><v:fill type="tile" src="%src%" /></v:fill></v:rect><v:shape id="theText[rnd]" style="position:absolute;width:%width%px;height:%height%px;margin:0;padding:0;%style%">[n]<!&#91;endif]&#45;->
-          #/outlook-bg	<!-&#45;&#91;if gte mso 9]></v:shape><!&#91;endif]&#45;->
-
           html << td.to_s
+
+          # For convenience and to keep code DRY, support the outlook-bg boolean
+          # attribute which causes an {outlook-bg} Helper to be injected automatically
+          # inside of the {td}.
+          if outlook_bg?(opt)
+
+            html << "\n"
+            html << Element.new('outlook-bg', {
+                    :bgcolor => detect_bgcolor(opt),
+                    :width => opt[:width],
+                    :height => opt[:height],
+                    :src => opt[:background]
+                }).to_helper
+
+          end
 
         end
 
@@ -177,8 +192,18 @@ module Inkcite
 
       private
 
+      # Returns true if the conditions are met that enable the
+      # automatic {outlook-bg} helper integration.
+      def outlook_bg? opt
+        opt[OUTLOOK_BG] && !opt[:background].blank?
+      end
+
       CLOSE_TD = '/td'
       LEFT = 'left'
+
+      # Boolean attribute triggering automatic outlook background
+      # integration in the TD.
+      OUTLOOK_BG = :'outlook-bg'
 
     end
   end

@@ -526,7 +526,7 @@ module Inkcite
     # Returns true if vml is enabled in this context.  This requires that the
     # context is for an email and that the VML property is enabled.
     def vml_enabled?
-      email? && is_enabled?(:vml)
+      email? && !is_disabled?(:vml)
     end
 
     # Signifies that VML was used during the rendering and that
