@@ -20,7 +20,7 @@ module Inkcite
 
       def mix_background element, opt, ctx
 
-        bgcolor = opt[:bgcolor]
+        bgcolor = detect_bgcolor(opt)
         bgcolor = nil if bgcolor == NONE
 
         # Set the bgcolor attribute of the element as a fallback if
