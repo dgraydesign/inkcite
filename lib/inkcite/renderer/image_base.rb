@@ -12,7 +12,7 @@ module Inkcite
       # For the given image source URL provided, returns either the fully-qualfied
       # path to the image (via View's image_url method) or returns a placeholder
       # if the image is missing.
-      def image_url _src, opt, ctx
+      def image_url _src, opt, ctx, assert_dimensions=true
 
         src = _src
 
@@ -79,7 +79,7 @@ module Inkcite
 
         # Don't let an image go into production without dimensions.  Using the original
         # src so that we don't display the verbose qualified URL to the developer.
-        ctx.error('Missing image dimensions', { :src => _src }) if missing_dimensions
+        ctx.error('Missing image dimensions', { :src => _src }) if missing_dimensions && assert_dimensions
 
         quote(src)
       end

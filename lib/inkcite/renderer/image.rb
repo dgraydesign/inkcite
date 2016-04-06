@@ -76,7 +76,7 @@ module Inkcite
           klass = klass_name(mobile_src, ctx)
 
           # Fully-qualify the image URL.
-          mobile_src = image_url(mobile_src, opt, ctx)
+          mobile_src = image_url(mobile_src, opt, ctx, false)
 
           # Add a responsive rule that replaces the image with a different source
           # with the same dimensions.  Warning, this isn't supported on earlier
