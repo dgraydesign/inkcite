@@ -67,7 +67,13 @@ module Inkcite
         @styles
       end
 
-      def to_s
+      # Generates a Helper tag rather than a string tag - e.g. {img src=test.png}
+      # rather than <img src=test.png>
+      def to_helper
+        to_s('{', '}')
+      end
+
+      def to_s open='<', close='>'
 
         # Convert the style hash into CSS style attribute.
         @att[:style] = Renderer.quote(Renderer.render_styles(@styles)) unless @styles.blank?
@@ -75,7 +81,7 @@ module Inkcite
         # Convert the list of CSS classes assigned to this element into an attribute
         self[:class] = Renderer.quote(@classes.to_a.sort.join(' ')) unless @classes.blank?
 
-        html = '<'
+        html = open
         html << @tag
 
         unless @att.empty?
@@ -84,7 +90,7 @@ module Inkcite
         end
 
         html << ' /' if self_close?
-        html << '>'
+        html << close
 
         html
       end
