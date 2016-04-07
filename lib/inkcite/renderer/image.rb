@@ -28,6 +28,12 @@ module Inkcite
           # line breaks.
           alt.gsub!('\n', "\n ")
 
+          # Remove all HTML from the alt text.  Ran into a situation where a
+          # custom Helper was applying styled text as image alt text.  Since
+          # HTML isn't allowed within alt text, as a convenience we'll just
+          # delete said markup.
+          alt.gsub!(/<[^>]*>/, '')
+
           # Ensure that the alt-tag has quotes around it.
           img[:alt] = quote(alt)
 

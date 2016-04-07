@@ -102,4 +102,8 @@ describe Inkcite::Renderer::Image do
     Inkcite::Renderer.render(%Q({img src=inkcite.jpg height=150 width=100 font=none alt="Multiple\nLine\nAlt\nText"}), Inkcite::Email.new('test/project/').view(:production, :email)).must_equal(%Q(<img alt="Multiple\nLine\nAlt\nText" border=0 height=150 src="http://production.imagehost.com/emails/myemail/inkcite.jpg" style="display:block;white-space:pre" width=100>))
   end
 
+  it 'removes HTML from alt text' do
+    Inkcite::Renderer.render(%q({img src=inkcite.jpg height=150 width=100 alt="HTML <i>is not</i> allowed in alt text"}), @view).must_equal(%q(<img alt="HTML is not allowed in alt text" border=0 height=150 src="images/inkcite.jpg" style="display:block" width=100>))
+  end
+
 end
