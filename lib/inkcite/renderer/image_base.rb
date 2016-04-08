@@ -71,7 +71,7 @@ module Inkcite
             # Replace the missing image with an imgix.net-powered placeholder using
             # the query parameters assembled above.
             # e.g. https://placeholdit.imgix.net/~text?txtsize=18&txt=left.jpg%0A%28155%C3%97155%29&w=155&h=155&fm=jpg&txttrack=0
-            src = "//placeholdit.imgix.net/~text?#{query.to_query}"
+            src = "http://placeholdit.imgix.net/~text?#{query.to_query}"
 
           end
 
