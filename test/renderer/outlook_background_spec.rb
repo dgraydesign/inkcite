@@ -1,11 +1,3 @@
-# <td background="https://i.imgur.com/YJOX1PC.png" bgcolor="#7bceeb" width="120" valign="top">
-#   <!--[if gte mso 9]>
-#   <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:120px;">
-#     <v:fill type="tile" src="https://i.imgur.com/YJOX1PC.png" color="#7bceeb" />
-#     <v:textbox style="mso-fit-shape-to-text:true" inset="0,0,0,0">
-#   <![endif]-->
-#   <div>
-
 require 'minitest/spec'
 require 'minitest/autorun'
 require 'inkcite'
