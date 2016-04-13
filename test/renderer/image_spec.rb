@@ -95,11 +95,16 @@ describe Inkcite::Renderer::Image do
   end
 
   it 'supports multi-line alt text' do
-    Inkcite::Renderer.render(%Q({img src=inkcite.jpg height=150 width=100 font=none alt="Multiple\nLine\nAlt\nText"}), @view).must_equal(%Q(<img alt="Multiple\nLine\nAlt\nText" border=0 height=150 src="images/inkcite.jpg" style="display:block;white-space:pre" width=100>))
+    Inkcite::Renderer.render(%Q({img src=inkcite.jpg height=150 width=100 font=none alt="Multiple\nLine\nAlt\nText"}), @view).must_equal(%Q(<img alt="Multiple \nLine \nAlt \nText" border=0 height=150 src="images/inkcite.jpg" style="display:block;white-space:pre" width=100>))
+  end
+
+  it 'supports virtual (\n) multi-line alt text' do
+    Inkcite::Renderer.render(%q({img src=inkcite.jpg height=150 width=100 font=none alt="Multiple\nLine\nAlt\nText"}), @view).must_equal(%Q(<img alt="Multiple \nLine \nAlt \nText" border=0 height=150 src="images/inkcite.jpg" style="display:block;white-space:pre" width=100>))
   end
 
   it 'supports multi-line alt text in production, too' do
-    Inkcite::Renderer.render(%Q({img src=inkcite.jpg height=150 width=100 font=none alt="Multiple\nLine\nAlt\nText"}), Inkcite::Email.new('test/project/').view(:production, :email)).must_equal(%Q(<img alt="Multiple\nLine\nAlt\nText" border=0 height=150 src="http://production.imagehost.com/emails/myemail/inkcite.jpg" style="display:block;white-space:pre" width=100>))
+    Inkcite::Renderer.render(%Q({img src=inkcite.jpg height=150 width=100 font=none alt="Multiple\nLine\nAlt\nText"}), Inkcite::Email.new('test/project/').view(:production, :email)).must_equal(%Q(<img alt="Multiple \nLine \nAlt \nText" border=0 height=150 src="http://production.imagehost.com/emails/myemail/inkcite.jpg" style="display:block;white-space:pre" width=100>))
+    Inkcite::Renderer.render(%q({img src=inkcite.jpg height=150 width=100 font=none alt="Multiple\nLine\nAlt\nText"}), Inkcite::Email.new('test/project/').view(:production, :email)).must_equal(%Q(<img alt="Multiple \nLine \nAlt \nText" border=0 height=150 src="http://production.imagehost.com/emails/myemail/inkcite.jpg" style="display:block;white-space:pre" width=100>))
   end
 
   it 'removes HTML from alt text' do

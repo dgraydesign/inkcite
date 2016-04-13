@@ -23,10 +23,12 @@ module Inkcite
         if alt
 
           # Allow "\n" to be placed within alt text and converted into a line
-          # break for convenience.  Need to add an extra space for the email
-          # clients (ahem, Gmail, cough) that don't support alt text with
-          # line breaks.
-          alt.gsub!('\n', "\n ")
+          # break for convenience.
+          alt.gsub!('\n', "\n")
+
+          # Need to add an extra space for the email clients (ahem, Gmail,
+          # cough) that don't support alt text with line breaks.
+          alt.gsub!("\n", " \n")
 
           # Remove all HTML from the alt text.  Ran into a situation where a
           # custom Helper was applying styled text as image alt text.  Since
