@@ -195,7 +195,7 @@ module Inkcite
       # Returns true if the conditions are met that enable the
       # automatic {outlook-bg} helper integration.
       def outlook_bg? opt
-        opt[OUTLOOK_BG] && !opt[:background].blank?
+        opt && opt[OUTLOOK_BG] && !opt[:background].blank?
       end
 
       CLOSE_TD = '/td'
