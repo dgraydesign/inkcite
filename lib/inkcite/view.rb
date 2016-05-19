@@ -726,8 +726,9 @@ module Inkcite
             begin
               font_cache[url] = open(url).read
               updated = true
-            rescue
-              error 'Unable to load Google Web Font', { :url => url }
+            rescue Exception => error
+              error 'Unable to load Google Web Font', { :url => url, :error => error.inspect }
+              next
             end
           end
 
