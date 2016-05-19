@@ -79,7 +79,7 @@ module Inkcite
             unavailable. Either close the instance of Inkcite already running
             on that port or start this Inkcite instance on a new port with:
 
-              inkcit server --port=#{port+1}
+              inkcite server --port=#{port+1}
 
           USAGE
         end
