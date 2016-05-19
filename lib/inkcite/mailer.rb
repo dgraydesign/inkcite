@@ -64,6 +64,11 @@ module Inkcite
     # Sends each version of the provided email with the indicated options.
     def self.send email, opts
 
+      # Check to see if additional one-time recipients have been added
+      # to the command line.
+      also_to = opts[:also]
+      opts[:cc] = [*opts[:cc]] + also_to unless also_to.blank?
+
       # Check to see if a specific version is requested or if unspecified
       # all versions of the email should be sent.
       versions = Array(opts[:version] || email.versions)

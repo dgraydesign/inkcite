@@ -45,6 +45,10 @@ module Inkcite
       option :version,
           :aliases => '-v',
           :desc => 'Preview a specific version of the email'
+      option :also,
+          :aliases => '-a',
+          :desc => 'Add one or more (space-separated) recipients to this specific mailing',
+          :type => :array
       def preview to=:developer
         require_relative 'preview'
         Cli::Preview.invoke(email, to, options)
