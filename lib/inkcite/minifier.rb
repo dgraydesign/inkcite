@@ -186,7 +186,7 @@ module Inkcite
     end
 
     def self.remove_comments html, ctx
-      minify?(ctx) ? html.gsub(HTML_COMMENT_REGEX, '') : html
+      remove_comments?(ctx) ? html.gsub(HTML_COMMENT_REGEX, '') : html
     end
 
     private
@@ -209,6 +209,12 @@ module Inkcite
 
     def self.minify? ctx
       ctx.is_enabled?(:minify)
+    end
+
+    # Config attribute that allows for comment striping to be disabled.
+    # e.g. strip-comments: false
+    def self.remove_comments? ctx
+      minify?(ctx) && !ctx.is_disabled?(:'strip-comments')
     end
 
     def self.js_compressor ctx
