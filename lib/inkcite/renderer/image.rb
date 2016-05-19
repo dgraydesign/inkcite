@@ -111,12 +111,6 @@ module Inkcite
           # maintain aspect ratio if present.
           img[:height] = nil
 
-        else
-
-          # Check to see if this image is inside of a mobile-image declaration.
-          # If so, the image defaults to hide on mobile.
-          mobile = HIDE if mobile.blank? && !ctx.parent_opts(:mobile_image).blank?
-
         end
 
         mix_responsive img, opt, ctx, mobile

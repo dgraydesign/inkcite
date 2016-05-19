@@ -7,15 +7,6 @@ module Inkcite
       # Image swapping technique
       def render tag, opt, ctx
 
-        tag_stack = ctx.tag_stack(:mobile_image)
-
-        if tag == '/mobile-img'
-          tag_stack.pop
-          return '</span>'
-        end
-
-        tag_stack << opt
-
         # This is a transient, wrapper Element that we're going to use to
         # style the attributes of the object that will appear when the
         # email is viewed on a mobile device.
@@ -24,6 +15,8 @@ module Inkcite
         mix_dimensions img, opt, ctx
 
         mix_background img, opt, ctx
+
+        mix_margins img, opt, ctx
 
         display = opt[:display]
         img.style[:display] = "#{display}" if display && display != BLOCK && display != DEFAULT
@@ -58,10 +51,9 @@ module Inkcite
         # Add the class that handles inserting the correct background image.
         ctx.media_query << span.add_rule(Rule.new('span', klass, img.style))
 
-        span.to_s
+        span + '</span>'
       end
 
     end
   end
 end
-
