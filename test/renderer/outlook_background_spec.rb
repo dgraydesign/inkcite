@@ -54,4 +54,12 @@ describe Inkcite::Renderer::OutlookBackground do
     Inkcite::Renderer.render('{td bgcolor=#7bceeb outlook-bg}{/td}', @view).must_equal(%Q(<td bgcolor=#7bceeb></td>))
   end
 
+  it 'supports the font attribute' do
+    Inkcite::Renderer.render('{outlook-bg src=https://i.imgur.com/YJOX1PC.png font=large}{/outlook-bg}', @view).must_equal('<!--[if gte mso 9]><v:rect fill="true" stroke="false" style="mso-width-percent:1000" xmlns:v="urn:schemas-microsoft-com:vml"><v:fill src="https://i.imgur.com/YJOX1PC.png" type="tile" /><v:textbox inset="0,0,0,0" style="mso-fit-shape-to-text:true"><div style="color:#ff0000;font-family:serif;font-size:24px;font-weight:bold;line-height:24px"><![endif]--><!--[if gte mso 9]></div></v:textbox></v:rect><![endif]-->')
+  end
+
+  it 'supports font-related attributes' do
+    Inkcite::Renderer.render('{outlook-bg src=https://i.imgur.com/YJOX1PC.png font-size=18 line-height=27}{/outlook-bg}', @view).must_equal('<!--[if gte mso 9]><v:rect fill="true" stroke="false" style="mso-width-percent:1000" xmlns:v="urn:schemas-microsoft-com:vml"><v:fill src="https://i.imgur.com/YJOX1PC.png" type="tile" /><v:textbox inset="0,0,0,0" style="mso-fit-shape-to-text:true"><div style="font-size:18px;line-height:27px"><![endif]--><!--[if gte mso 9]></div></v:textbox></v:rect><![endif]-->')
+  end
+
 end
