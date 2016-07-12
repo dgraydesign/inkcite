@@ -11,6 +11,7 @@ module Inkcite
       HIDE        = 'hide'
       IMAGE       = 'img'
       SHOW        = 'show'
+      SHOW_INLINE = 'show-inline'
       SWITCH      = 'switch'
       SWITCH_UP   = 'switch-up'
       TOGGLE      = 'toggle'
@@ -135,7 +136,8 @@ module Inkcite
         styles << Rule.new(UNIVERSAL, HIDE, 'display: none !important;', false)
 
         # SHOW, which means the element is hidden on desktop but shown on mobile.
-        styles << Rule.new(UNIVERSAL, SHOW, 'display: block !important;', false)
+        styles << Rule.new(UNIVERSAL, SHOW, 'display: block !important; max-height: none !important;', false)
+        styles << Rule.new(UNIVERSAL, SHOW_INLINE, 'display: inline !important; max-height: none !important;', false)
 
         # Brian Graves' Column Drop Pattern: Table goes to 100% width by way of
         # the FILL rule and its cells stack vertically.
@@ -285,7 +287,11 @@ module Inkcite
 
         # If the rule is SHOW (only on mobile) we need to restyle the element
         # so it is hidden.
-        element.style[:display] = 'none' if klass == SHOW
+        if klass == SHOW || klass == SHOW_INLINE
+          element.style[:display] = 'none'
+          element.style[:'max-height'] = 0
+          element.style[:'overflow'] = 'hidden'
+        end
 
         # Add the responsive rule to the element
         element.add_rule rule
