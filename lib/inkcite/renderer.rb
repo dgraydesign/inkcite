@@ -17,6 +17,7 @@ require_relative 'renderer/link'
 require_relative 'renderer/litmus_analytics'
 require_relative 'renderer/lorem'
 require_relative 'renderer/mobile_image'
+require_relative 'renderer/mobile_only'
 require_relative 'renderer/mobile_style'
 require_relative 'renderer/mobile_toggle'
 require_relative 'renderer/outlook_background'
@@ -178,6 +179,7 @@ module Inkcite
           :litmus             => LitmusAnalytics.new,
           :lorem              => Lorem.new,
           :'mobile-img'       => MobileImage.new,
+          :'mobile-only'      => MobileOnly.new,
           :'mobile-style'     => MobileStyle.new,
           :'mobile-toggle-on' => MobileToggleOn.new,
           :'outlook-bg'       => OutlookBackground.new,
