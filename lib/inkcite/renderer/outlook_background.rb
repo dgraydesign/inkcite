@@ -73,7 +73,13 @@ module Inkcite
           html << fill.to_s
           html << textbox.to_s
 
-          html << '<div>'
+          div = Element.new('div')
+
+          # Font family and other attributes get reset within the v:textbox so allow
+          # the font series of attributes to be applied.
+          mix_font div, opt, ctx
+
+          html << div.to_s
 
           # Flag the context as having had VML used within it.
           ctx.vml_used!
