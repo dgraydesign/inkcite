@@ -32,6 +32,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'htmlbeautifier'
   spec.add_dependency 'image_optim'
   spec.add_dependency 'image_optim_pack'
+  spec.add_dependency 'listen', '< 3.1'
   spec.add_dependency 'litmus'
   spec.add_dependency 'mail'
   spec.add_dependency 'mailgun-ruby'
