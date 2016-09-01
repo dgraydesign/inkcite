@@ -11,6 +11,18 @@ module Inkcite
         @view = view
       end
 
+      def once? key
+
+        # Initialize the 'once' data hash which maps
+        @view.data[:once] ||= {}
+
+        # True if this is the first time we've encountered this key.
+        first_time = @view.data[:once][key].nil?
+        @view.data[:once][key] = true if first_time
+
+        first_time
+      end
+
       def method_missing(m, *args, &block)
         if m[-1] == QUESTION_MARK
           start_at = m[0] == UNDERSCORE ? 1 : 0

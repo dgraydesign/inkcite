@@ -24,7 +24,7 @@ module Inkcite
     attr_reader :media_query
 
     # Line number of the email file being processed
-    attr_accessor :line
+    attr_accessor :line_number
 
     # The configuration hash for the view
     attr_accessor :config
@@ -59,6 +59,9 @@ module Inkcite
       @config[:format] = format.to_s
       @config[FILE_NAME] = file_name
 
+      # Expose the project's directory name as the project entry.
+      @config[:project] = File.basename(@email.path)
+
       # The MediaQuery object manages the responsive styles that are applied to
       # the email during rendering.  Check to see if a breakwidth has been supplied
       # in helpers.tsv so the designer can control the primary breakpoint.
@@ -76,7 +79,7 @@ module Inkcite
 
       # Tracks the line number and is recorded when errors are encountered
       # while rendering said line.
-      @line = 0
+      @line_number = 0
 
       # True if VML is used during the preparation of this email.
       @vml_used = false
@@ -120,6 +123,11 @@ module Inkcite
       @format == :browser
     end
 
+    # Arbitrary storage of data
+    def data
+      @data ||= {}
+    end
+
     def default?
       @version == :default
     end
@@ -139,7 +147,7 @@ module Inkcite
     # Records an error message on the currently processing line of the source.
     def error message, obj=nil
 
-      message << " (line #{self.line.to_i})"
+      message << " (line #{self.line_number.to_i})"
       unless obj.blank?
         message << ' ['
         message << obj.collect { |k, v| "#{k}=#{v}" }.join(', ')
@@ -948,7 +956,7 @@ module Inkcite
       filtered.split("\n").each do |line|
 
         # Increment the line number as we read the file.
-        @line += 1
+        @line_number += 1
 
         begin
           line = Renderer.render(line, self)

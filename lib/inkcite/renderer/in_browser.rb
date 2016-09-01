@@ -20,7 +20,7 @@ module Inkcite
         color = opt[:color]
 
         # Optional call-to-action override - otherwise defaults to view in browser.
-        cta = opt[:cta] || 'Preview in Browser'
+        cta = opt[:cta] || ctx.production?? 'View in Browser' : 'Preview in Browser'
 
         id = opt[:id] || 'in-browser'
 

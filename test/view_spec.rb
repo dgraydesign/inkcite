@@ -17,4 +17,16 @@ describe Inkcite::View do
     @view[:'/multiline'].must_equal("This\n    ends the\n  multiline tag.")
   end
 
+  it 'can keep track if something has been rendered already' do
+    @view.eval_erb('<% if once? :trademark %>&trade;<% end %><% if once? :trademark %>&trade;<% end %>', 'source.html').must_equal('&trade;')
+  end
+
+  it 'can keep track if something has been rendered already with ERB exclusion' do
+    @view.eval_erb('<% if false %>invisible<% if once? :trademark %>&trade;<% end %><% end %><% if once? :trademark %>&trade;<% end %>', 'source.html').must_equal('&trade;')
+  end
+
+  it "knows the project's directory name as {project}" do
+    Inkcite::Renderer.render('{project}', @view).must_equal('project')
+  end
+
 end
