@@ -213,6 +213,9 @@ module Inkcite
         line_height = detect_font(MOBILE_LINE_HEIGHT, font, opt, parent, ctx)
         style[LINE_HEIGHT] = "#{px(line_height)} !important" unless line_height.blank?
 
+        color = detect_font(MOBILE_FONT_COLOR, font, opt, parent, ctx)
+        style[:color] = "#{hex(color)} !important" unless color.blank?
+
         mix_responsive_style element, opt, ctx, Renderer.render_styles(style) unless style.blank?
 
         font
@@ -345,6 +348,7 @@ module Inkcite
       UNIVERSAL = '*'
 
       # For font overrides on mobile devices.
+      MOBILE_FONT_COLOR  = :'mobile-color'
       MOBILE_FONT_SIZE   = :'mobile-font-size'
       MOBILE_LINE_HEIGHT = :'mobile-line-height'
 
