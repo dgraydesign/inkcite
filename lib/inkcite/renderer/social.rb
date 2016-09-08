@@ -59,12 +59,6 @@ module Inkcite
 
       def render tag, opts, ctx
 
-        # Ensure that the sharing icon exists in the project.
-        ensure_icon_exists ctx
-
-        height = (opts.delete(:size) || opts.delete(:height) || 15).to_i
-        width = (height / @defaults[:scale]).round
-
         id = opts[:id]
 
         share_url = opts.delete(:href).to_s
@@ -80,13 +74,28 @@ module Inkcite
         # if it has been specified by the caller.
         opts[:color] ||= @defaults[:color]
 
-        # Force the font size and line height to match the size of the
-        # icon being used - this ensures proper vertical middle alignment.
-        opts[FONT_SIZE] = height
-        opts[LINE_HEIGHT] = height
+        if icon = !opts[:noicon]
 
-        %Q({a href="#{service_href}" #{Renderer.join_hash(opts)}}{img src=#{@defaults[:src]} height=#{height} width=#{width} display=inline alt="#{@defaults[:alt]}"} #{@defaults[:cta]}{/a})
+          # Ensure that the sharing icon exists in the project.
+          ensure_icon_exists ctx
 
+          height = (opts.delete(:size) || opts.delete(:height) || 15).to_i
+          width = (height / @defaults[:scale]).round
+
+          # Force the font size and line height to match the size of the
+          # icon being used - this ensures proper vertical middle alignment.
+          opts[FONT_SIZE] = height
+          opts[LINE_HEIGHT] = height
+
+        end
+
+        cta = opts[:cta] || @defaults[:cta]
+
+        html = %Q({a href="#{service_href}" #{Renderer.join_hash(opts)}})
+        html << %Q({img src=#{@defaults[:src]} height=#{height} width=#{width} display=inline alt="#{@defaults[:alt]}"} ) if icon
+        html << %Q(#{cta}{/a})
+
+        html
       end
 
       protected
