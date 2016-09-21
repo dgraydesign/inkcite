@@ -129,7 +129,7 @@ module Inkcite
                   :color => NONE,
                   FONT_SIZE => 1,
                   LINE_HEIGHT => 1
-              }) unless opt[:flush].blank?
+              }) if opt[:flush]
 
           # Custom handling for text align on TDs rather than Base's mix_text_align
           # because if possible, using align= rather than a style keeps emails
