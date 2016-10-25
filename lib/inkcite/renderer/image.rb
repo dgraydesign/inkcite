@@ -9,10 +9,6 @@ module Inkcite
         # Ensure that height and width are defined in the image's attributes.
         mix_dimensions img, opt, ctx
 
-        # Get the fully-qualified URL to the image or placeholder image if it's
-        # missing from the images directory.
-        img[:src] = image_url(opt[:src], opt, ctx)
-
         mix_background img, opt, ctx
         mix_border img, opt, ctx
 
@@ -76,6 +72,29 @@ module Inkcite
         valign = opt[:valign] || ('middle' if inline)
         img.style[VERTICAL_ALIGN] = valign unless valign.blank?
 
+        html = ''
+
+        # Check to see if an outlook-specific image source has been
+        # specified - typically used when there is an animated gif as
+        # the main source but a static image for Outlook clients.
+        outlook_src = opt[OUTLOOK_SRC]
+        unless outlook_src.blank?
+
+          # Initially set the image's URL to the outlook-specific image.
+          img[:src] = image_url(outlook_src, opt, ctx)
+
+          # Wrap the image in the outlook-specific conditionals.
+          html << '<!--[if mso]>'
+          html << img.to_s
+          html << '<![endif]-->'
+          html << '<!--[if !mso]><!-- -->'
+
+        end
+
+        # Get the fully-qualified URL to the image or placeholder image if it's
+        # missing from the images directory.
+        img[:src] = image_url(opt[:src], opt, ctx)
+
         mobile_src = opt[:'mobile-src']
         unless mobile_src.blank?
 
@@ -115,7 +134,12 @@ module Inkcite
 
         mix_responsive img, opt, ctx, mobile
 
-        img.to_s
+        html << img.to_s
+
+        # Conclude the outlook-specific conditional if opened.
+        html << '<!--<![endif]-->' unless outlook_src.blank?
+
+        html
       end
 
       private
@@ -123,6 +147,10 @@ module Inkcite
       # Name of the property controlling whether or not the alt text should
       # be copied to the title field.
       COPY_ALT_TO_TITLE = :'copy-alt-to-title'
+
+      # Name of the property that allows an outlook-specific src to be specified
+      # for an image.
+      OUTLOOK_SRC = :'outlook-src'
 
     end
   end
