@@ -399,7 +399,10 @@ module Inkcite
 
         # Prepare a copy of the HTML for saving as the file.
         html = []
-        html << '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'
+
+        # Using HTML5 DOCTYPE
+        # https://emails.hteumeuleu.com/which-doctype-should-you-use-in-html-emails-cd323fdb793c#.cxet9febe
+        html << '<!DOCTYPE html>'
 
         # Resolve the HTML declaration for this email based on whether or not VML was used.
         html_declaration = '<html xmlns="http://www.w3.org/1999/xhtml"'
@@ -414,7 +417,7 @@ module Inkcite
 
         # Enable responsive media queries on Windows phones courtesy of @jamesmacwhite
         # https://blog.jmwhite.co.uk/2014/03/01/windows-phone-does-support-css3-media-queries-in-html-email/
-        html << '<!--[if !mso]><!-->'
+        html << '<!--[if !mso]><!-- -->'
         html << '<meta http-equiv="X-UA-Compatible" content="IE=edge" />'
         html << '<!--<![endif]-->'
 
@@ -940,7 +943,7 @@ module Inkcite
 
           # Look for full month names (e.g. February) and add a zero-width space
           # afterwards which prevents iOS from detecting said date.
-          raw.gsub!(/#{mon}/, "#{mon}#{Renderer::Base::ZERO_WIDTH_SPACE}")
+          raw.gsub!(/#{mon}/, "#{mon.dup.insert(1, Renderer::Base::ZERO_WIDTH_NON_BREAKING_SPACE)}")
 
         end
 

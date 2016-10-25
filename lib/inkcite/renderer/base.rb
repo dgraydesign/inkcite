@@ -51,6 +51,9 @@ module Inkcite
       # Zero-width space character
       ZERO_WIDTH_SPACE = '&#8203;'
 
+      # Zero-width non-breaking character
+      ZERO_WIDTH_NON_BREAKING_SPACE = '&#xfeff;'
+
       def render tag, opt, ctx
         raise "Not implemented: #{tag} #{opts}"
       end
