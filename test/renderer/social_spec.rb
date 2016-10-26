@@ -5,10 +5,16 @@ require 'inkcite'
 describe Inkcite::Renderer::Social do
 
   before do
-    @view = Inkcite::Email.new('test/project/').view(:development, :email)
+    @email = Inkcite::Email.new('test/project/')
+    @view = @email.view(:development, :email)
   end
 
   it 'supports the noicon attribute' do
+
+    # Need to delete the image if it exists because tests can run
+    # in non-linear order
+    twitter_icon = @email.image_path('twitter.png')
+    File.delete(twitter_icon) if File.exists?(twitter_icon)
     Inkcite::Renderer.render('{twitter noicon href="http://inkcite.readme.io" text="Inkcite #MakeEmailBetter"}', @view).must_equal('<a href="https://twitter.com/share?url=http://inkcite.readme.io&text=Inkcite%20%23MakeEmailBetter" style="color:#0099cc;text-decoration:none" target=_blank>Tweet</a>')
     File.exists?(@view.email.image_path('twitter.png')).must_equal(false)
   end
@@ -40,9 +46,12 @@ describe Inkcite::Renderer::Social do
 
   Minitest.after_run do
     email = Inkcite::Email.new('test/project/')
-    File.delete(email.image_path('facebook.png'))
-    File.delete(email.image_path('pintrest.png'))
-    File.delete(email.image_path('twitter.png'))
+
+    %w( facebook.png pintrest.png twitter.png ).each do |img|
+      image_path = email.image_path(img)
+      File.delete(image_path) if File.exists?(image_path)
+    end
+
   end
 
 end
