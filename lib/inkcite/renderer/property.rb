@@ -22,7 +22,7 @@ module Inkcite
           # onto the stack.  No need to push opts and pollute the stack if
           # there is no closing tag to take advantage of them.
           close_tag = "#{SLASH}#{tag}"
-          ctx.tag_stack(tag) << opt unless ctx[close_tag].blank?
+          ctx.tag_stack(tag) << opt unless ctx[close_tag].nil?
 
         else
 
