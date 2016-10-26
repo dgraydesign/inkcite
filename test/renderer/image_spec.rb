@@ -111,4 +111,8 @@ describe Inkcite::Renderer::Image do
     Inkcite::Renderer.render(%q({img src=inkcite.jpg height=150 width=100 alt="HTML <i>is not</i> allowed in alt text"}), @view).must_equal(%q(<img alt="HTML is not allowed in alt text" border=0 height=150 src="images/inkcite.jpg" style="display:block" width=100>))
   end
 
+  it 'can show a different image in Outlook' do
+    Inkcite::Renderer.render(%q({img src=animated.gif outlook-src=static.jpg height=150 width=100 alt="Don't repeat yourself"}), @view).must_equal(%q(<!--[if mso]><img alt="Don't repeat yourself" border=0 height=150 src="images/static.jpg" style="display:block" width=100><![endif]--><!--[if !mso]><!-- --><img alt="Don't repeat yourself" border=0 height=150 src="images/animated.gif" style="display:block" width=100><!--<![endif]-->))
+  end
+
 end
