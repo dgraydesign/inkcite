@@ -149,13 +149,17 @@ module Inkcite
         start_interval = end_time / flakes.to_f
         start_time = 0
 
+        # Will hold the sizes of each flake and will be used to offset their
+        # initial starting position in the animation section.
+        flake_sizes = {}
+
         # Now add individual class definitions for each flake with unique size,
         # speed and starting position.  Also add the animation trigger that loops
         # infinitely, starts at a random time and uses a random speed to completion.
         flakes.times do |flake|
 
           speed = rand(speed_range).round(1)
-          size = rand(size_range)
+          size = flake_sizes[flake] = rand(size_range)
 
           opacity = rand(opacity_range).round(1)
           if opacity < OPACITY_FLOOR
@@ -196,7 +200,7 @@ module Inkcite
           end_rotation = rotation_enabled ? rand(ROTATION_RANGE) : 0
 
           _style = "keyframes #{anim_prefix}#{flake + 1} {\n"
-          _style << "    0%   { top: -3%; left: #{start_left.round}%; }\n"
+          _style << "    0%   { top: -#{flake_sizes[flake]}px; left: #{start_left.round}%; }\n"
           _style << "    100% { top: 100%; left: #{end_left}%;"
           _style << with_browser_prefixes(' ', "transform: rotate(#{end_rotation}deg);", webkit_only, '') if end_rotation != 0
           _style << " }\n"
