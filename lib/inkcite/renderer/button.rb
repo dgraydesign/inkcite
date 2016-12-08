@@ -59,6 +59,10 @@ module Inkcite
           (@opt[:height] || @ctx[BUTTON_HEIGHT]).to_i
         end
 
+        def letter_spacing
+          @opt[Base::LETTER_SPACING] || @ctx[BUTTON_LETTER_SPACING]
+        end
+
         def line_height
           @opt[Base::LINE_HEIGHT] || @ctx[BUTTON_LINE_HEIGHT]
         end
@@ -95,6 +99,7 @@ module Inkcite
         BUTTON_FONT_SIZE = :'button-font-size'
         BUTTON_FONT_WEIGHT = :'button-font-weight'
         BUTTON_HEIGHT = :'button-height'
+        BUTTON_LETTER_SPACING = :'button-letter-spacing'
         BUTTON_LINE_HEIGHT = :'button-line-height'
         BUTTON_MARGIN_TOP = :'button-margin-top'
         BUTTON_PADDING = :'button-padding'
@@ -157,7 +162,10 @@ module Inkcite
 
           # Second, internal link for Outlook users that makes the inside of the button
           # clickable.
-          html << "{a id=\"#{id}\" href=\"#{href}\" color=\"#{cfg.color}\"}"
+          html << %Q({a id="#{id}" href="#{href}" color="#{cfg.color}")
+          html << %Q( letter-spacing="#{cfg.letter_spacing}") unless cfg.letter_spacing.blank?
+          html << %q(})
+
 
         else
 
