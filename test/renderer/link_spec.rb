@@ -99,4 +99,8 @@ describe Inkcite::Renderer::Link do
     @view.errors.must_be_nil
   end
 
+  it 'supports the block attribute' do
+    Inkcite::Renderer.render(%Q({a id="order-now" href="http://inkceptional.com" block}), @view).must_equal(%Q(<a href="http://inkceptional.com" style="color:#0099cc;display:block;text-decoration:none" target=_blank>))
+  end
+
 end

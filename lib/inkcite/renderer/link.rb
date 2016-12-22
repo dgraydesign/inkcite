@@ -89,7 +89,7 @@ module Inkcite
             # If we don't have a URL, check to see if we've encountered this
             href = last_href || ctx[MISSING_LINK_HREF]
 
-            ctx.error "Link missing href", { :id => id } unless last_href
+            ctx.error 'Link missing href', { :id => id } unless last_href
 
           else
 
@@ -109,7 +109,7 @@ module Inkcite
 
               # It saves everyone a lot of time if you alert them that an ID appears multiple times
               # in the email and with mismatched URLs.
-              ctx.error "Link href mismatch", { :id => id, :expected => last_href, :found => href }
+              ctx.error 'Link href mismatch', { :id => id, :expected => last_href, :found => href }
 
             end
 
@@ -132,6 +132,10 @@ module Inkcite
 
         # Links never get any text decoration.
         a.style[TEXT_DECORATION] = NONE
+
+        # Force the display: block attribute if the boolean block parameter has
+        # been specified.
+        a.style[:display] = :block if opt[:block]
 
         if ctx.browser?
 
