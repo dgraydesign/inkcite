@@ -1,9 +1,19 @@
-require 'csv'
-require 'erubis'
-require 'i18n'
-require 'set'
-require 'uri'
-require 'yaml'
+require 'active_support/core_ext/kernel/reporting.rb'  # silence_warnings
+
+# Need to silence warnings when we import these other gems as
+# there are numerous messages produced as a result of circular
+# dependencies and other problems within these gems, outside
+# of my control.
+silence_warnings do
+  require 'csv'
+  require 'erubis'
+  require 'i18n'
+  require 'image_optim'
+  require 'set'
+  require 'uri'
+  require 'yaml'
+  require 'yui/compressor'
+end
 
 require 'active_support/core_ext/hash/keys.rb'  # Symbolize keys!
 require 'active_support/core_ext/module/delegation.rb'
@@ -19,6 +29,7 @@ require 'inkcite/view'
 require 'inkcite/minifier'
 require 'inkcite/parser'
 require 'inkcite/renderer'
+require 'inkcite/animation'
 
 module Inkcite
 

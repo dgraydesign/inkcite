@@ -25,6 +25,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'activesupport'
   spec.add_dependency 'builder'
+  spec.add_dependency 'chunky_png'
   spec.add_dependency 'erubis'
   spec.add_dependency 'faker'
   spec.add_dependency 'guard'
@@ -32,7 +33,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'htmlbeautifier'
   spec.add_dependency 'image_optim'
   spec.add_dependency 'image_optim_pack'
-  spec.add_dependency 'listen', '< 3.1'
+  spec.add_dependency 'listen'
   spec.add_dependency 'litmus'
   spec.add_dependency 'mail'
   spec.add_dependency 'mailgun-ruby'
@@ -43,8 +44,8 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'thor'
   spec.add_dependency 'yui-compressor'
 
-  spec.add_development_dependency "bundler", "~> 1.1"
-  spec.add_development_dependency "rake"
-  spec.add_development_dependency "minitest"
+  spec.add_development_dependency 'bundler'
+  spec.add_development_dependency 'rake'
+  spec.add_development_dependency 'minitest'
 
 end

@@ -176,7 +176,7 @@ module Inkcite
           style << "    border-radius: #{px((size / 2.0).round)};" unless src
 
           style << "    opacity: #{opacity};" if opacity < OPACITY_CEIL
-          style << with_browser_prefixes('    ', "animation: #{anim_prefix}#{flake + 1} #{speed}s linear #{start_time.round(1)}s infinite;", webkit_only)
+          style << Animation.with_browser_prefixes("animation: #{anim_prefix}#{flake + 1} #{speed}s linear #{start_time.round(1)}s infinite;", ctx)
           style << '  }'
 
           start_time += start_interval
@@ -199,14 +199,17 @@ module Inkcite
           # Calculate the ending rotation for the flake, if rotation is enabled.
           end_rotation = rotation_enabled ? rand(ROTATION_RANGE) : 0
 
-          _style = "keyframes #{anim_prefix}#{flake + 1} {\n"
-          _style << "    0%   { top: -#{flake_sizes[flake]}px; left: #{start_left.round}%; }\n"
-          _style << "    100% { top: 100%; left: #{end_left}%;"
-          _style << with_browser_prefixes(' ', "transform: rotate(#{end_rotation}deg);", webkit_only, '') if end_rotation != 0
-          _style << " }\n"
-          _style << '  }'
+          keyframes = Animation::Keyframes.new("#{anim_prefix}#{flake + 1}", ctx)
 
-          style << with_browser_prefixes("  @", _style, webkit_only)
+          # Start above the div area
+          keyframes.add_keyframe(0, :top => px(-flake_sizes[flake]), :left => pct(start_left.round))
+
+          # End below the div area, applying rotation if necessary.
+          keyframe = Animation::Keyframe.new(100, :top => '100%', :left => pct(end_left))
+          keyframe.add_with_prefixes(:transform, "rotate(#{end_rotation}deg)", ctx) if end_rotation != 0
+          keyframes << keyframe
+
+          style << keyframes.to_s
 
         end
 

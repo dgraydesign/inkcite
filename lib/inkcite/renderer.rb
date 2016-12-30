@@ -30,6 +30,7 @@ require_relative 'renderer/social'
 require_relative 'renderer/span'
 require_relative 'renderer/table'
 require_relative 'renderer/td'
+require_relative 'renderer/video_preview'
 
 module Inkcite
   module Renderer
@@ -118,7 +119,7 @@ module Inkcite
     end
 
     def self.quote val
-      "\"#{val}\""
+      %Q("#{val}")
     end
 
     def self.render str, context
@@ -190,7 +191,8 @@ module Inkcite
           :span               => Span.new,
           :table              => Table.new,
           :td                 => Td.new,
-          :twitter            => Social::Twitter.new
+          :twitter            => Social::Twitter.new,
+          :'video-preview'    => VideoPreview.new
       }
 
     end
