@@ -10,6 +10,10 @@ module Inkcite
         @tag = tag
         @att = att
 
+        # Initializing @classes to avoid a Ruby warning that it hasn't been
+        # declared when it is lazy-initialized in the classes() method.
+        @classes = nil
+
         # True if the tag self-closes as in "<img .../>"
         @self_close = att.delete(:self_close) == true
 
