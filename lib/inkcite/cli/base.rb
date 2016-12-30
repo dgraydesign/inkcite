@@ -79,7 +79,7 @@ module Inkcite
           :desc => 'The ip address Inkcite will bind to'
       method_option :port,
           :aliases => '-p',
-          :default => '4567',
+          :default => 4567,
           :desc => 'The port Inkcite will listen on',
           :type => :numeric
       option :version,
