@@ -1,7 +1,3 @@
-require 'minitest/spec'
-require 'minitest/autorun'
-require 'inkcite'
-
 describe Inkcite::Renderer::Table do
 
   before do
@@ -61,6 +57,14 @@ describe Inkcite::Renderer::Table do
     markup << %Q({/table})
 
     Inkcite::Renderer.render(markup, @view).must_equal(%Q(<!--[if mso]><table border=0 cellpadding=0 cellspacing=0 width=600><tr><td><![endif]--><table bgcolor=#009900 border=0 cellpadding=0 cellspacing=0 style="border:5px solid #f0f;max-width:600px" width=100%><tr><td dir=rtl style="font-size:0;text-align:center;vertical-align:middle"><!--[if mso]><table align=center border=0 cellpadding=0 cellspacing=0 width=100%><tr><![endif]--><!--[if mso]><td valign=top width=195><![endif]--><div class="fill" style="display:inline-block;vertical-align:top;width:195px"><table border=0 cellpadding=15 cellspacing=0 width=100%><tr><td align=left bgcolor=#000099 style="color:#ffffff;font-size:25px;padding:15px;text-align:left" valign=top>left</td></tr></table></div><!--[if mso]></td><![endif]--><!--[if mso]><td valign=middle width=195><![endif]--><div class="fill" style="display:inline-block;vertical-align:middle;width:195px"><table border=0 cellpadding=15 cellspacing=0 width=100%><tr><td align=center style="font-size:25px;padding:15px" valign=middle>centered two-line</td></tr></table></div><!--[if mso]></td><![endif]--><!--[if mso]><td valign=middle width=195><![endif]--><div class="fill" style="display:inline-block;vertical-align:middle;width:195px"><table border=0 cellpadding=15 cellspacing=0 width=100%><tr><td align=right bgcolor=#990000 style="color:#ffffff;font-size:30px;padding:15px" valign=middle>right<br>three<br>lines</td></tr></table></div><!--[if mso]></td><![endif]--><!--[if mso]></tr></table><![endif]--></td></tr></table><!--[if mso]></td></tr></table><![endif]-->))
+  end
+
+  it 'supports CSS animation' do
+    Inkcite::Renderer.render('{table animation="video-frames 15s ease infinite"}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0 style="-webkit-animation:video-frames 15s ease infinite;animation:video-frames 15s ease infinite"><tr>')
+  end
+
+  it 'supports the tr-transition attribute' do
+    Inkcite::Renderer.render('{table tr-transition="all .5s cubic-bezier(0.075, 0.82, 0.165, 1)"}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0><tr style="transition:all .5s cubic-bezier(0.075, 0.82, 0.165, 1)">')
   end
 
 end
