@@ -25,7 +25,7 @@ module Inkcite
 
     def self.darken color, amount=0.4
       return BLACK if color.nil?
-      rgb = color.gsub('#', '').scan(/../).map { |color| color.hex }
+      rgb = color.gsub('#', '').scan(/../).map { |c| c.hex }
       rgb[0] = (rgb[0].to_i * amount).round
       rgb[1] = (rgb[1].to_i * amount).round
       rgb[2] = (rgb[2].to_i * amount).round
@@ -38,9 +38,23 @@ module Inkcite
       opts.detect { |o| !o.blank? }
     end
 
+    # Centralizing the URL/CGI encoding for all HREF processing because
+    # URI.escape/encode is obsolete.
+    def self.encode *arg
+      silence_warnings do
+        URI.escape(*arg)
+      end
+    end
+
+    def self.escape *arg
+      silence_warnings do
+        URI.escape(*arg)
+      end
+    end
+
     def self.lighten color, amount=0.6
       return WHITE if color.nil?
-      rgb = color.gsub('#', '').scan(/../).map { |color| color.hex }
+      rgb = color.gsub('#', '').scan(/../).map { |c| c.hex }
       rgb[0] = [(rgb[0].to_i + 255 * amount).round, 255].min
       rgb[1] = [(rgb[1].to_i + 255 * amount).round, 255].min
       rgb[2] = [(rgb[2].to_i + 255 * amount).round, 255].min
@@ -53,7 +67,7 @@ module Inkcite
 
     def self.each_line path, fail_if_not_exists, &block
 
-      if File.exists?(path)
+      if File.exist?(path)
         File.open(path).each { |line| yield line.strip }
       elsif fail_if_not_exists
         raise "File not found: #{path}"
@@ -66,12 +80,12 @@ module Inkcite
     end
 
     def self.last_modified file
-      file && File.exists?(file) ? File.mtime(file).to_i : 0
+      file && File.exist?(file) ? File.mtime(file).to_i : 0
     end
 
     def self.read *argv
       path = File.join(File.expand_path('../..', File.dirname(__FILE__)), argv)
-      if File.exists?(path)
+      if File.exist?(path)
         line = File.open(path).read
         line.gsub!(/[\r\f\n]+/, "\n")
         line.gsub!(/ {2,}/, ' ')

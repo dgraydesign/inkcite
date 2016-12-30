@@ -29,7 +29,7 @@ module Inkcite
           media = opts.delete(:media).to_s
           ctx.error("Pintrest sharing 'media' attribute can't be blank", :id => opts[:id]) if media.blank?
 
-          %Q(https://www.pinterest.com/pin/create/button/?url=#{url}&media=#{URI.escape(media)}&description=#{text})
+          %Q(https://www.pinterest.com/pin/create/button/?url=#{url}&media=#{Util::escape(media)}&description=#{text})
         end
 
       end
@@ -68,7 +68,7 @@ module Inkcite
         ctx.error("Social sharing 'text' attribute can't be blank", :tag => tag, :id => id, :href => share_url) if share_text.blank?
 
         # Let the extending class format the fully-qualified URL to the sharing service.
-        service_href = get_share_href URI.escape(share_url), URI.escape(share_text), opts, ctx
+        service_href = get_share_href Util.escape(share_url), Util.escape(share_text), opts, ctx
 
         # Check to see if there is a special color for this link (e.g. Pintrest) or
         # if it has been specified by the caller.
@@ -107,7 +107,7 @@ module Inkcite
         # Get the full destination path to the icon in the current project.  If
         # the icon already exists, then there is nothing left to do.
         dest_icon_path = ctx.email.image_path(src)
-        return if File.exists?(dest_icon_path)
+        return if File.exist?(dest_icon_path)
 
         # Get the full path to the source icon bundled with Inkcite.
         source_icon_path = File.join(Inkcite.asset_path, 'social', src)
