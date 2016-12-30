@@ -8,7 +8,7 @@ module Inkcite
 
         # Sanity check to make sure we're not writing over an existing
         # Inkcite project.
-        abort "It appears that an Inkcite already exists in #{path}" if File.exists?(File.join(full_init_path, 'config.yml'))
+        abort "It appears that an Inkcite already exists in #{path}" if File.exist?(File.join(full_init_path, 'config.yml'))
 
         # Check to see if the user specified a --from path that is used to
         # clone an existing project rather than init a new one.
@@ -41,7 +41,7 @@ module Inkcite
 
         # Verify that the source directory contains the config.yml file
         # signifying an existing Inkcite project.
-        abort "Can't find #{from_path} or it isn't an existing Inkcite project" unless File.exists?(File.join(from_path, 'config.yml'))
+        abort "Can't find #{from_path} or it isn't an existing Inkcite project" unless File.exist?(File.join(from_path, 'config.yml'))
 
         # Copy the main Inkcite project files
         Dir.glob(File.join(from_path, '*.{html,tsv,txt,yml}')).each do |from_file|
@@ -59,7 +59,7 @@ module Inkcite
 
         # Check to see if there are images and copy those as well.
         from_path = File.join(from_path, Inkcite::Email::IMAGES)
-        if File.exists?(from_path)
+        if File.exist?(from_path)
           FileUtils.cp_r(File.join(from_path, '.'), full_init_image_path)
           puts "Copied images to #{init_image_path}"
         end

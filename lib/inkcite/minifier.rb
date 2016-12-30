@@ -1,6 +1,3 @@
-require 'image_optim'
-require 'yui/compressor'
-
 module Inkcite
   class Minifier
 
@@ -121,7 +118,7 @@ module Inkcite
 
       # If the image cache exists, we need to check to see if any images have been
       # removed since the last build.
-      if File.exists?(cache_path)
+      if File.exist?(cache_path)
 
         # Get a list of the files in the cache that do not also exist in the
         # project's images/ directory.

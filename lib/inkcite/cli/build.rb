@@ -45,7 +45,7 @@ module Inkcite
 
         # The Zip::File will try to update an existing archive so just blow the old
         # one away if it still exists.
-        File.delete(zip_file) if File.exists?(zip_file)
+        File.delete(zip_file) if File.exist?(zip_file)
 
         # The absolute path to the build directories
         build_html_to = build_path(email)
@@ -54,7 +54,7 @@ module Inkcite
         Zip::File.open(zip_file, Zip::File::CREATE) do |zip|
 
           # Add the minified images to the .zip archive
-          if File.exists?(build_images_to)
+          if File.exist?(build_images_to)
             Dir.foreach(build_images_to) do |img|
               img_path = File.join(build_images_to, img)
               zip.add(File.join(Inkcite::Email::IMAGES, img), img_path) unless File.directory?(img_path)
@@ -113,7 +113,7 @@ module Inkcite
         # Copy all of the source images into the build directory in preparation
         # for optimization
         build_images_from = email.optimized_image_dir
-        FileUtils.cp_r(File.join(build_images_from, '.'), build_images_to) if File.exists?(build_images_from)
+        FileUtils.cp_r(File.join(build_images_from, '.'), build_images_to) if File.exist?(build_images_from)
 
       end
 

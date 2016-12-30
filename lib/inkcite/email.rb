@@ -37,7 +37,7 @@ module Inkcite
 
       # Need to make sure a source.txt exists before we can include
       # it in the list of known formats.
-      f << :text if File.exists?(project_file('source.txt'))
+      f << :text if File.exist?(project_file('source.txt'))
 
       f
     end

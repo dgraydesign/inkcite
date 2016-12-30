@@ -10,11 +10,11 @@ module Inkcite
 
       ['source.html', 'source.txt', 'helpers.tsv'].each do |file|
         file = email.project_file(file)
-        times << File.mtime(file).to_i if File.exists?(file)
+        times << File.mtime(file).to_i if File.exist?(file)
       end
 
       local_images = email.image_dir
-      if File.exists?(local_images)
+      if File.exist?(local_images)
         Dir.foreach(local_images) do |file|
           times << File.mtime(File.join(local_images, file)).to_i unless file.starts_with?('.')
         end
@@ -42,7 +42,7 @@ module Inkcite
 
       # Nothing to copy unless the local directory exists (e.g. some emails don't
       # have an images directory.)
-      return unless File.exists?(local)
+      return unless File.exist?(local)
 
       Dir.foreach(local) do |file|
         next if file.starts_with?('.')
