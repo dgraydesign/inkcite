@@ -2,6 +2,10 @@ module Inkcite
   module Renderer
     class Table < TableBase
 
+      # Name of the attribute allowing a transition attribute to be placed
+      # on the automatically-added <tr> element.
+      TR_TRANSITION = :'tr-transition'
+
       def render tag, opt, ctx
 
         html = ''
@@ -108,7 +112,15 @@ module Inkcite
           mix_responsive table, opt, ctx, mobile
 
           html << table.to_s
-          html << '<tr>'
+
+          tr = Element.new('tr')
+
+          # Check for a row transition which is necessary to facilitate
+          # cross-column animation - e.g. tr-transition="all .5s cubic-bezier(0.075, 0.82, 0.165, 1)"
+          tr_transition = opt[TR_TRANSITION]
+          tr.style[:transition] = tr_transition unless none?(tr_transition)
+
+          html << tr.to_s
 
           if is_fluid_drop
 

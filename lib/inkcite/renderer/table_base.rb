@@ -12,6 +12,7 @@ module Inkcite
 
       def mix_all element, opt, ctx
 
+        mix_animation element, opt, ctx
         mix_background element, opt, ctx
         mix_border element, opt, ctx
         mix_dimensions element, opt, ctx
@@ -21,11 +22,10 @@ module Inkcite
       def mix_background element, opt, ctx
 
         bgcolor = detect_bgcolor(opt)
-        bgcolor = nil if bgcolor == NONE
 
         # Set the bgcolor attribute of the element as a fallback if
         # css isn't supported.
-        element[:bgcolor] = hex(bgcolor) unless bgcolor.blank?
+        element[:bgcolor] = bgcolor unless bgcolor.nil?
 
         bgimage    = opt[:background]
         bgposition = opt[BACKGROUND_POSITION]
