@@ -1,7 +1,3 @@
-require 'minitest/spec'
-require 'minitest/autorun'
-require 'inkcite'
-
 describe Inkcite::Renderer::OutlookBackground do
 
   before do
@@ -47,7 +43,7 @@ describe Inkcite::Renderer::OutlookBackground do
   end
 
   it 'inherits height from the parent td if present' do
-    html = Inkcite::Renderer.render('{td background=https://i.imgur.com/YJOX1PC.png bgcolor=#7bceeb height=92 width=120 outlook-bg}{/td}', @view).must_equal(%Q(<td bgcolor=#7bceeb height=92 style="background:#7bceeb url(https://i.imgur.com/YJOX1PC.png)" width=120>\n<!--[if gte mso 9]><v:rect fill="true" stroke="false" style="height:92px;width:120px" xmlns:v="urn:schemas-microsoft-com:vml"><v:fill color="#7bceeb" src="https://i.imgur.com/YJOX1PC.png" type="tile" /><v:textbox inset="0,0,0,0"><div><![endif]--><!--[if gte mso 9]></div></v:textbox></v:rect><![endif]-->\n</td>))
+    Inkcite::Renderer.render('{td background=https://i.imgur.com/YJOX1PC.png bgcolor=#7bceeb height=92 width=120 outlook-bg}{/td}', @view).must_equal(%Q(<td bgcolor=#7bceeb height=92 style="background:#7bceeb url(https://i.imgur.com/YJOX1PC.png)" width=120>\n<!--[if gte mso 9]><v:rect fill="true" stroke="false" style="height:92px;width:120px" xmlns:v="urn:schemas-microsoft-com:vml"><v:fill color="#7bceeb" src="https://i.imgur.com/YJOX1PC.png" type="tile" /><v:textbox inset="0,0,0,0"><div><![endif]--><!--[if gte mso 9]></div></v:textbox></v:rect><![endif]-->\n</td>))
   end
 
   it 'is ignored by the td helper if background is missing' do

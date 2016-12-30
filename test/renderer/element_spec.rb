@@ -1,11 +1,7 @@
-require 'minitest/spec'
-require 'minitest/autorun'
-require 'inkcite'
-
 describe Inkcite::Renderer::Element do
 
   it 'has configurable attributes' do
-    e = Inkcite::Renderer::Element.new('a', :href => '"http://inkceptional.com"', :target => '"_blank"').to_s.must_equal('<a href="http://inkceptional.com" target="_blank">')
+    Inkcite::Renderer::Element.new('a', :href => '"http://inkceptional.com"', :target => '"_blank"').to_s.must_equal('<a href="http://inkceptional.com" target="_blank">')
   end
 
   it 'has configurable styles which are rendered alphabetically' do

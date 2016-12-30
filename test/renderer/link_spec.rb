@@ -1,7 +1,3 @@
-require 'minitest/spec'
-require 'minitest/autorun'
-require 'inkcite'
-
 describe Inkcite::Renderer::Link do
 
   before do

@@ -2,7 +2,7 @@ require "bundler/gem_tasks"
 require 'rake/testtask'
 
 Rake::TestTask.new do |t|
-  t.libs.push "lib"
-  t.test_files = FileList['test/*_spec.rb', 'test/renderer/*_spec.rb']
+  t.libs.push 'lib'
+  t.test_files = FileList['test/test_helper.rb', 'test/*_spec.rb', 'test/renderer/*_spec.rb']
   t.verbose = false
 end
