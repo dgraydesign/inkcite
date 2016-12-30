@@ -1,7 +1,3 @@
-require 'minitest/spec'
-require 'minitest/autorun'
-require 'inkcite'
-
 describe Inkcite::Renderer::Div do
 
   before do
@@ -101,6 +97,14 @@ describe Inkcite::Renderer::Div do
 
   it 'supports text alignment' do
     Inkcite::Renderer.render('{div align=right}{/div}', @view).must_equal('<div style="text-align:right"></div>')
+  end
+
+  it 'supports automatic background gradient' do
+    Inkcite::Renderer.render('{div bgcolor=#f00 bggradient=#00f}{/div}', @view).must_equal('<div style="background-color:#ff0000;background-image:radial-gradient(circle at center, #ff0000, #0000ff)"></div>')
+  end
+
+  it 'supports custom background gradient' do
+    Inkcite::Renderer.render('{div bggradient="radial-gradient(circle at center, #5b5f66, #1d1f21)"}{/div}', @view).must_equal('<div style="background-image:radial-gradient(circle at center, #5b5f66, #1d1f21)"></div>')
   end
 
 end
