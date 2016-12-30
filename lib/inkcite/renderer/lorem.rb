@@ -16,7 +16,7 @@ module Inkcite
         # we don't want it to ship accidentally.
         ctx.error 'Email contains Lorem Ipsum' unless opt[:force]
 
-        if type == :headline
+        html = if type == :headline
           words = (limit || 4).to_i
           Faker::Lorem.words(words).join(SPACE).titlecase
 
@@ -30,6 +30,14 @@ module Inkcite
 
         end
 
+        # Replace the last space in the generated text with a
+        # non-breaking space so that the last two words always
+        # wrap together - no dangling words in rapid design mode.
+        if last_space = html.rindex(' ')
+          html[last_space] = '&nbsp;'
+        end
+
+        html
       end
 
       private
