@@ -6,6 +6,7 @@ module Inkcite
 
       def mix_all element, opt, ctx
 
+        mix_animation element, opt, ctx
         mix_background element, opt, ctx
         mix_border element, opt, ctx
         mix_border_radius element, opt, ctx
