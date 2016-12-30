@@ -84,6 +84,9 @@ module Inkcite
       # True if VML is used during the preparation of this email.
       @vml_used = false
 
+      # Initializing to prevent a ruby verbose warning.
+      @footnotes = nil
+
     end
 
     def [] key
@@ -112,7 +115,7 @@ module Inkcite
 
       # This is the full path to the image on the dev's harddrive.
       path = @email.image_path(src)
-      exists = File.exists?(path)
+      exists = File.exist?(path)
 
       error('Missing image', { :src => src }) if !exists
 
@@ -171,7 +174,7 @@ module Inkcite
 
         # Preload the array of footnotes if they exist
         footnotes_tsv_file = @email.project_file(FOOTNOTES_TSV_FILE)
-        if File.exists?(footnotes_tsv_file)
+        if File.exist?(footnotes_tsv_file)
           CSV.foreach(footnotes_tsv_file, { :col_sep => "\t" }) do |fn|
 
             id = fn[0]
@@ -310,7 +313,7 @@ module Inkcite
     def links_tsv
       @links_tsv ||= begin
         links_tsv_file = @email.project_file(LINKS_TSV_FILE)
-        if File.exists?(links_tsv_file)
+        if File.exist?(links_tsv_file)
           Hash[CSV.read(links_tsv_file, { :col_sep => "\t" })]
         else
           {}
@@ -780,9 +783,6 @@ module Inkcite
 
     def inline_styles
 
-      # This is the default font family for the email.
-      font_family = self[Renderer::Base::FONT_FAMILY]
-
       reset = []
 
       if email?
@@ -851,7 +851,7 @@ module Inkcite
 
       path = @email.path
       file = File.join(path, filename)
-      unless File.exists?(file)
+      unless File.exist?(file)
         error("Unable to load helper file", :file => file) if abort_on_fail
         return
       end
