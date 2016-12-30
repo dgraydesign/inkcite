@@ -18,7 +18,7 @@ module Inkcite
 
           # Check to see if the declaration has been marked as a block
           # element and if so, close the div.
-          html << '</div>' if opening[:block]
+          html << '</div>' if opening[:div]
 
           return html
         end
@@ -41,88 +41,9 @@ module Inkcite
         # including font, background color, border, etc.
         mix_all a, opt, ctx
 
-        id = opt[:id]
-        href = opt[:href]
+        id, href, target_blank = Link.process(opt[:id], opt[:href], opt[:force], ctx)
 
-        # If a URL wasn't provided in the HTML, then check to see if there is
-        # a link declared in the project's links_tsv file.  If so, we need to
-        # duplicate it so that tagging doesn't get applied multiple times.
-        if href.blank?
-          links_tsv_href = ctx.links_tsv[id]
-          href = links_tsv_href.dup unless links_tsv_href.blank?
-        end
-
-        # True if the href is missing.  If so, we may try to look it up by it's ID
-        # or we'll insert a default TBD link.
-        missing = href.blank?
-
-        # True if it's a link deeper into the content.
-        hash = !missing && href.starts_with?(POUND_SIGN)
-
-        # True if this is a mailto link.
-        mailto = !missing && !hash && href.starts_with?(MAILTO)
-
-        # Only perform special processing on the link if it's TBD or not a link to
-        # something in the page.
-        unless hash || mailto
-
-          if id.blank?
-
-            # Generate a placeholder ID and warn the user about it.
-            id = "link#{ctx.links.size + 1}"
-            ctx.error 'Link missing ID', { :href => href }
-
-          else
-
-            # Check to see if we've encountered an auto-incrementing link ID (e.g. event++)
-            # Replace the ++ with a unique count for this ID prefix.
-            id = id.gsub(PLUS_PLUS, ctx.unique_id(id).to_s) if id.end_with?(PLUS_PLUS)
-
-          end
-
-          # Get the HREF that we have previously encountered for this ID.  When not blank
-          # we'll sanity check that the URL is the same.
-          last_href = ctx.links[id]
-
-          if missing
-
-            # If we don't have a URL, check to see if we've encountered this
-            href = last_href || ctx[MISSING_LINK_HREF]
-
-            ctx.error 'Link missing href', { :id => id } unless last_href
-
-          else
-
-            # Ensure the validity of the URL in the link to prevent problems -
-            # e.g. unexpected carriage return in the href.
-            ctx.error('Link href appears to be invalid', { :id => id, :href => href }) unless opt[:force] || valid?(href)
-
-            # Optionally tag the link's query string for post-send log analytics.
-            href = add_tagging(id, href, ctx)
-
-            if last_href.blank?
-
-              # Associate the href with it's ID in case we bump into this link again.
-              ctx.links[id] = href
-
-            elsif last_href != href
-
-              # It saves everyone a lot of time if you alert them that an ID appears multiple times
-              # in the email and with mismatched URLs.
-              ctx.error 'Link href mismatch', { :id => id, :expected => last_href, :found => href }
-
-            end
-
-          end
-
-          # Optionally replace the href with an ESP trackable url.  Gotta do this after
-          # the link has been stored in the context because we don't want trackable
-          # URLs interfering with the links file.
-          href = add_tracking(id, href, ctx)
-
-          a[:target] = BLANK
-
-        end
+        a[:target] = BLANK if target_blank
 
         # Make sure that these types of links have quotes.
         href = quote(href) unless ctx.text?
@@ -168,7 +89,7 @@ module Inkcite
 
             # Remember that we made this element block-display so that we can append
             # the extra div when we close the tag.
-            opt[:block] = true
+            opt[:div] = true
 
           end
 
@@ -177,6 +98,98 @@ module Inkcite
         end
 
         html
+      end
+
+      def self.process id, href, force, ctx
+
+        # Initially assume a blank target isn't needed
+        target_blank = false
+
+        # If a URL wasn't provided in the HTML, then check to see if there is
+        # a link declared in the project's links_tsv file.  If so, we need to
+        # duplicate it so that tagging doesn't get applied multiple times.
+        if href.blank?
+          links_tsv_href = ctx.links_tsv[id]
+          href = links_tsv_href unless links_tsv_href.blank?
+        end
+
+        # Always duplicate the string provided just to make sure we're not
+        # modifying a frozen link or adding tagging to a previously tagged HREF.
+        href = href.dup
+
+        # True if the href is missing.  If so, we may try to look it up by it's ID
+        # or we'll insert a default TBD link.
+        missing = href.blank?
+
+        # True if it's a link deeper into the content.
+        hash = !missing && href.starts_with?(POUND_SIGN)
+
+        # True if this is a mailto link.
+        mailto = !missing && !hash && href.starts_with?(MAILTO)
+
+        # Only perform special processing on the link if it's TBD or not a link to
+        # something in the page.
+        unless hash || mailto
+
+          if id.blank?
+
+            # Generate a placeholder ID and warn the user about it.
+            id = "link#{ctx.links.size + 1}"
+            ctx.error 'Link missing ID', { :href => href }
+
+          else
+
+            # Check to see if we've encountered an auto-incrementing link ID (e.g. event++)
+            # Replace the ++ with a unique count for this ID prefix.
+            id = id.gsub(PLUS_PLUS, ctx.unique_id(id).to_s) if id.end_with?(PLUS_PLUS)
+
+          end
+
+          # Get the HREF that we have previously encountered for this ID.  When not blank
+          # we'll sanity check that the URL is the same.
+          last_href = ctx.links[id]
+
+          if missing
+
+            # If we don't have a URL, check to see if we've encountered this
+            href = last_href || ctx[MISSING_LINK_HREF]
+
+            ctx.error 'Link missing href', { :id => id } unless last_href
+
+          else
+
+            # Ensure the validity of the URL in the link to prevent problems -
+            # e.g. unexpected carriage return in the href.
+            ctx.error('Link href appears to be invalid', { :id => id, :href => href }) unless force || valid?(href)
+
+            # Optionally tag the link's query string for post-send log analytics.
+            href = add_tagging(id, href, ctx)
+
+            if last_href.blank?
+
+              # Associate the href with it's ID in case we bump into this link again.
+              ctx.links[id] = href
+
+            elsif last_href != href
+
+              # It saves everyone a lot of time if you alert them that an ID appears multiple times
+              # in the email and with mismatched URLs.
+              ctx.error 'Link href mismatch', { :id => id, :expected => last_href, :found => href }
+
+            end
+
+          end
+
+          # Optionally replace the href with an ESP trackable url.  Gotta do this after
+          # the link has been stored in the context because we don't want trackable
+          # URLs interfering with the links file.
+          href = add_tracking(id, href, ctx)
+
+          target_blank = true
+
+        end
+
+        [ id, href, target_blank ]
       end
 
       private
@@ -204,7 +217,7 @@ module Inkcite
       # Signifies an auto-incrementing link ID.
       PLUS_PLUS = '++'
 
-      def add_tagging id, href, ctx
+      def self.add_tagging id, href, ctx
 
         # Check to see if we're tagging links.
         tag = ctx[TAG_LINKS]
@@ -222,7 +235,7 @@ module Inkcite
         href
       end
 
-      def add_tracking id, href, ctx
+      def self.add_tracking id, href, ctx
 
         # Check to see if a trackable link string has been defined.
         tracking = ctx[Inkcite::Email::TRACK_LINKS]
@@ -234,7 +247,7 @@ module Inkcite
         href
       end
 
-      def replace_tag tag, id, ctx
+      def self.replace_tag tag, id, ctx
 
         # Inject the link's ID into the tag - that's the only value that can't
         # be resolved from the context.
@@ -245,7 +258,7 @@ module Inkcite
 
       # Tests whether or not the href provided is a valid http(s) link.
       # Courtest http://stackoverflow.com/questions/7167895/whats-a-good-way-to-validate-links-urls-in-rails
-      def valid? url
+      def self.valid? url
         begin
           uri = URI.parse(url)
           uri.kind_of?(URI::HTTP)
