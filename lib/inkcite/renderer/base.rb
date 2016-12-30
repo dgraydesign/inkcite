@@ -4,6 +4,7 @@ module Inkcite
 
       # Constants for style and property names with dashes in them.
       BACKGROUND_COLOR = :'background-color'
+      BACKGROUND_GRADIENT = :'background-gradient'
       BACKGROUND_IMAGE = :'background-image'
       BACKGROUND_REPEAT = :'background-repeat'
       BACKGROUND_POSITION = :'background-position'
@@ -33,6 +34,7 @@ module Inkcite
       TEXT_SHADOW_BLUR = :'shadow-blur'
       TEXT_SHADOW_OFFSET = :'shadow-offset'
       VERTICAL_ALIGN = :'vertical-align'
+      WEBKIT_ANIMATION = :'-webkit-animation'
       WHITE_SPACE = :'white-space'
 
       # CSS Margins
@@ -78,8 +80,9 @@ module Inkcite
         val
       end
 
-      def detect_bgcolor opt
-        detect(opt[:bgcolor], opt[BACKGROUND_COLOR])
+      def detect_bgcolor opt, default=nil
+        bgcolor = detect(opt[:bgcolor], opt[BACKGROUND_COLOR], default)
+        none?(bgcolor) ? nil : hex(bgcolor)
       end
 
       # Convenience pass-thru to Renderer's static helper method.
@@ -95,13 +98,45 @@ module Inkcite
         val.blank? || val == NONE
       end
 
+      def mix_animation element, opt, ctx
+
+        animation = opt[:animation]
+        unless none?(animation)
+          element.style[:animation] = animation
+          element.style[WEBKIT_ANIMATION] = animation
+        end
+      end
+
       # Sets the element's in-line bgcolor style if it has been defined
       # in the provided options.
       def mix_background element, opt, ctx
 
         # Background color of the image, if populated.
         bgcolor = detect_bgcolor(opt)
-        element.style[BACKGROUND_COLOR] = hex(bgcolor) unless none?(bgcolor)
+
+        # Set the background color if the element has one.
+        element.style[BACKGROUND_COLOR] = bgcolor if bgcolor
+
+        # Background gradient support
+        bggradient = detect(opt[:bggradient] || opt[BACKGROUND_GRADIENT])
+        unless none?(bggradient)
+
+          # As a shortcut a gradient can be specified simply by designating
+          # both a bgcolor and the gradient color - this will insert a radial
+          # gradient automatically.
+          if bggradient.start_with?('#')
+            bggradient = hex(bggradient)
+
+            # If a bgcolor is provided, the gradient goes bgcolor -> bggradient.
+            # Otherwise, it goes bggradient->darker(bggradient)
+            center_color = bgcolor ? bgcolor : bggradient
+            outer_color = bgcolor ? bggradient : Util.darken(bggradient)
+
+            bggradient = %Q(radial-gradient(circle at center, #{center_color}, #{outer_color}))
+          end
+
+          element.style[BACKGROUND_IMAGE] = bggradient
+        end
 
       end
 
@@ -202,6 +237,10 @@ module Inkcite
 
         end
 
+      end
+
+      def pct val
+        "#{val}%"
       end
 
       def px val
