@@ -141,7 +141,7 @@ module Inkcite
         # browser only loads the frames once the animation demands them.
         if has_animation && !opt[NO_PRELOAD]
           all_frames = frames.collect { |f| %Q(url(#{f})) }.join(',')
-          html << Element.new('div', :style => { BACKGROUND_IMAGE => %Q("#{all_frames}"), :display => 'none' }).to_s + '</div>'
+          html << Element.new('div', :style => { BACKGROUND_IMAGE => %Q(#{all_frames}), :display => 'none' }).to_s + '</div>'
         end
 
         # Concludes the if [if !vml] section targeting non-outlook.
