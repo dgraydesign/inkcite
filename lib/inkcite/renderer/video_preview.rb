@@ -87,8 +87,6 @@ module Inkcite
         table[:animation] = %Q("#{animation_name} #{duration}s ease infinite") if has_animation
         html << table.to_helper
 
-        html << Element.new('td', :width => '25%').to_helper
-
         # Transparent spacer for preserving aspect ratio.
         spacer_image_name = "vp-#{scaled_width}x#{height}.png"
         spacer_image = File.join(ctx.email.image_dir, spacer_image_name)
@@ -106,14 +104,14 @@ module Inkcite
 
         end
 
-        # 12/21/16: Using placehold.it is sub-optimal. It would be better
-        # to generate a transparent gif using something like Rmagick.  I've
-        # seen some instances where placeholdit can crash outlook but I guess
-        # this part is hidden from outlook so it isn't so bad.
-        html << Element.new('img', { :src => ctx.image_url(spacer_image_name), :alt => '', :width => '100%', :border => 0,
-                :style => { :height => :auto, :opacity => 0, :visibility => :hidden } }).to_s
-
-        html << '{/td}'
+        # Assembling the first <td> which manages the aspect ratio of the
+        # video as a separate string to avoid unnecessary line breaks in
+        # the resulting HTML.
+        aspect_ratio_td = Element.new('td', :width => '25%').to_helper
+        aspect_ratio_td << Element.new('img', { :src => ctx.image_url(spacer_image_name), :alt => quote(''), :width => '100%', :border => 0,
+                :style => { :height => :auto, :display => :block, :opacity => 0, :visibility => :hidden } }).to_s
+        aspect_ratio_td << '{/td}'
+        html << aspect_ratio_td
 
         # Center column holds the CSS-based arrow
         html << Element.new('td', :width => '50%', :align => :center, :valign => :middle).to_helper
@@ -159,7 +157,7 @@ module Inkcite
         # Check for the outlook-src attribute which will be used in place of
         # the first frame if it is specified.
         outlook_src = opt[OUTLOOK_SRC]
-        outlook_src = outlook_src.blank?? first_frame : image_url(outlook_src, opt, ctx, false, false)
+        outlook_src = outlook_src.blank? ? first_frame : image_url(outlook_src, opt, ctx, false, false)
 
         html << '<!--[if vml]>'
         html << %Q(<v:group xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" coordsize="#{width},#{height}" coordorigin="0,0" href="#{outlook_href}" style="width:#{width}px;height:#{height}px;">)
