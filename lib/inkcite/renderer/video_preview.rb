@@ -73,6 +73,16 @@ module Inkcite
         # assigned to the table and defined in the CSS.
         animation_name = "#{hover_klass}#{uid}-frames"
 
+        # Size calculations based on the specified arrow size or
+        # the defaulted 30px arrow.  The border_* variables control
+        # the circular border around the play arrow.
+        play_arrow_size = (opt[PLAY_ARROW_SIZE] || 30).to_i
+        play_arrow_height = (play_arrow_size * 0.5666).round
+        play_border_radius = (play_arrow_size * 1.1333).round
+        play_border_top_bottom = (play_arrow_size * 0.6).round
+        play_border_right = (play_arrow_size * 0.5333).round
+        play_border_left = (play_arrow_size * 0.8).round
+
         html = []
         html << '<!--[if !vml]-->'
 
@@ -116,14 +126,6 @@ module Inkcite
         # Center column holds the CSS-based arrow
         html << Element.new('td', :width => '50%', :align => :center, :valign => :middle).to_helper
 
-        play_arrow_size = (opt[PLAY_ARROW_SIZE] || 30).to_i
-
-        play_border_radius = (play_arrow_size * 1.1333).round
-        play_border_top_bottom = (play_arrow_size * 0.6).round
-        play_border_right = (play_arrow_size * 0.5333).round
-        play_border_left = (play_arrow_size * 0.8).round
-        play_arrow_height = (play_arrow_size * 0.5666).round
-
         # These are the arrow and circle border, respectively.  Not currently
         # configurable in terms of size or color.
         html << %Q(<div class="#{play_button_klass}" style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.1)); border: 4px solid white; border-radius: 50%; box-shadow: 0 1px 2px rgba(0,0,0,0.3), inset 0 1px 2px rgba(0,0,0,0.3); height: #{px(play_border_radius)}; margin: 0 auto; padding: #{px(play_border_top_bottom)} #{px(play_border_right)} #{px(play_border_top_bottom)} #{px(play_border_left)}; transition: transform .5s cubic-bezier(0.075, 0.82, 0.165, 1); width: #{px(play_border_radius)};">)
@@ -145,14 +147,18 @@ module Inkcite
         # Concludes the if [if !vml] section targeting non-outlook.
         html << '<![endif]-->'
 
-        # Outlook arrow size also not configurable at this time.
-        outlook_arrow_size = 78
-        outlook_left = width / 2 - outlook_arrow_size / 2
-        outlook_top = height / 2 - outlook_arrow_size / 2
+        # Calculations necessary to render the play arrow in VML.
+        outlook_arrow_size = (play_arrow_size * 2.6).round
+        outlook_arrow_width = (play_arrow_size * 1.0666).round
+        outlook_arrow_height = (play_arrow_size * 0.5333).round
+        outlook_arrow_left = width / 2 - play_arrow_size / 2
+        outlook_arrow_top = height / 2 - play_arrow_size / 2
+        outlook_border_left = width / 2 - outlook_arrow_size / 2
+        outlook_border_top = height / 2 - outlook_arrow_size / 2
 
         # Use the link central processing routine to ensure a viable link has
         # been provided and tag/track it from Outlook.
-        outlook_href = Link.process(id, href, false, ctx)
+        outlook_id, outlook_href, target_blank = Link.process(id, href, false, ctx)
 
         # Check for the outlook-src attribute which will be used in place of
         # the first frame if it is specified.
@@ -162,8 +168,8 @@ module Inkcite
         html << '<!--[if vml]>'
         html << %Q(<v:group xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" coordsize="#{width},#{height}" coordorigin="0,0" href="#{outlook_href}" style="width:#{width}px;height:#{height}px;">)
         html << %Q(<v:rect fill="t" stroked="f" style="position:absolute;width:#{width};height:#{height};"><v:fill src=\"#{outlook_src}\" type="frame"/></v:rect>)
-        html << %Q(<v:oval fill="t" strokecolor="white" strokeweight="4px" style="position:absolute;left:#{outlook_left};top:"#{outlook_top};width:#{outlook_arrow_size};height:#{outlook_arrow_size}"><v:fill color="black" opacity="30%" /></v:oval>)
-        html << %q(<v:shape coordsize="24,32" path="m,l,32,24,16,xe" fillcolor="white" stroked="f" style="position:absolute;left:289;top:151;width:30;height:34;" />)
+        html << %Q(<v:oval fill="t" strokecolor="white" strokeweight="4px" style="position:absolute;left:#{outlook_border_left};top:#{outlook_border_top};width:#{outlook_arrow_size};height:#{outlook_arrow_size}"><v:fill color="black" opacity="30%"/></v:oval>)
+        html << %Q(<v:shape coordsize="#{play_border_left},#{outlook_arrow_width}" path="m,l,#{outlook_arrow_width},#{play_border_left},#{outlook_arrow_height},xe" fillcolor="white" stroked="f" style="position:absolute;left:#{outlook_arrow_left};top:#{outlook_arrow_top};width:#{play_arrow_size};height:#{play_arrow_size};"/>)
         html << '</v:group>'
         html << '<![endif]-->'
 
