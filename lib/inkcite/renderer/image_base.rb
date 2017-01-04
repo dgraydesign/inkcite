@@ -4,6 +4,10 @@ module Inkcite
 
       protected
 
+      # Name of the property that allows an outlook-specific src to be specified
+      # for an image.
+      OUTLOOK_SRC = :'outlook-src'
+
       # Display mode constants
       BLOCK = 'block'
       DEFAULT = 'default'
@@ -12,7 +16,7 @@ module Inkcite
       # For the given image source URL provided, returns either the fully-qualfied
       # path to the image (via View's image_url method) or returns a placeholder
       # if the image is missing.
-      def image_url _src, opt, ctx, assert_dimensions=true
+      def image_url _src, opt, ctx, assert_dimensions=true, add_quotes=true
 
         src = _src
 
@@ -81,7 +85,10 @@ module Inkcite
         # src so that we don't display the verbose qualified URL to the developer.
         ctx.error('Missing image dimensions', { :src => _src }) if missing_dimensions && assert_dimensions
 
-        quote(src)
+        # If desired (and usually it is) wrap the src in quotes.
+        src = quote(src) if add_quotes
+
+        src
       end
 
       def klass_name src, ctx

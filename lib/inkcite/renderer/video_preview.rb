@@ -3,7 +3,7 @@ module Inkcite
 
     # Better video preview courtesy of @stigm
     # https://medium.com/cm-engineering/better-video-previews-for-email-12432ce71846#.2o9qgc7hd
-    class VideoPreview < Base
+    class VideoPreview < ImageBase
 
       def render tag, opt, ctx
 
@@ -40,15 +40,7 @@ module Inkcite
         # this loop also verifies that the referenced image exists.
         frame_count.times do |n|
           frame_src = src.gsub('%1', "#{n + 1}")
-
-          # Check that non-fully-qualified images exist in the project's
-          # images/ directory.
-          unless Util::is_fully_qualified?(frame_src)
-            ctx.assert_image_exists(frame_src)
-            frame_src = ctx.image_url(frame_src)
-          end
-
-          frames << frame_src
+          frames << image_url(frame_src, opt, ctx, false, false)
         end
 
         # Grab the first fully-qualified frame
@@ -164,9 +156,14 @@ module Inkcite
         # been provided and tag/track it from Outlook.
         outlook_href = Link.process(id, href, false, ctx)
 
+        # Check for the outlook-src attribute which will be used in place of
+        # the first frame if it is specified.
+        outlook_src = opt[OUTLOOK_SRC]
+        outlook_src = outlook_src.blank?? first_frame : image_url(outlook_src, opt, ctx, false, false)
+
         html << '<!--[if vml]>'
         html << %Q(<v:group xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" coordsize="#{width},#{height}" coordorigin="0,0" href="#{outlook_href}" style="width:#{width}px;height:#{height}px;">)
-        html << %Q(<v:rect fill="t" stroked="f" style="position:absolute;width:#{width};height:#{height};"><v:fill src="#{first_frame}" type="frame"/></v:rect>)
+        html << %Q(<v:rect fill="t" stroked="f" style="position:absolute;width:#{width};height:#{height};"><v:fill src=\"#{outlook_src}\" type="frame"/></v:rect>)
         html << %Q(<v:oval fill="t" strokecolor="white" strokeweight="4px" style="position:absolute;left:#{outlook_left};top:"#{outlook_top};width:#{outlook_arrow_size};height:#{outlook_arrow_size}"><v:fill color="black" opacity="30%" /></v:oval>)
         html << %q(<v:shape coordsize="24,32" path="m,l,32,24,16,xe" fillcolor="white" stroked="f" style="position:absolute;left:289;top:151;width:30;height:34;" />)
         html << '</v:group>'

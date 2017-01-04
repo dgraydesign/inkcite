@@ -148,10 +148,6 @@ module Inkcite
       # be copied to the title field.
       COPY_ALT_TO_TITLE = :'copy-alt-to-title'
 
-      # Name of the property that allows an outlook-specific src to be specified
-      # for an image.
-      OUTLOOK_SRC = :'outlook-src'
-
     end
   end
 end
