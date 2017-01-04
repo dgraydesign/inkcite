@@ -115,7 +115,7 @@ module Inkcite
 
         # Always duplicate the string provided just to make sure we're not
         # modifying a frozen link or adding tagging to a previously tagged HREF.
-        href = href.dup
+        href = href.dup if href
 
         # True if the href is missing.  If so, we may try to look it up by it's ID
         # or we'll insert a default TBD link.
