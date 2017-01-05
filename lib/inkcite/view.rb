@@ -420,9 +420,7 @@ module Inkcite
 
         # Enable responsive media queries on Windows phones courtesy of @jamesmacwhite
         # https://blog.jmwhite.co.uk/2014/03/01/windows-phone-does-support-css3-media-queries-in-html-email/
-        html << '<!--[if !mso]><!-- -->'
-        html << '<meta http-equiv="X-UA-Compatible" content="IE=edge" />'
-        html << '<!--<![endif]-->'
+        html << Renderer.render('{not-outlook}<meta http-equiv="X-UA-Compatible" content="IE=edge" />{/not-outlook}', self)
 
         # Some native Android clients display the title before the preheader so
         # don't include it in non-development or email rendering per @moonstrips
@@ -847,10 +845,8 @@ module Inkcite
       html.join(NEW_LINE)
     end
 
-    def load_helper_file filename, into, abort_on_fail=true
+    def load_helper_file file, into, abort_on_fail=true
 
-      path = @email.path
-      file = File.join(path, filename)
       unless File.exist?(file)
         error("Unable to load helper file", :file => file) if abort_on_fail
         return
@@ -904,18 +900,24 @@ module Inkcite
         :n => NEW_LINE
       }
 
+      # Get the project path from which most helpers will be loaded.
+      path = @email.path
+
+      # First load the built-in helpers.
+      load_helper_file(File.join(Inkcite.asset_path, 'builtin-helpers.tsv'), _helpers, false)
+
       # Check to see if the config.yml includes a "helpers:" array which allows
       # additional out-of-project, shared helper files to be loaded.
       included_helpers = [*@email.config[:helpers]]
-      included_helpers.each { |file| load_helper_file(file, _helpers) }
+      included_helpers.each { |file| load_helper_file(File.join(path, file), _helpers) }
 
       # Load the project's properties, which may include references to additional
       # properties in other directories.
-      load_helper_file 'helpers.tsv', _helpers
+      load_helper_file File.join(path, 'helpers.tsv'), _helpers
 
       # Look for a version-specific override allowing restyling of an email based
       # on its version - e.g. difference colors in the "no orders for 30 days" email.
-      load_helper_file "helpers-#{@version}.tsv", _helpers, false
+      load_helper_file File.join(path, "helpers-#{@version}.tsv"), _helpers, false
 
       # As a convenience pre-populate the month name of the email.
       mm = _helpers[:mm].to_i

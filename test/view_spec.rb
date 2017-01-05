@@ -25,4 +25,16 @@ describe Inkcite::View do
     Inkcite::Renderer.render('{project}', @view).must_equal('project')
   end
 
+  it 'can produce Outlook-only code' do
+    Inkcite::Renderer.render('{outlook-only}MSO 07-13{/outlook-only}', @view).must_equal('<!--[if mso]>MSO 07-13<![endif]-->')
+  end
+
+  it 'can produce code only visible in VML-aware clients' do
+    Inkcite::Renderer.render('{vml-only}VML-aware clients only{/vml-only}', @view).must_equal('<!--[if vml]>VML-aware clients only<![endif]-->')
+  end
+
+  it 'can exclude Outlook' do
+    Inkcite::Renderer.render('{not-vml}All except VML-aware clients{/not-vml}', @view).must_equal('<!--[if !vml]><!-- -->All except VML-aware clients<!--<![endif]-->')
+  end
+
 end

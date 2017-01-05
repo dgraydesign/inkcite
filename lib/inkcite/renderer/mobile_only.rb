@@ -16,7 +16,7 @@ module Inkcite
           # Intentionally NOT using 'mso-hide: all' version as it requires all
           # nested tables to have that attribute applied. Why have all that extra
           # markup - just use this simple conditional instead.
-          html << '<!--[if !mso 9]><!-->'
+          html << '{if-not test="mso 9"}'
 
           # These elements style the div such that it is invisible in all
           # other major email clients.
@@ -36,7 +36,7 @@ module Inkcite
           html << '</div>'
 
           # Close the outlook conditional for the close tag.
-          html << '<!--<![endif]-->'
+          html << '{/if-not}'
 
         end
 

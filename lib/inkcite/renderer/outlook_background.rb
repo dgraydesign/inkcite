@@ -16,7 +16,7 @@ module Inkcite
         # 'vml: false' in config.yml
         return nil unless ctx.vml_enabled?
 
-        html = '<!--[if gte mso 9]>'
+        html = '{if test="gte mso 9"}'
 
         if tag == '/outlook-bg'
           html << '</div>'
@@ -86,7 +86,7 @@ module Inkcite
 
         end
 
-        html << '<![endif]-->'
+        html << '{/if}'
 
         html
       end

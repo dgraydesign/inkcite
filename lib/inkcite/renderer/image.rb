@@ -84,10 +84,8 @@ module Inkcite
           img[:src] = image_url(outlook_src, opt, ctx)
 
           # Wrap the image in the outlook-specific conditionals.
-          html << '<!--[if mso]>'
-          html << img.to_s
-          html << '<![endif]-->'
-          html << '<!--[if !mso]><!-- -->'
+          html << if_mso(img)
+          html << '{not-outlook}'
 
         end
 
@@ -137,7 +135,7 @@ module Inkcite
         html << img.to_s
 
         # Conclude the outlook-specific conditional if opened.
-        html << '<!--<![endif]-->' unless outlook_src.blank?
+        html << '{/not-outlook}' unless outlook_src.blank?
 
         html
       end

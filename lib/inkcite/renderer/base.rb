@@ -91,7 +91,7 @@ module Inkcite
       end
 
       def if_mso html
-        %Q(<!--[if mso]>#{html.to_s}<![endif]-->)
+        %Q({outlook-only}#{html.to_s}{/outlook-only})
       end
 
       def none? val

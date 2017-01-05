@@ -1,0 +1,9 @@
+// Conditional helpers for inclusion or exclusion.
+if	<!--[if $test$]>	<![endif]-->
+if-not	<!--[if !$test$]><!-- -->	<!--<![endif]-->
+
+// Predeclaring common inclusion and exclusion targets
+not-outlook	{if-not test=mso}	{/if-not}
+not-vml	{if-not test=vml}	{/if-not}
+outlook-only	{if test=mso}	{/if}
+vml-only	{if test=vml}	{/if}
