@@ -84,11 +84,11 @@ module Inkcite
         play_border_left = (play_arrow_size * 0.8).round
 
         html = []
-        html << '<!--[if !vml]-->'
+        html << '{not-outlook}'
 
         # Using an Element to produce the appropriate anchor helper with
         # the desired
-        html << Element.new('a', { :id => id, :href => href, :class => hover_klass, :bgcolor => bgcolor, :bggradient => gradient, :block => true }).to_helper
+        html << Element.new('a', { :id => id, :href => quote(href), :class => hover_klass, :bgcolor => bgcolor, :bggradient => gradient, :block => true }).to_helper
 
         table = Element.new('table', {
                 :width => '100%', :background => first_frame, BACKGROUND_SIZE => 'cover',
@@ -145,33 +145,49 @@ module Inkcite
         end
 
         # Concludes the if [if !vml] section targeting non-outlook.
-        html << '<![endif]-->'
-
-        # Calculations necessary to render the play arrow in VML.
-        outlook_arrow_size = (play_arrow_size * 2.6).round
-        outlook_arrow_width = (play_arrow_size * 1.0666).round
-        outlook_arrow_height = (play_arrow_size * 0.5333).round
-        outlook_arrow_left = width / 2 - play_arrow_size / 2
-        outlook_arrow_top = height / 2 - play_arrow_size / 2
-        outlook_border_left = width / 2 - outlook_arrow_size / 2
-        outlook_border_top = height / 2 - outlook_arrow_size / 2
-
-        # Use the link central processing routine to ensure a viable link has
-        # been provided and tag/track it from Outlook.
-        outlook_id, outlook_href, target_blank = Link.process(id, href, false, ctx)
+        html << '{/not-outlook}'
 
         # Check for the outlook-src attribute which will be used in place of
         # the first frame if it is specified.
         outlook_src = opt[OUTLOOK_SRC]
         outlook_src = outlook_src.blank? ? first_frame : image_url(outlook_src, opt, ctx, false, false)
 
-        html << '<!--[if vml]>'
-        html << %Q(<v:group xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" coordsize="#{width},#{height}" coordorigin="0,0" href="#{outlook_href}" style="width:#{width}px;height:#{height}px;">)
-        html << %Q(<v:rect fill="t" stroked="f" style="position:absolute;width:#{width};height:#{height};"><v:fill src=\"#{outlook_src}\" type="frame"/></v:rect>)
-        html << %Q(<v:oval fill="t" strokecolor="white" strokeweight="4px" style="position:absolute;left:#{outlook_border_left};top:#{outlook_border_top};width:#{outlook_arrow_size};height:#{outlook_arrow_size}"><v:fill color="black" opacity="30%"/></v:oval>)
-        html << %Q(<v:shape coordsize="#{play_border_left},#{outlook_arrow_width}" path="m,l,#{outlook_arrow_width},#{play_border_left},#{outlook_arrow_height},xe" fillcolor="white" stroked="f" style="position:absolute;left:#{outlook_arrow_left};top:#{outlook_arrow_top};width:#{play_arrow_size};height:#{play_arrow_size};"/>)
-        html << '</v:group>'
-        html << '<![endif]-->'
+        html << '{outlook-only}'
+        if ctx.vml_enabled?
+
+          # Calculations necessary to render the play arrow in VML.
+          outlook_arrow_size = (play_arrow_size * 2.6).round
+          outlook_arrow_width = (play_arrow_size * 1.0666).round
+          outlook_arrow_height = (play_arrow_size * 0.5333).round
+          outlook_arrow_left = width / 2 - play_arrow_size / 2
+          outlook_arrow_top = height / 2 - play_arrow_size / 2
+          outlook_border_left = width / 2 - outlook_arrow_size / 2
+          outlook_border_top = height / 2 - outlook_arrow_size / 2
+
+          # Use the link central processing routine to ensure a viable link has
+          # been provided and tag/track it from Outlook.
+          outlook_id, outlook_href, target_blank = Link.process(id, href, false, ctx)
+
+          html << %Q(<v:group xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" coordsize="#{width},#{height}" coordorigin="0,0" href="#{outlook_href}" style="width:#{width}px;height:#{height}px;">)
+          html << %Q(<v:rect fill="t" stroked="f" style="position:absolute;width:#{width};height:#{height};"><v:fill src="#{outlook_src}" type="frame"/></v:rect>)
+          html << %Q(<v:oval fill="t" strokecolor="white" strokeweight="4px" style="position:absolute;left:#{outlook_border_left};top:#{outlook_border_top};width:#{outlook_arrow_size};height:#{outlook_arrow_size}"><v:fill color="black" opacity="30%"/></v:oval>)
+          html << %Q(<v:shape coordsize="#{play_border_left},#{outlook_arrow_width}" path="m,l,#{outlook_arrow_width},#{play_border_left},#{outlook_arrow_height},xe" fillcolor="white" stroked="f" style="position:absolute;left:#{outlook_arrow_left};top:#{outlook_arrow_top};width:#{play_arrow_size};height:#{play_arrow_size};"/>)
+          html << '</v:group>'
+
+          # Notify the context that VML was used in this version.
+          ctx.vml_used!
+
+        else
+
+          # This is the only version that can support alt text.
+          alt = opt[:alt] || 'Click to play'
+
+          html << Element.new('a', { :id => id, :href => quote(href) }).to_helper +
+              Element.new('img', { :src => quote(outlook_src), :height => height, :width => width, :alt => quote(alt) }).to_helper +
+              '{/a}'
+
+        end
+        html << '{/outlook-only}'
 
         # Will hold any CSS styles, if there are some necessary
         # to inject into the email.
