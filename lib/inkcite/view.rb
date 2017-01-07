@@ -438,9 +438,7 @@ module Inkcite
         # Add external styles
         html += external_styles
 
-        html << '<style type="text/css">'
         html << inline_styles
-        html << '</style>'
         html << '</head>'
 
         # Intentionally not setting the link colors because those should be entirely
@@ -716,7 +714,7 @@ module Inkcite
 
     def inline_google_fonts
 
-      reset = ''
+      css = ''
 
       # Google Web Fonts support courtesy of
       # http://www.emaildesignreview.com/html-email-coding/web-fonts-in-email-1482/
@@ -735,7 +733,7 @@ module Inkcite
         # If you use @font-face in HTML email, Outlook 07/10/13 will default all
         # text back to Times New Roman.
         # http://www.emaildesignreview.com/html-email-coding/web-fonts-in-email-1482/
-        reset << '@media screen {'
+        css << '@media screen {'
 
         # Iterate through the configured fonts. Check to see if we've already cached
         # Google's response.  If not, retrieve it and add it to the
@@ -750,16 +748,16 @@ module Inkcite
             end
           end
 
-          reset << font_cache[url]
+          css << font_cache[url]
         end
-        reset << '}'
+        css << '}'
 
         # If the fontcache was updated, update it in our sekret file.
         File.write(font_cache_path, font_cache.to_yaml) if updated
 
       end
 
-      reset
+      css
     end
 
 
@@ -785,7 +783,7 @@ module Inkcite
       code
     end
 
-    def inline_styles
+    def inline_reset_styles
 
       reset = []
 
@@ -826,26 +824,54 @@ module Inkcite
       # Reset the font on every cell to the default family.
       reset << "td { font-family: #{self[Renderer::Base::FONT_FAMILY]}; }"
 
-      # Obviously VML-specific CSS needed only if VML was used in the issue.
+      # VML-specific CSS needed only if VML was used in the email.
       if vml_used?
         reset << 'v\:* { behavior: url(#default#VML); display: inline-block; }'
         reset << 'o\:* { behavior: url(#default#VML); display: inline-block; }'
       end
 
-      reset << inline_google_fonts
+      reset.join(NEW_LINE)
+    end
+
+    def inline_styles
+
+      # Separating <style> blocks to prevent Gmail from filtering
+      # the entire CSS section because of its strict parsing.
+      # https://emails.hteumeuleu.com/troubleshooting-gmails-responsive-design-support-ad124178bf81#.khhj4u4b5
+      style_blocks = []
+
+      # Add a section for the bootstrap/reset styles common to every email
+      # that address common rendering issues in many clients.
+      style_blocks << inline_reset_styles
+
+      # Web font styles need to be in their own block because
+      # they have multiple @ signs which Gmail doesn't like.
+      style_blocks << inline_google_fonts
 
       # Responsive styles.
-      reset += @media_query.to_a unless @media_query.blank?
+      style_blocks << @media_query.to_css unless @media_query.blank?
+
+      # Filter the URI-based styles and add the remaining styles as a
+      # separate block.  Possibly need to consider making these style
+      # blocks separate in the future - e.g. special effects blocks
+      # should probably be separated since there is a high likelihood
+      # of @ within @
+      style_blocks << self.styles.select { |s| !s.is_a?(URI::HTTP) }.join(NEW_LINE)
+
+      # Minify each of the blocks
+      style_blocks.each { |s| Minifier.css(s, self) }
+
+      # Join all of the style blocks into a single block if this
+      # is not an email - otherwise, keep them separate.
+      style_blocks = [ style_blocks.join(NEW_LINE) ] unless email?
 
       html = []
 
-      # Append the minified CSS
-      html << Minifier.css(reset.join(NEW_LINE), self)
-
-      # Iterate through the list of files or in-line CSS and embed them into the HTML.
-      self.styles.each do |css|
-        next if css.is_a?(URI::HTTP)
-        html << Minifier.css(from_uri(css), self)
+      # Iterate through the style blocks and append them
+      style_blocks.each do |s|
+        html << '<style>'
+        html << s
+        html << '</style>'
       end
 
       html.join(NEW_LINE)
