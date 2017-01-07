@@ -2,8 +2,10 @@ require_relative 'renderer/base'
 require_relative 'renderer/element'
 require_relative 'renderer/responsive'
 require_relative 'renderer/container_base'
+require_relative 'renderer/special_effect'
 require_relative 'renderer/image_base'
 require_relative 'renderer/table_base'
+require_relative 'renderer/style'
 
 require_relative 'renderer/button'
 require_relative 'renderer/div'
@@ -28,6 +30,7 @@ require_relative 'renderer/redacted'
 require_relative 'renderer/snow'
 require_relative 'renderer/social'
 require_relative 'renderer/span'
+require_relative 'renderer/sparkle'
 require_relative 'renderer/table'
 require_relative 'renderer/td'
 require_relative 'renderer/video_preview'
@@ -189,6 +192,7 @@ module Inkcite
           :redacted           => Redacted.new,
           :snow               => Snow.new,
           :span               => Span.new,
+          :sparkle            => Sparkle.new,
           :table              => Table.new,
           :td                 => Td.new,
           :twitter            => Social::Twitter.new,

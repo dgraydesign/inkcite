@@ -94,7 +94,19 @@ module Inkcite
                 :width => '100%', :background => first_frame, BACKGROUND_SIZE => 'cover',
                 Table::TR_TRANSITION => %q("all .5s cubic-bezier(0.075, 0.82, 0.165, 1)")
             })
-        table[:animation] = %Q("#{animation_name} #{duration}s ease infinite") if has_animation
+
+        # Will hold the Animation if animation is enabled for this
+        # video-preview.
+        animation = nil
+
+        if has_animation
+          animation = Animation.new(animation_name, ctx)
+          animation.timing_function = Animation::EASE
+          animation.duration = duration
+
+          table[:animation] = quote(animation)
+        end
+
         html << table.to_helper
 
         # Transparent spacer for preserving aspect ratio.
@@ -218,26 +230,24 @@ module Inkcite
           # end of the animation.
           percent = 0.0
 
-          keyframes = Animation::Keyframes.new(animation_name, ctx)
-
           # Iterate through each frame and add two keyframes, the first
           # being the time at which the frame appears plus another frame
           # after the duration it should be on screen.
           frames.each do |f|
             this_frame_url = "url(#{f})"
 
-            keyframes.add_keyframe(percent, { BACKGROUND_IMAGE => this_frame_url })
+            animation.add_keyframe(percent, { BACKGROUND_IMAGE => this_frame_url })
             percent += percent_per_frame
-            keyframes.add_keyframe(percent, { BACKGROUND_IMAGE => this_frame_url })
+            animation.add_keyframe(percent, { BACKGROUND_IMAGE => this_frame_url })
             percent += percent_per_transition
 
           end
 
           # Transition back to the first frame.
-          keyframes.add_keyframe(100, { BACKGROUND_IMAGE => "url(#{first_frame})" })
+          animation.add_keyframe(100, { BACKGROUND_IMAGE => "url(#{first_frame})" })
 
           # Add the keyframes to the styles array.
-          styles << keyframes.to_s
+          styles << animation.to_keyframe_css
 
         end
 

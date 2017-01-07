@@ -335,6 +335,12 @@ module Inkcite
       tag_stack(tag).opts
     end
 
+    # Returns the array of browser prefixes that need to be included in
+    # CSS styles based on which version of the email this is.
+    def prefixes
+      [ '', '-webkit-' ]
+    end
+
     def preview?
       @environment == :preview
     end
