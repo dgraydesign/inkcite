@@ -858,6 +858,9 @@ module Inkcite
       # of @ within @
       style_blocks << self.styles.select { |s| !s.is_a?(URI::HTTP) }.join(NEW_LINE)
 
+      # Filter empty style blocks
+      style_blocks.select! { |s| !s.blank? }
+
       # Minify each of the blocks
       style_blocks.each { |s| Minifier.css(s, self) }
 
