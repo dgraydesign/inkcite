@@ -33,14 +33,6 @@ module Inkcite
         element.to_s
       end
 
-      # Text alignment - left, right, center.
-      def mix_text_align element, opt, ctx
-
-        align = opt[:align]
-        element.style[TEXT_ALIGN] = align unless none?(align)
-
-      end
-
     end
   end
 end

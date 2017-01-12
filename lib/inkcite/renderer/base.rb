@@ -85,6 +85,11 @@ module Inkcite
         none?(bgcolor) ? nil : hex(bgcolor)
       end
 
+      def detect_bggradient opt, default=nil
+        bggradient = detect(opt[:gradient], opt[:bggradient], opt[BACKGROUND_GRADIENT])
+        none?(bggradient) ? nil : hex(bggradient)
+      end
+
       # Convenience pass-thru to Renderer's static helper method.
       def hex color
         Renderer.hex(color)
@@ -118,14 +123,13 @@ module Inkcite
         element.style[BACKGROUND_COLOR] = bgcolor if bgcolor
 
         # Background gradient support
-        bggradient = detect(opt[:bggradient] || opt[BACKGROUND_GRADIENT])
+        bggradient = detect_bggradient(opt)
         unless none?(bggradient)
 
           # As a shortcut a gradient can be specified simply by designating
           # both a bgcolor and the gradient color - this will insert a radial
           # gradient automatically.
           if bggradient.start_with?('#')
-            bggradient = hex(bggradient)
 
             # If a bgcolor is provided, the gradient goes bgcolor -> bggradient.
             # Otherwise, it goes bggradient->darker(bggradient)
@@ -214,6 +218,14 @@ module Inkcite
           element.style[margin] = px(amt) if amt > 0
 
         end
+
+      end
+
+      # Text alignment - left, right, center.
+      def mix_text_align element, opt, ctx
+
+        align = opt[:align]
+        element.style[TEXT_ALIGN] = align unless none?(align)
 
       end
 

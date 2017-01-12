@@ -7,6 +7,7 @@ require_relative 'renderer/image_base'
 require_relative 'renderer/table_base'
 require_relative 'renderer/style'
 
+require_relative 'renderer/background'
 require_relative 'renderer/button'
 require_relative 'renderer/div'
 require_relative 'renderer/footnote'
@@ -22,7 +23,6 @@ require_relative 'renderer/mobile_image'
 require_relative 'renderer/mobile_only'
 require_relative 'renderer/mobile_style'
 require_relative 'renderer/mobile_toggle'
-require_relative 'renderer/outlook_background'
 require_relative 'renderer/partial'
 require_relative 'renderer/preheader'
 require_relative 'renderer/property'
@@ -71,7 +71,7 @@ module Inkcite
     def self.hex color
 
       # Convert #rgb into #rrggbb
-      if !color.blank? && color.length < 7
+      if !color.blank? && color.length == 4 && color.start_with?('#')
         red = color[1]
         green = color[2]
         blue = color[3]
@@ -170,6 +170,7 @@ module Inkcite
       @renderers ||= {
           :'++'               => Increment.new,
           :a                  => Link.new,
+          :background         => Background.new,
           :button             => Button.new,
           :div                => Div.new,
           :facebook           => Social::Facebook.new,
@@ -186,7 +187,6 @@ module Inkcite
           :'mobile-only'      => MobileOnly.new,
           :'mobile-style'     => MobileStyle.new,
           :'mobile-toggle-on' => MobileToggleOn.new,
-          :'outlook-bg'       => OutlookBackground.new,
           :pintrest           => Social::Pintrest.new,
           :preheader          => Preheader.new,
           :redacted           => Redacted.new,

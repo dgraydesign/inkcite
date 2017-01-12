@@ -51,7 +51,7 @@ module Inkcite
         # mobile version inherits from the desktop version.
         mobile_background = mix_background_shorthand(
             detect(opt[MOBILE_BACKGROUND_COLOR], opt[MOBILE_BGCOLOR], bgcolor),
-            detect(opt[MOBILE_BACKGROUND_IMAGE], opt[MOBILE_BACKGROUND], bgimage),
+            detect(opt[MOBILE_BACKGROUND_IMAGE], opt[MOBILE_BACKGROUND], opt[MOBILE_SRC], bgimage),
             detect(opt[MOBILE_BACKGROUND_POSITION], bgposition),
             detect(opt[MOBILE_BACKGROUND_REPEAT], bgrepeat),
             detect(opt[MOBILE_BACKGROUND_SIZE], bgsize),

@@ -27,10 +27,6 @@ module Inkcite
           # Retrieve the opts that were used to open this TD.
           open_opt = tag_stack.pop
 
-          # If the opening tag initiated an automatic outlook background
-          # then we need to inject the close tag here.
-          html << "{/outlook-bg}\n" if outlook_bg?(open_opt)
-
           # Normal HTML produced by the Helper to close the cell.
           html << '</td>'
 
@@ -170,21 +166,6 @@ module Inkcite
 
           html << td.to_s
 
-          # For convenience and to keep code DRY, support the outlook-bg boolean
-          # attribute which causes an {outlook-bg} Helper to be injected automatically
-          # inside of the {td}.
-          if outlook_bg?(opt)
-
-            html << "\n"
-            html << Element.new('outlook-bg', {
-                    :bgcolor => detect_bgcolor(opt),
-                    :width => opt[:width],
-                    :height => opt[:height],
-                    :src => opt[:background]
-                }).to_helper
-
-          end
-
         end
 
         html
@@ -192,11 +173,6 @@ module Inkcite
 
       private
 
-      # Returns true if the conditions are met that enable the
-      # automatic {outlook-bg} helper integration.
-      def outlook_bg? opt
-        opt && opt[OUTLOOK_BG] && !opt[:background].blank?
-      end
 
       CLOSE_TD = '/td'
       LEFT = 'left'
