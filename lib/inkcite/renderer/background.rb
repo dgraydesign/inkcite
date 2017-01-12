@@ -66,8 +66,13 @@ module Inkcite
           bggradient = detect_bggradient(opt)
           table[:bggradient] = quote(bggradient) unless none?(bggradient)
 
+          td = Element.new('td')
+
+          valign = opt[:valign]
+          td[:valign] = valign unless valign.blank?
+
           html << table.to_helper
-          html << '{td}'
+          html << td.to_helper
 
           # VML is only added if it is enabled for the project.
           if ctx.vml_enabled?
@@ -137,7 +142,8 @@ module Inkcite
       # the provided opt to the {table} rendered within the
       # background Helper.
       TABLE_PASSTHRU_OPS = [
-          BACKGROUND_POSITION, :mobile, MOBILE_BGCOLOR, MOBILE_BACKGROUND, MOBILE_BACKGROUND_COLOR,
+          BACKGROUND_POSITION, :border, BORDER_BOTTOM, BORDER_LEFT, BORDER_RADIUS, BORDER_RIGHT,
+          BORDER_SPACING, BORDER_TOP, :mobile, MOBILE_BGCOLOR, MOBILE_BACKGROUND, MOBILE_BACKGROUND_COLOR,
           MOBILE_BACKGROUND_IMAGE, MOBILE_BACKGROUND_REPEAT, MOBILE_BACKGROUND_POSITION, MOBILE_SRC,
           MOBILE_BACKGROUND_SIZE
       ]
