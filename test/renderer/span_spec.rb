@@ -78,7 +78,7 @@ describe Inkcite::Renderer::Span do
 
   it 'can have a custom line height on mobile' do
     Inkcite::Renderer.render('{span line-height=15 mobile-line-height=20}{/span}', @view).must_equal('<span class="m1" style="line-height:15px"></span>')
-    @view.media_query.find_by_klass('m1').to_css.must_equal('span[class~="m1"] { line-height:20px !important }')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('span.m1 { line-height:20px !important }')
   end
 
   it 'can inherit a custom font size on mobile from the context' do

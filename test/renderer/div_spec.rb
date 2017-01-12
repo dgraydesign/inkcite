@@ -82,7 +82,7 @@ describe Inkcite::Renderer::Div do
 
   it 'can have a custom line height on mobile' do
     Inkcite::Renderer.render('{div line-height=15 mobile-line-height=20}{/div}', @view).must_equal('<div class="m1" style="line-height:15px"></div>')
-    @view.media_query.find_by_klass('m1').to_css.must_equal('div[class~="m1"] { line-height:20px !important }')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('div.m1 { line-height:20px !important }')
   end
 
   it 'can have a custom font color on mobile' do

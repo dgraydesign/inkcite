@@ -58,7 +58,7 @@ module Inkcite
         end
 
         def att_selector_string
-          "[class~=#{Renderer.quote(@klass)}]"
+          ".#{@klass}"
         end
 
         def block?

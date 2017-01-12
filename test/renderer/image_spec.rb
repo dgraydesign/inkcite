@@ -83,7 +83,7 @@ describe Inkcite::Renderer::Image do
 
   it 'can substitute a different image on mobile' do
     Inkcite::Renderer.render('{img src=inkcite.jpg mobile-src=inkcite-mobile.jpg height=75 width=125}', @view).must_equal('<img border=0 class="i01" height=75 src="images/inkcite.jpg" style="display:block" width=125>')
-    @view.media_query.find_by_klass('i01').to_css.must_equal('img[class~="i01"] { content: url("images/inkcite-mobile.jpg") !important; }')
+    @view.media_query.find_by_klass('i01').to_css.must_equal('img.i01 { content: url("images/inkcite-mobile.jpg") !important; }')
   end
 
   it 'supports fluid-hybrid desktop and style' do

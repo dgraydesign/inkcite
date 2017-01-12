@@ -78,7 +78,7 @@ describe Inkcite::Renderer::Td do
 
   it 'can have a mobile behavior and a custom mobile style simultaneously' do
     Inkcite::Renderer.render('{td mobile="drop" mobile-style="border: 1px solid #f00"}', @view).must_equal('<td class="drop m1">')
-    @view.media_query.find_by_klass('m1').to_css.must_equal('td[class~="m1"] { border: 1px solid #f00 }')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('td.m1 { border: 1px solid #f00 }')
   end
 
   it 'can have a background color' do
@@ -87,12 +87,12 @@ describe Inkcite::Renderer::Td do
 
   it 'can have a custom background color on mobile' do
     Inkcite::Renderer.render('{td mobile-bgcolor=#f09}', @view).must_equal('<td class="m1">')
-    @view.media_query.find_by_klass('m1').to_css.must_equal('td[class~="m1"] { background:#ff0099 }')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('td.m1 { background:#ff0099 }')
   end
 
   it 'can override background color on mobile' do
     Inkcite::Renderer.render('{td bgcolor=#f00 mobile-bgcolor=#00f}', @view).must_equal('<td bgcolor=#ff0000 class="m1">')
-    @view.media_query.find_by_klass('m1').to_css.must_equal('td[class~="m1"] { background:#0000ff !important }')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('td.m1 { background:#0000ff !important }')
   end
 
   it 'can have a background image' do
@@ -105,22 +105,22 @@ describe Inkcite::Renderer::Td do
 
   it 'can have a background image on mobile' do
     Inkcite::Renderer.render('{td mobile-background-image=wall.jpg mobile-background-position=right mobile-background-repeat=repeat-y}', @view).must_equal('<td class="m1">')
-    @view.media_query.find_by_klass('m1').to_css.must_equal('td[class~="m1"] { background:url(images/wall.jpg) right repeat-y }')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('td.m1 { background:url(images/wall.jpg) right repeat-y }')
   end
 
   it 'can override background image on mobile' do
     Inkcite::Renderer.render('{td background=floor.jpg mobile-background-image=sky.jpg }', @view).must_equal('<td class="m1" style="background:url(images/floor.jpg)">')
-    @view.media_query.find_by_klass('m1').to_css.must_equal('td[class~="m1"] { background:url(images/sky.jpg) !important }')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('td.m1 { background:url(images/sky.jpg) !important }')
   end
 
   it 'can override background position on mobile' do
     Inkcite::Renderer.render('{td background=floor.jpg background-position=bottom mobile-background-position=top}', @view).must_equal('<td class="m1" style="background:url(images/floor.jpg) bottom no-repeat">')
-    @view.media_query.find_by_klass('m1').to_css.must_equal('td[class~="m1"] { background:url(images/floor.jpg) top no-repeat !important }')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('td.m1 { background:url(images/floor.jpg) top no-repeat !important }')
   end
 
   it 'can disable background image on mobile' do
     Inkcite::Renderer.render('{td background=floor.jpg mobile-background-image=none}', @view).must_equal('<td class="m1" style="background:url(images/floor.jpg)">')
-    @view.media_query.find_by_klass('m1').to_css.must_equal('td[class~="m1"] { background:none !important }')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('td.m1 { background:none !important }')
   end
 
   it 'supports nowrap' do
