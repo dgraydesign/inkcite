@@ -222,6 +222,17 @@ module Inkcite
         html = []
         styles = []
 
+        # If this is the first special effect to be included in the email
+        # we need to disable the CSS animation from Gmail - which only
+        # accepts part of its <styles> leading to unexpected whitespace.
+        # By putting this invalid CSS into the <style> block, Gmail's
+        # very strict parser will exclude the entire block, preventing
+        # the animation from running.
+        # https://emails.hteumeuleu.com/troubleshooting-gmails-responsive-design-support-ad124178bf81#.8jh1vn9mw
+        if ctx.email? && sfx.uuid == 1
+          styles << Inkcite::Renderer::Style.new(".gmail-fix", sfx.ctx, { FONT_SIZE => '3*px' })
+        end
+
         # Create the <div> that wraps the entire animation.
         create_wrap_element html, sfx
 
