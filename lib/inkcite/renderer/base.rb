@@ -227,7 +227,7 @@ module Inkcite
       # Text alignment - left, right, center.
       def mix_text_align element, opt, ctx
 
-        align = opt[:align]
+        align = detect(opt[:align] || opt[TEXT_ALIGN])
         element.style[TEXT_ALIGN] = align unless none?(align)
 
       end
