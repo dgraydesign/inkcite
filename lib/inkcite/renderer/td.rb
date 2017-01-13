@@ -72,6 +72,12 @@ module Inkcite
 
           mobile = opt[:mobile]
 
+          # If the table defines mobile-padding, then apply the correct mobile
+          # style to this td - and its !important if there is padding on
+          # the td already.
+          mobile_padding = table_opt[MOBILE_PADDING]
+          opt[MOBILE_STYLE] = "padding: #{px(mobile_padding.to_i)}#{' !important' if padding > 0}" unless mobile_padding.blank? || mobile == HIDE
+
           # Need to handle Fluid-Drop HTML injection here before the rest of the
           # TD is formalized.  Fluid-Drop removes the width attribute of the cell
           # as it is wrapped in a 100%-width table.

@@ -51,4 +51,9 @@ describe Inkcite::Renderer::Background do
     @view.media_query.find_by_klass('m1').declaration_string.must_equal('background:url(https://i.imgur.com/YJOX1PC-mobile.png) top / cover no-repeat !important')
   end
 
+  it 'supports mobile padding' do
+    Inkcite::Renderer.render('{background src=background.jpg mobile-padding=15}{/background}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0 style="background:url(images/background.jpg)" width=100%><tr><td class="m1"><!--[if mso]><v:rect fill="t" stroke="f" style="mso-width-percent:1000" xmlns:v="urn:schemas-microsoft-com:vml"><v:fill src="images/background.jpg" type="tile" /><v:textbox inset="0,0,0,0" style="mso-fit-shape-to-text:True"><![endif]--><div></div><!--[if mso]></v:textbox></v:rect><![endif]--></td></tr></table>')
+    @view.media_query.find_by_klass('m1').declaration_string.must_equal('padding: 15px')
+  end
+
 end

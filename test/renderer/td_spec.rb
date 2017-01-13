@@ -12,6 +12,16 @@ describe Inkcite::Renderer::Td do
     Inkcite::Renderer.render('{table padding=15}{td}', @view).must_equal('<table border=0 cellpadding=15 cellspacing=0><tr><td style="padding:15px">')
   end
 
+  it 'supports mobile padding from the parent table' do
+    Inkcite::Renderer.render('{table mobile-padding=15}{td}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0><tr><td class="m1">')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('td.m1 { padding: 15px }')
+  end
+
+  it 'supports override mobile padding from the parent table' do
+    Inkcite::Renderer.render('{table padding=30 mobile-padding=15}{td}', @view).must_equal('<table border=0 cellpadding=30 cellspacing=0><tr><td class="m1" style="padding:30px">')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('td.m1 { padding: 15px !important }')
+  end
+
   it 'does not accept padding as an attribute' do
     Inkcite::Renderer.render('{td padding=15}', @view).must_equal('<td>')
   end
