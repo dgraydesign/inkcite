@@ -33,6 +33,13 @@ module Inkcite
         element.to_s
       end
 
+      def mix_width element, opt, ctx
+
+        width = opt[:width]
+        element.style[:width] = px(width) unless width.blank?
+
+      end
+
     end
   end
 end

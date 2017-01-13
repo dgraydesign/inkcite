@@ -8,8 +8,7 @@ module Inkcite
 
         div = Element.new('div')
 
-        width = opt[:width]
-        div.style[:width] = px(width) unless width.blank?
+        mix_width div, opt, ctx
 
         height = opt[:height].to_i
         div.style[:height] = px(height) if height > 0
