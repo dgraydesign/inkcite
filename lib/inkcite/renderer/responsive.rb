@@ -24,8 +24,12 @@ module Inkcite
       MOBILE_BACKGROUND_IMAGE    = :'mobile-background-image'
       MOBILE_BACKGROUND_REPEAT   = :'mobile-background-repeat'
       MOBILE_BACKGROUND_POSITION = :'mobile-background-position'
-      MOBILE_SRC                 = :'mobile-src'
       MOBILE_BACKGROUND_SIZE     = :'mobile-background-size'
+      MOBILE_SRC                 = :'mobile-src'
+
+      # Other mobile-specific properties
+      MOBILE_PADDING             = :'mobile-padding'
+
 
       class Rule
 
