@@ -100,6 +100,9 @@ module Inkcite
       end
 
       desc 'test [options]', 'Tests (or re-tests) the email with Litmus or Email on Acid'
+      option :'no-upload',
+          :desc => 'Skip the asset upload, test the email immediately',
+          :type => :boolean
       option :version,
           :aliases => '-v',
           :desc => 'Test a specific version of the email'

@@ -29,9 +29,9 @@ module Inkcite
           USAGE
         end
 
-        # Push the browser preview up to the server to ensure that the
-        # latest images are available.
-        email.upload
+        # Unless disabled, push the browser preview up to the server to ensure
+        # that the latest images are available.
+        email.upload unless opts[:'no-upload']
 
         Inkcite::Mailer.send(email, opts.merge({ :to => send_to }))
 
