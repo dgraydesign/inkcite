@@ -49,6 +49,9 @@ module Inkcite
           :aliases => '-a',
           :desc => 'Add one or more (space-separated) recipients to this specific mailing',
           :type => :array
+      option :'no-upload',
+          :desc => 'Skip the asset upload, email the preview immediately',
+          :type => :boolean
       def preview to=:developer
         require_relative 'preview'
         Cli::Preview.invoke(email, to, options)

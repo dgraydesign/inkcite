@@ -8,7 +8,7 @@ module Inkcite
 
         # Push the browser preview(s) up to the server to ensure that the
         # latest images and "view in browser" versions are available.
-        email.upload
+        email.upload unless opt[:'no-upload']
 
         also = opt[:also]
         unless also.blank?
