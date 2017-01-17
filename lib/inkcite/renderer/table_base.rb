@@ -58,17 +58,8 @@ module Inkcite
             ctx
         )
 
-        unless mobile_background.blank? || mobile_background == desktop_background
-
-          mobile_background << ' !important' unless desktop_background.blank?
-
-          # Add the responsive rule that applies to this element.
-          rule = Rule.new(element.tag, unique_klass(ctx), { :background => mobile_background })
-
-          # Add the rule to the view and the element
-          ctx.media_query << rule
-          element.add_rule rule
-
+        if !mobile_background.blank? && mobile_background != desktop_background
+          element.mobile_style[:background] = mobile_background
         end
 
       end

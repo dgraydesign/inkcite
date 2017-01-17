@@ -2,7 +2,7 @@ module Inkcite
   module Renderer
     class Element
 
-      attr_reader :tag
+      attr_reader :mobile_style, :style, :tag
 
       def initialize tag, att={}
 
@@ -19,7 +19,10 @@ module Inkcite
 
         # For caller convenience, accept a style hash from the attributes
         # or initialize it here.
-        @styles = att.delete(:style) || {}
+        @style = att.delete(:style) || {}
+
+        # Collection of mobile-only CSS properties for this element.
+        @mobile_style = att.delete(:mobile_style) || {}
 
       end
 
@@ -67,10 +70,6 @@ module Inkcite
         @self_close
       end
 
-      def style
-        @styles
-      end
-
       # Generates a Helper tag rather than a string tag - e.g. {img src=test.png}
       # rather than <img src=test.png>
       def to_helper
@@ -80,7 +79,7 @@ module Inkcite
       def to_s open='<', close='>'
 
         # Convert the style hash into CSS style attribute.
-        @att[:style] = Renderer.quote(Renderer.render_styles(@styles)) unless @styles.blank?
+        @att[:style] = Renderer.quote(Renderer.render_styles(@style)) unless @style.blank?
 
         # Convert the list of CSS classes assigned to this element into an attribute
         self[:class] = Renderer.quote(@classes.to_a.sort.join(' ')) unless @classes.blank?

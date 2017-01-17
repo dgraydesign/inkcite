@@ -14,12 +14,18 @@ describe Inkcite::Renderer::Td do
 
   it 'supports mobile padding from the parent table' do
     Inkcite::Renderer.render('{table mobile-padding=15}{td}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0><tr><td class="m1">')
-    @view.media_query.find_by_klass('m1').to_css.must_equal('td.m1 { padding: 15px }')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('td.m1 { padding:15px }')
+  end
+
+  it 'reuses a style that matches mobile padding' do
+    Inkcite::Renderer.render('{table mobile-padding=15}{td}{table mobile-padding=15}{td}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0><tr><td class="m1"><table border=0 cellpadding=0 cellspacing=0><tr><td class="m1">')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('td.m1 { padding:15px }')
+
   end
 
   it 'supports override mobile padding from the parent table' do
     Inkcite::Renderer.render('{table padding=30 mobile-padding=15}{td}', @view).must_equal('<table border=0 cellpadding=30 cellspacing=0><tr><td class="m1" style="padding:30px">')
-    @view.media_query.find_by_klass('m1').to_css.must_equal('td.m1 { padding: 15px !important }')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('td.m1 { padding:15px !important }')
   end
 
   it 'does not accept padding as an attribute' do
@@ -87,8 +93,13 @@ describe Inkcite::Renderer::Td do
   end
 
   it 'can have a mobile behavior and a custom mobile style simultaneously' do
-    Inkcite::Renderer.render('{td mobile="drop" mobile-style="border: 1px solid #f00"}', @view).must_equal('<td class="drop m1">')
-    @view.media_query.find_by_klass('m1').to_css.must_equal('td.m1 { border: 1px solid #f00 }')
+    Inkcite::Renderer.render('{td mobile="drop" mobile-border="1px solid #f00"}', @view).must_equal('<td class="drop m1">')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('td.m1 { border:1px solid #f00 }')
+  end
+
+  it 'can have a mobile border that overrides a custom border' do
+    Inkcite::Renderer.render('{td mobile="drop" border="2px dashed #0f0" mobile-border="1px solid #f00"}', @view).must_equal('<td class="drop m1" style="border:2px dashed #0f0">')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('td.m1 { border:1px solid #f00 !important }')
   end
 
   it 'can have a background color' do
@@ -102,7 +113,7 @@ describe Inkcite::Renderer::Td do
 
   it 'can override background color on mobile' do
     Inkcite::Renderer.render('{td bgcolor=#f00 mobile-bgcolor=#00f}', @view).must_equal('<td bgcolor=#ff0000 class="m1">')
-    @view.media_query.find_by_klass('m1').to_css.must_equal('td.m1 { background:#0000ff !important }')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('td.m1 { background:#0000ff }')
   end
 
   it 'can have a background image' do

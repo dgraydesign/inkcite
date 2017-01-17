@@ -203,6 +203,24 @@ module Inkcite
         mobile == FLUID_DROP || mobile == FLUID_STACK
       end
 
+      def mix_border element, opt, ctx
+        super
+
+        # Check first for the parent mobile-border
+        border = opt[MOBILE_BORDER]
+        element.mobile_style[:border] = border unless border.blank?
+
+        # Iterate through each of the possible borders and apply them individually
+        # to the style if they are defined.
+        DIRECTIONS.each do |dir|
+          key = "border-#{dir}".to_sym        # e.g. border-left
+          mobile_key = "mobile-#{key}".to_sym # e.g. mobile-border-left
+          border = opt[mobile_key]
+          element.style[key] = border unless none?(border)
+        end
+
+      end
+
       def mix_font element, opt, ctx, parent=nil
 
         # Let the super class do its thing and grab the name of the font
@@ -210,18 +228,23 @@ module Inkcite
         font = super
 
         # Will hold the mobile font overrides for this element, if any.
-        style = { }
+        font_family = detect_font(MOBILE_FONT_FAMILY, font, opt, parent, ctx)
+        element.mobile_style[FONT_FAMILY] = font_family unless font_family.blank?
 
         font_size = detect_font(MOBILE_FONT_SIZE, font, opt, parent, ctx)
-        style[FONT_SIZE] = "#{px(font_size)} !important" unless font_size.blank?
-
-        line_height = detect_font(MOBILE_LINE_HEIGHT, font, opt, parent, ctx)
-        style[LINE_HEIGHT] = "#{px(line_height)} !important" unless line_height.blank?
+        element.mobile_style[FONT_SIZE] = px(font_size) unless font_size.blank?
 
         color = detect_font(MOBILE_FONT_COLOR, font, opt, parent, ctx)
-        style[:color] = "#{hex(color)} !important" unless color.blank?
+        element.mobile_style[:color] = hex(color) unless color.blank?
 
-        mix_responsive_style element, opt, ctx, Renderer.render_styles(style) unless style.blank?
+        font_weight = detect_font(MOBILE_FONT_WEIGHT, font, opt, parent, ctx)
+        element.mobile_style[FONT_WEIGHT] = font_weight unless font_weight.blank?
+
+        letter_spacing = detect_font(MOBILE_LETTER_SPACING, font, opt, parent, ctx)
+        element.mobile_style[LETTER_SPACING] = px(letter_spacing) unless none?(letter_spacing)
+
+        line_height = detect_font(MOBILE_LINE_HEIGHT, font, opt, parent, ctx)
+        element.mobile_style[LINE_HEIGHT] = px(line_height) unless line_height.blank?
 
         font
       end
@@ -232,7 +255,7 @@ module Inkcite
         mix_responsive_klass element, opt, ctx, klass || opt[:mobile]
 
         # Apply the "mobile-style" attribute if one was provided.
-        mix_responsive_style element, opt, ctx, opt[MOBILE_STYLE]
+        mix_responsive_style element, opt, ctx
 
       end
 
@@ -298,11 +321,40 @@ module Inkcite
 
       end
 
-      def mix_responsive_style element, opt, ctx, declarations=nil
+      def mix_responsive_style element, opt, ctx
 
-        # Check to see if a mobile style (e.g. "mobile-style='background-color: #ff0;'")
-        # has been declared for this element.
-        declarations ||= opt[MOBILE_STYLE]
+        # Warn that mobile-style is no longer supported.  Developers should
+        # use the stronger, faster, better-er mobile-* attributes
+        __unsupported_style = element[MOBILE_STYLE]
+        ctx.errors('The mobile-style attribute is no longer supported', { :element => element.to_s, :mobile_style => __unsupported_style }) unless __unsupported_style.blank?
+
+        _mobile_style = element.mobile_style
+        return if _mobile_style.blank?
+
+        # This will hold the decorated list of CSS properties.  If the element
+        # has any existing styles that are being overridden in the mobile styles
+        # we need to append the !important flag.
+        decorated_style = {}
+
+        # Get a local handle on the element's style array.
+        desktop_style = element.style
+
+        _mobile_style.each_pair do |key, css|
+
+          # No need to put attributes in the mobile style if they match
+          # the existing desktop style of the element.
+          desktop_css = desktop_style[key]
+          next if css == desktop_css
+
+          # Append !important to the CSS if it overrides a value in the
+          # element's in-lined styles.
+          css = "#{css} !important" if desktop_style[key]
+
+          decorated_style[key] = css
+        end
+
+        # Render the array of styles to a CSS declaration string
+        declarations = Renderer.render_styles decorated_style
         return if declarations.blank?
 
         mq = ctx.media_query
@@ -312,11 +364,11 @@ module Inkcite
         # If no klass was specified, check to see if any previously defined rule matches
         # the style declarations.  If so, we'll reuse that rule and apply the klass
         # to this object to avoid unnecessary duplication in the HTML.
-        rule = mq.find_by_declaration(declarations);
+        rule = mq.find_by_declaration(declarations)
         if rule.nil?
 
           # Generate a unique class name for this style if it has not already been declared.
-          # These are of the form m001, etc.  Redability is not important because it's
+          # These are of the form m001, etc.  Readability is not important because it's
           # dynamically generated and referenced.
           klass = unique_klass(ctx)
 
@@ -341,21 +393,26 @@ module Inkcite
       end
 
       def unique_klass ctx
-        "m%1d" % ctx.unique_id(:m)
+        'm%1d' % ctx.unique_id(:m)
       end
 
       private
 
       # Attribute used to declare custom mobile styles for an element.
+      MOBILE_BORDER = :'mobile-border'
       MOBILE_STYLE = :'mobile-style'
 
       # Universal CSS selector.
       UNIVERSAL = '*'
 
-      # For font overrides on mobile devices.
-      MOBILE_FONT_COLOR  = :'mobile-color'
-      MOBILE_FONT_SIZE   = :'mobile-font-size'
-      MOBILE_LINE_HEIGHT = :'mobile-line-height'
+      # For font overrides on mobile devices.  These values are read from
+      # the object's attributes and installed into the element's mobile_styles.
+      MOBILE_FONT_COLOR     = :'mobile-color'
+      MOBILE_FONT_FAMILY    = :'mobile-font-family'
+      MOBILE_FONT_SIZE      = :'mobile-font-size'
+      MOBILE_FONT_WEIGHT    = :'mobile-font-weight'
+      MOBILE_LETTER_SPACING = :'mobile-letter-spacing'
+      MOBILE_LINE_HEIGHT    = :'mobile-line-height'
 
     end
   end
