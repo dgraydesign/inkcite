@@ -40,11 +40,8 @@ module Inkcite
       WEBKIT_ANIMATION = :'-webkit-animation'
       WHITE_SPACE = :'white-space'
 
-      # CSS Margins
-      MARGINS = [MARGIN_TOP, MARGIN_LEFT, MARGIN_BOTTOM, MARGIN_RIGHT]
-
-      # CSS Directions
-      DIRECTIONS = [:top, :right, :bottom, :left]
+      # CSS direction suffixes including nil/empty for convenience.
+      DIRECTIONS = [ nil, :top, :right, :bottom, :left]
 
       # Attribute and CSS dimensions
       DIMENSIONS = [:width, :height]
@@ -148,24 +145,34 @@ module Inkcite
       end
 
       def mix_border element, opt, ctx
-
-        border = opt[:border]
-        element.style[:border] = border unless border.blank?
-
-        # Iterate through each of the possible borders and apply them individually
-        # to the style if they are defined.
-        DIRECTIONS.each do |dir|
-          key = :"border-#{dir}"
-          border = opt[key]
-          element.style[key] = border unless border.blank? || border == NONE
-        end
-
+        mix_directional element, element.style, opt, ctx, :border
       end
 
       def mix_border_radius element, opt, ctx
 
         border_radius = opt[BORDER_RADIUS].to_i
         element.style[BORDER_RADIUS] = px(border_radius) if border_radius > 0
+
+      end
+
+      # Helper to mix CSS properties that can be defined as either a
+      # singular shorthand (e.g. border) or in one or more of the
+      # compass directions (e.g. border-top, border-left).
+      def mix_directional element, into, opt, ctx, opt_key, css_key=nil, as_px=false
+
+        css_key = opt_key if css_key.nil?
+
+        # Iterate through each of the possible directions (including blank)
+        # and apply them each to the element's style hash.
+        DIRECTIONS.each do |dir|
+          dir_opt_key = add_directional_suffix(opt_key, dir)
+          dir_css_key = add_directional_suffix(css_key, dir)
+          value = opt[dir_opt_key]
+          next if none?(value)
+
+          value = px(value) if as_px
+          into[dir_css_key] = value
+        end
 
       end
 
@@ -208,19 +215,8 @@ module Inkcite
 
       def mix_margins element, opt, ctx
 
-        # Check to see if the 'all' margin attribute is specified.
-        all_margin = opt[MARGIN]
-
-        # Applying individual margins helps ensure compatibility across
-        # all email clients. Cough! Cough! Looking at you Outlook.
-        MARGINS.each do |margin|
-
-          # Check for specific direction margin (e.g. margin-left) which
-          # would override all margins.  Otherwise, inherit all margin.
-          amt = (opt[margin] || all_margin).to_i
-          element.style[margin] = px(amt) if amt > 0
-
-        end
+        # Outlook supports Margin, not margin.
+        mix_directional element, element.style, opt, ctx, :margin, :Margin, true
 
       end
 
@@ -293,6 +289,24 @@ module Inkcite
         html << '>'
 
         html
+      end
+
+      private
+
+      # Helper method which adds the directional suffix (e.g. top)
+      # to the provided key (border) and converts to a symbol.
+      def add_directional_suffix key, dir
+
+        # Nothing to do if the direction isn't provided.
+        return key if dir.blank?
+
+        # Need to convert the key to a string since it is likely
+        # a symbol that has been provided.
+        dir_key = ''
+        dir_key << key.to_s
+        dir_key << '-'
+        dir_key << dir.to_s
+        dir_key.to_sym
       end
 
     end

@@ -16,6 +16,7 @@ module Inkcite
         mix_background element, opt, ctx
         mix_border element, opt, ctx
         mix_dimensions element, opt, ctx
+        mix_margins element, opt, ctx
 
       end
 

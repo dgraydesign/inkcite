@@ -2,33 +2,33 @@ module Inkcite
   module Renderer
     class Responsive < Base
 
-      BUTTON      = 'button'
-      DROP        = 'drop'
-      FILL        = 'fill'
-      FLUID       = 'fluid'
-      FLUID_DROP  = 'fluid-drop'
+      BUTTON = 'button'
+      DROP = 'drop'
+      FILL = 'fill'
+      FLUID = 'fluid'
+      FLUID_DROP = 'fluid-drop'
       FLUID_STACK = 'fluid-stack'
-      HIDE        = 'hide'
-      IMAGE       = 'img'
-      SHOW        = 'show'
+      HIDE = 'hide'
+      IMAGE = 'img'
+      SHOW = 'show'
       SHOW_INLINE = 'show-inline'
-      SWITCH      = 'switch'
-      SWITCH_UP   = 'switch-up'
-      TOGGLE      = 'toggle'
+      SWITCH = 'switch'
+      SWITCH_UP = 'switch-up'
+      TOGGLE = 'toggle'
 
       # For elements that take on different background properties
       # when they go responsive
-      MOBILE_BGCOLOR             = :'mobile-bgcolor'
-      MOBILE_BACKGROUND          = :'mobile-background'
-      MOBILE_BACKGROUND_COLOR    = :'mobile-background-color'
-      MOBILE_BACKGROUND_IMAGE    = :'mobile-background-image'
-      MOBILE_BACKGROUND_REPEAT   = :'mobile-background-repeat'
+      MOBILE_BGCOLOR = :'mobile-bgcolor'
+      MOBILE_BACKGROUND = :'mobile-background'
+      MOBILE_BACKGROUND_COLOR = :'mobile-background-color'
+      MOBILE_BACKGROUND_IMAGE = :'mobile-background-image'
+      MOBILE_BACKGROUND_REPEAT = :'mobile-background-repeat'
       MOBILE_BACKGROUND_POSITION = :'mobile-background-position'
-      MOBILE_BACKGROUND_SIZE     = :'mobile-background-size'
-      MOBILE_SRC                 = :'mobile-src'
+      MOBILE_BACKGROUND_SIZE = :'mobile-background-size'
+      MOBILE_SRC = :'mobile-src'
 
       # Other mobile-specific properties
-      MOBILE_PADDING             = :'mobile-padding'
+      MOBILE_PADDING = :'mobile-padding'
 
 
       class Rule
@@ -158,7 +158,7 @@ module Inkcite
         # FILL causes specific types of elements to expand to 100% of the available
         # width of the mobile device.
         styles << Rule.new('img', FILL, 'width: 100% !important; height: auto !important;', false)
-        styles << Rule.new([ 'table', 'td' ], FILL, 'width: 100% !important; background-size: 100% auto !important;', false)
+        styles << Rule.new(['table', 'td'], FILL, 'width: 100% !important; background-size: 100% auto !important;', false)
 
         # For mobile-image tags.
         styles << Rule.new('span', IMAGE, 'display: block; background-position: center; background-size: cover;', false)
@@ -205,20 +205,7 @@ module Inkcite
 
       def mix_border element, opt, ctx
         super
-
-        # Check first for the parent mobile-border
-        border = opt[MOBILE_BORDER]
-        element.mobile_style[:border] = border unless border.blank?
-
-        # Iterate through each of the possible borders and apply them individually
-        # to the style if they are defined.
-        DIRECTIONS.each do |dir|
-          key = "border-#{dir}".to_sym        # e.g. border-left
-          mobile_key = "mobile-#{key}".to_sym # e.g. mobile-border-left
-          border = opt[mobile_key]
-          element.style[key] = border unless none?(border)
-        end
-
+        mix_directional element, element.mobile_style, opt, ctx, MOBILE_BORDER, :border
       end
 
       def mix_font element, opt, ctx, parent=nil
@@ -247,6 +234,11 @@ module Inkcite
         element.mobile_style[LINE_HEIGHT] = px(line_height) unless line_height.blank?
 
         font
+      end
+
+      def mix_margins element, opt, ctx
+        super
+        mix_directional element, element.mobile_style, opt, ctx, MOBILE_MARGIN, :margin, true
       end
 
       def mix_responsive element, opt, ctx, klass=nil
@@ -331,24 +323,38 @@ module Inkcite
         _mobile_style = element.mobile_style
         return if _mobile_style.blank?
 
+        # Will hold a preprocessed list of direction-free, lowercased properties
+        # (ahem, Outlook Margin) so we can easily determine if a mobile style
+        # needs !important to override its desktop style value.
+        desktop_style_keys = Set.new
+        desktop_style = {}
+        element.style.each_pair do |key, css|
+
+          key = key.to_s.downcase
+          desktop_style[key.to_sym] = css
+
+          base_key = get_directionless_key(key)
+          desktop_style_keys.add(base_key)
+
+        end
+
         # This will hold the decorated list of CSS properties.  If the element
         # has any existing styles that are being overridden in the mobile styles
         # we need to append the !important flag.
         decorated_style = {}
 
-        # Get a local handle on the element's style array.
-        desktop_style = element.style
-
+        # Iterate through the defined mobile styles, determine which need to
+        # have !important and assemble a new hash to be rendered as CSS.
         _mobile_style.each_pair do |key, css|
 
           # No need to put attributes in the mobile style if they match
           # the existing desktop style of the element.
-          desktop_css = desktop_style[key]
-          next if css == desktop_css
+          next if css == desktop_style[key]
 
           # Append !important to the CSS if it overrides a value in the
-          # element's in-lined styles.
-          css = "#{css} !important" if desktop_style[key]
+          # element's in-lined styles.  Need to test bo
+          base_key = get_directionless_key(key)
+          css = "#{css} !important" if desktop_style_keys.include?(base_key)
 
           decorated_style[key] = css
         end
@@ -400,6 +406,7 @@ module Inkcite
 
       # Attribute used to declare custom mobile styles for an element.
       MOBILE_BORDER = :'mobile-border'
+      MOBILE_MARGIN = :'mobile-margin'
       MOBILE_STYLE = :'mobile-style'
 
       # Universal CSS selector.
@@ -407,12 +414,29 @@ module Inkcite
 
       # For font overrides on mobile devices.  These values are read from
       # the object's attributes and installed into the element's mobile_styles.
-      MOBILE_FONT_COLOR     = :'mobile-color'
-      MOBILE_FONT_FAMILY    = :'mobile-font-family'
-      MOBILE_FONT_SIZE      = :'mobile-font-size'
-      MOBILE_FONT_WEIGHT    = :'mobile-font-weight'
+      MOBILE_FONT_COLOR = :'mobile-color'
+      MOBILE_FONT_FAMILY = :'mobile-font-family'
+      MOBILE_FONT_SIZE = :'mobile-font-size'
+      MOBILE_FONT_WEIGHT = :'mobile-font-weight'
       MOBILE_LETTER_SPACING = :'mobile-letter-spacing'
-      MOBILE_LINE_HEIGHT    = :'mobile-line-height'
+      MOBILE_LINE_HEIGHT = :'mobile-line-height'
+
+      # Accepts a key, such as border or border-left, and returns the
+      # key sans direction suffix - so border and border respectively.
+      # The opposite of add_directional_suffix().
+      def get_directionless_key key
+        key = key.to_s
+
+        # Iterate through the possible directions and if the key ends
+        # with the separator and direction (e.g. -left) trim that off
+        # and return it.
+        DIRECTIONS.each do |dir|
+          dir = "-#{dir}"
+          return key[0, dir.length] if key.end_with?(dir)
+        end
+
+        key
+      end
 
     end
   end

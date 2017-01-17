@@ -11,6 +11,7 @@ module Inkcite
         mix_border element, opt, ctx
         mix_border_radius element, opt, ctx
         mix_font element, opt, ctx
+        mix_margins element, opt, ctx
         mix_text_align element, opt, ctx
 
         # Supports both integers and mixed padding (e.g. 10px 20px)

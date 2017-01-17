@@ -9,22 +9,37 @@ describe Inkcite::Renderer::Table do
   end
 
   it 'supports custom margins in px' do
-    Inkcite::Renderer.render('{table margin-top=15}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0 style="margin-top:15px"><tr>')
-    Inkcite::Renderer.render('{table margin-left=16}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0 style="margin-left:16px"><tr>')
-    Inkcite::Renderer.render('{table margin-bottom=17}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0 style="margin-bottom:17px"><tr>')
-    Inkcite::Renderer.render('{table margin-right=18}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0 style="margin-right:18px"><tr>')
+    Inkcite::Renderer.render('{table margin-top=15}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0 style="Margin-top:15px"><tr>')
+    Inkcite::Renderer.render('{table margin-left=16}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0 style="Margin-left:16px"><tr>')
+    Inkcite::Renderer.render('{table margin-bottom=17}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0 style="Margin-bottom:17px"><tr>')
+    Inkcite::Renderer.render('{table margin-right=18}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0 style="Margin-right:18px"><tr>')
   end
 
   it 'supports multiple custom margins in px' do
-    Inkcite::Renderer.render('{table margin-top=15 margin-left=6}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0 style="margin-left:6px;margin-top:15px"><tr>')
+    Inkcite::Renderer.render('{table margin-top=15 margin-left=6}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0 style="Margin-left:6px;Margin-top:15px"><tr>')
   end
 
   it 'supports a single all margin attribute' do
-    Inkcite::Renderer.render('{table margin=15}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0 style="margin-bottom:15px;margin-left:15px;margin-right:15px;margin-top:15px"><tr>')
+    Inkcite::Renderer.render('{table margin=15}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0 style="Margin:15px"><tr>')
   end
 
   it 'supports unified margins with directional override' do
-    Inkcite::Renderer.render('{table margin=15 margin-left=8}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0 style="margin-bottom:15px;margin-left:8px;margin-right:15px;margin-top:15px"><tr>')
+    Inkcite::Renderer.render('{table margin=15 margin-left=8}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0 style="Margin:15px;Margin-left:8px"><tr>')
+  end
+
+  it 'supports custom margins on mobile' do
+    Inkcite::Renderer.render('{table mobile-margin=15}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0 class="m1"><tr>')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('table.m1 { margin:15px }')
+  end
+
+  it 'supports custom margin override on mobile' do
+    Inkcite::Renderer.render('{table margin="12px 4px 0" mobile-margin=15}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0 class="m1" style="Margin:12px 4px 0"><tr>')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('table.m1 { margin:15px !important }')
+  end
+
+  it 'supports margin shortcuts on mobile' do
+    Inkcite::Renderer.render('{table mobile-margin="15px 8px"}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0 class="m1"><tr>')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('table.m1 { margin:15px 8px }')
   end
 
   it 'supports fluid-hybrid desktop and style' do
