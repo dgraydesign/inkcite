@@ -408,6 +408,7 @@ module Inkcite
       MOBILE_BORDER = :'mobile-border'
       MOBILE_MARGIN = :'mobile-margin'
       MOBILE_STYLE = :'mobile-style'
+      MOBILE_WIDTH = :'mobile-width'
 
       # Universal CSS selector.
       UNIVERSAL = '*'

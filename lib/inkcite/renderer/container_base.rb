@@ -43,6 +43,9 @@ module Inkcite
         width = opt[:width]
         element.style[:width] = px(width) unless width.blank?
 
+        mobile_width = opt[MOBILE_WIDTH]
+        element.mobile_style[:width] = px(mobile_width) unless mobile_width.blank?
+
       end
 
     end

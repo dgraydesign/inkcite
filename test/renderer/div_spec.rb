@@ -107,4 +107,14 @@ describe Inkcite::Renderer::Div do
     Inkcite::Renderer.render('{div bggradient="radial-gradient(circle at center, #5b5f66, #1d1f21)"}{/div}', @view).must_equal('<div style="background-image:radial-gradient(circle at center, #5b5f66, #1d1f21)"></div>')
   end
 
+  it 'supports a custom width on mobile' do
+    Inkcite::Renderer.render('{div mobile-width=15}{/div}', @view).must_equal('<div class="m1"></div>')
+    @view.media_query.find_by_klass('m1').declarations.must_match('width:15px')
+  end
+
+  it 'supports a custom override width on mobile' do
+    Inkcite::Renderer.render('{div width=45 mobile-width=78}{/div}', @view).must_equal('<div class="m1" style="width:45px"></div>')
+    @view.media_query.find_by_klass('m1').declarations.must_match('width:78px !important')
+  end
+
 end
