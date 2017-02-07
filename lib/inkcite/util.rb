@@ -52,6 +52,62 @@ module Inkcite
       end
     end
 
+    # Conversion of HSL to RGB color courtesy of
+    # http://axonflux.com/handy-rgb-to-hsl-and-rgb-to-hsv-color-model-c
+    def self.hsl_to_color h, s, l
+
+      # The algorithm expects h, s and l to be values between 0-1.
+      h = h / 360.0
+      s = s / 100.0
+      l = l / 100.0
+
+      # Wrap the color wheel if the hue provided is less than or
+      # greater than 1
+      h += 1.0 while h < 0
+      h -= 1.0 while h > 1
+
+      s = 0.0 if s < 0
+      s = 1.0 if s > 1
+
+      l = 0.0 if l < 0
+      l = 1.0 if l > 1
+
+      r = g = b = 0
+
+      if s == 0
+        r = g = b = l
+
+      else
+        q = l < 0.5 ? l * (1 + s) : l + s - l * s
+        p = 2 * l - q
+        r = hue_to_rgb(p, q, h + 1/3.0)
+        g = hue_to_rgb(p, q, h)
+        b = hue_to_rgb(p, q, h - 1/3.0)
+
+      end
+
+      r = (r * 255).round(0)
+      g = (g * 255).round(0)
+      b = (b * 255).round(0)
+
+      "##{rgb_to_hex(r)}#{rgb_to_hex(g)}#{rgb_to_hex(b)}"
+    end
+
+    def self.hue_to_rgb p, q, t
+      t += 1 if t < 0
+      t -= 1 if t > 1
+      return (p + (q - p) * 6.0 * t) if (t < 1.0/6.0)
+      return q if (t < 0.5)
+      return (p + (q - p) * (2/3.0 - t) * 6) if (t < 2/3.0)
+      p
+    end
+
+    # RGB to hex courtesy of
+    # http://blog.lebrijo.com/converting-rgb-colors-to-hexadecimal-with-ruby/
+    def self.rgb_to_hex val
+      val.to_s(16).rjust(2, '0').downcase
+    end
+
     def self.lighten color, amount=0.6
       return WHITE if color.nil?
       rgb = color.gsub('#', '').scan(/../).map { |c| c.hex }
