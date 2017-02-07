@@ -173,7 +173,7 @@ module Inkcite
         gravity_animation.delay = delay if n > 0
         gravity_animation.timing_function = Inkcite::Animation::EASE_IN
 
-        composite_animation = Inkcite::Animation::CompositeAnimation.new
+        composite_animation = Inkcite::Animation::Composite.new
         composite_animation << create_explosion_animation(n, hue, explosion_speed, delay, sfx)
         composite_animation << gravity_animation
         composite_animation << create_position_animation(n, position_speed, delay, sfx)

@@ -1,11 +1,9 @@
 require_relative 'renderer/base'
-require_relative 'renderer/element'
 require_relative 'renderer/responsive'
 require_relative 'renderer/container_base'
 require_relative 'renderer/special_effect'
 require_relative 'renderer/image_base'
 require_relative 'renderer/table_base'
-require_relative 'renderer/style'
 
 require_relative 'renderer/background'
 require_relative 'renderer/button'

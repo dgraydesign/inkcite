@@ -23,13 +23,13 @@ require 'active_support/core_ext/string/inflections'
 require 'active_support/core_ext/string/starts_ends_with'
 
 require 'inkcite/version'
+require 'inkcite/facade'
 require 'inkcite/email'
 require 'inkcite/util'
 require 'inkcite/view'
 require 'inkcite/minifier'
 require 'inkcite/parser'
 require 'inkcite/renderer'
-require 'inkcite/animation'
 
 module Inkcite
 

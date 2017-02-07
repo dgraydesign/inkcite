@@ -57,7 +57,7 @@ describe Inkcite::Animation do
 
   it 'supports composite animations' do
 
-    comp_anim = Inkcite::Animation::CompositeAnimation.new()
+    comp_anim = Inkcite::Animation::Composite.new()
 
     explosion = Inkcite::Animation.new('explosion', @view)
     explosion.duration = 8
