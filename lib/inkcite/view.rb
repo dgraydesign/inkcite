@@ -338,7 +338,15 @@ module Inkcite
     # Returns the array of browser prefixes that need to be included in
     # CSS styles based on which version of the email this is.
     def prefixes
-      [ '', '-webkit-' ]
+      _prefixes = [ '' ]
+
+      # In development mode, include all prefixes for maximum compatibility.
+      _prefixes += %w(-moz- -ms- -o-) if development?
+
+      # Always include webkit for targeting mobile devices.
+      _prefixes << '-webkit-'
+
+      _prefixes
     end
 
     def preview?

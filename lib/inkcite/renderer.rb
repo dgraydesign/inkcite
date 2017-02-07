@@ -10,6 +10,7 @@ require_relative 'renderer/style'
 require_relative 'renderer/background'
 require_relative 'renderer/button'
 require_relative 'renderer/div'
+require_relative 'renderer/fireworks'
 require_relative 'renderer/footnote'
 require_relative 'renderer/google_analytics'
 require_relative 'renderer/image'
@@ -174,6 +175,7 @@ module Inkcite
           :button             => Button.new,
           :div                => Div.new,
           :facebook           => Social::Facebook.new,
+          :fireworks          => Fireworks.new,
           :footnote           => Footnote.new,
           :footnotes          => Footnotes.new,
           :google             => GoogleAnalytics.new,

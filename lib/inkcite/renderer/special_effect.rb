@@ -6,7 +6,7 @@ module Inkcite
       # common to special effects like snow and sparkle.
       class EffectContext
 
-        attr_reader :uuid
+        attr_reader :uuid, :animations
 
         # Expose the opt and ctx attributes
         attr_reader :opt, :ctx
@@ -31,14 +31,26 @@ module Inkcite
           # this special effect.
           @uuid = ctx.unique_id(:sfx)
 
+          # Will hold all of the Animations while the children are
+          # assembled and then added to the styles array at the end
+          # so that all keyframes are together in the source.
+          @animations = []
+
         end
 
         def all_children_class_name
           obfuscate_class_names? ? "sfx#{@uuid}c" : "#{@tag}#{@uuid}-children"
         end
 
-        def animation_class_name child_index
-          obfuscate_class_names? ? "#{@tag}#{@uuid}-anim#{child_index + 1}" : "sfx#{@uuid}a#{child_index + 1}"
+        def animation_class_name child_index, suffix=nil
+
+          base = obfuscate_class_names? ? "#{@tag}#{@uuid}-anim#{child_index + 1}" : "sfx#{@uuid}a#{child_index + 1}"
+          unless suffix.blank?
+            base << '-'
+            base << (obfuscate_class_names? ? suffix[0] : suffix)
+          end
+
+          base
         end
 
         def child_class_name child_index
@@ -53,7 +65,7 @@ module Inkcite
         # of snowflakes or sparkles in the animation.  :flakes and :sparks are
         # technically deprecated.
         def count
-          (@opt[:sparks] || @opt[:flakes] || @opt[:count]).to_i
+          @opt[:count].to_i
         end
 
         def equal_distribution qty
@@ -106,7 +118,7 @@ module Inkcite
         end
 
         def obfuscate_class_names?
-          false && @ctx.production?
+          @ctx.production?
         end
 
         def opacity_range
@@ -135,6 +147,10 @@ module Inkcite
 
         def rotation_range
           (-270..270)
+        end
+
+        def same_size?
+          min_size == max_size
         end
 
         def size_range
@@ -247,6 +263,10 @@ module Inkcite
         # at the same time.
         create_child_elements html, styles, sfx
 
+        # Append all of the Keyframes to the end of the styles, now that
+        # the individual children are configured.
+        sfx.animations.each { |a| styles << a.to_keyframe_css }
+
         # Push the completed list of styles into the context's stack.
         ctx.styles << styles.join("\n")
 
@@ -274,10 +294,14 @@ module Inkcite
       OPACITY_MAX = :'max-opacity'
       OPACITY_CEIL = 1.0
 
+      # Static constants for animation-specific CSS
+      ANIMATION_DELAY = :'animation-delay'
+      ANIMATION_DURATION = :'animation-duration'
+
       # The extending class can override this method to perform any
       # additional configuration on the style that affects all
       # children in the animation.
-      def config_all_children_style style, sfx
+      def config_all_children style, sfx
         # This space left intentionally blank
       end
 
@@ -333,7 +357,7 @@ module Inkcite
 
         # Provide the extending class with a chance to apply additional
         # styles to all children.
-        config_all_children_style style, sfx
+        config_all_children style, sfx
 
         styles << style
 
@@ -342,11 +366,6 @@ module Inkcite
       # Creates n-number of child <div> objects and assigns the all-child and each-child
       # CSS classes to them allowing each to be sized, animated uniquely.
       def create_child_elements html, styles, sfx
-
-        # Will hold all of the Animations while the children are
-        # assembled and then added to the styles array at the end
-        # so that all keyframes are together in the source.
-        animations = []
 
         sfx.count.times do |n|
 
@@ -365,20 +384,28 @@ module Inkcite
           # and its style.
           config_child n, child, style, animation, sfx
 
-          # Now that it is configured, install the animation into the
-          # style - this adds itself with the appropriate browser prefixes.
-          style[:animation] = animation
-
-          # Inject the various pieces into the appropriate lists.
+          # Add the child's HTML element into the email.
           html << child.to_s + '</div>'
-          styles << style
-          animations << animation
+
+          # If the extending class actually defined an animation for this child
+          # then assign it and add it to the list of animations to be appended
+          # after the styles are injected.
+          unless animation.blank?
+
+            sfx.animations << animation
+
+            # If the extending class didn't assign the animation already, then
+            # assign it to the child's style - this adds itself with the appropriate
+            # browser prefixes.
+            style[:animation] = animation if style[:animation].blank?
+
+          end
+
+          # Append the child's custom style, unless blank (meaning the extending
+          # class did not customize the child's styles directly).
+          styles << style unless style.blank?
 
         end
-
-        # Append all of the Keyframes to the end of the styles, now that
-        # the individual children are configured.
-        animations.each { |a| styles << a.to_keyframe_css }
 
       end
 

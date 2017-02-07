@@ -4,7 +4,7 @@ module Inkcite
 
       protected
 
-      def config_all_children_style style, sfx
+      def config_all_children style, sfx
 
         style[:top] = "-#{px(sfx.max_size + 4)}"
 

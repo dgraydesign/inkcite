@@ -1,3 +1,5 @@
+require_relative 'composite_animation'
+
 module Inkcite
   class Animation
 
@@ -5,13 +7,19 @@ module Inkcite
 
       attr_reader :percent, :style
 
+      # Ending percentage the animation stays at this keyframe.  For
+      # example, a keyframe that starts at 20% and has a duration
+      # of 19.9% would render as 25%, 39.9% { ... }
+      attr_accessor :duration
+
       def initialize percent, ctx, styles={}
 
         # Animation percents are always rounded to the nearest whole number.
         @percent = percent.round(0)
+        @duration = 0
 
         # Instantiate a new Style for this percentage.
-        @style = Inkcite::Renderer::Style.new("#{@percent}%", ctx, styles)
+        @style = Inkcite::Renderer::Style.new(nil, ctx, styles)
 
       end
 
@@ -49,7 +57,12 @@ module Inkcite
       end
 
       def to_css prefix
-        @style.to_css(prefix)
+        css = "#{@percent}%"
+        css << ", #{@percent + @duration.to_f}%" if @duration > 0
+        css << ' { '
+        css << @style.to_inline_css(prefix)
+        css << ' }'
+        css
       end
 
       private
@@ -76,7 +89,9 @@ module Inkcite
     # Timing functions
     LINEAR = 'linear'
     EASE = 'ease'
+    EASE_IN = 'ease-in'
     EASE_IN_OUT = 'ease-in-out'
+    EASE_OUT = 'ease-out'
 
     # Animation name, view context and array of keyframes
     attr_reader :name, :ctx
@@ -104,6 +119,11 @@ module Inkcite
       @keyframes << keyframe
 
       keyframe
+    end
+
+    # Returns true if this animation is blank - e.g. it has no keyframes.
+    def blank?
+      @keyframes.blank?
     end
 
     def to_keyframe_css

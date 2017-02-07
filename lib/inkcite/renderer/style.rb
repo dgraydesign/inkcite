@@ -18,6 +18,10 @@ module Inkcite
         @styles[key] = val
       end
 
+      def blank?
+        @styles.blank?
+      end
+
       def to_css allowed_prefixes=nil
         "#{@name} { #{to_inline_css(allowed_prefixes)} }"
       end
