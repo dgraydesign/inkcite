@@ -75,8 +75,10 @@ module Inkcite
           # If the table defines mobile-padding, then apply the correct mobile
           # style to this td - and its !important if there is padding on
           # the td already.
-          mobile_padding = table_opt[MOBILE_PADDING] || opt[MOBILE_PADDING]
-          td.mobile_style[:padding] = px(mobile_padding) unless mobile_padding.blank? || mobile == HIDE
+          unless mobile == HIDE
+            mix_mobile_padding td, table_opt, ctx
+            mix_mobile_padding td, opt, ctx
+          end
 
           # Need to handle Fluid-Drop HTML injection here before the rest of the
           # TD is formalized.  Fluid-Drop removes the width attribute of the cell

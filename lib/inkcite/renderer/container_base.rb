@@ -18,10 +18,6 @@ module Inkcite
         padding = opt[:padding]
         element.style[:padding] = px(padding) unless none?(padding)
 
-        # Supports custom padding on mobile - e.g. mobile-padding="15px 5px"
-        mobile_padding = opt[MOBILE_PADDING]
-        element.mobile_style[:padding] = px(mobile_padding) unless none?(mobile_padding)
-
         # Vertical alignment - top, middle, bottom.
         valign = opt[:valign]
         element.style[VERTICAL_ALIGN] = valign unless none?(valign)
@@ -32,6 +28,9 @@ module Inkcite
         # If boolean 'nowrap' attribute is present, apply the 'white-space: nowrap'
         # style to the element.
         element.style[WHITE_SPACE] = :nowrap if opt[:nowrap]
+
+        # Support for mobile-padding and mobile-padding-(direction)
+        mix_mobile_padding element, opt, ctx
 
         mix_responsive element, opt, ctx
 

@@ -117,4 +117,19 @@ describe Inkcite::Renderer::Div do
     @view.media_query.find_by_klass('m1').declarations.must_match('width:78px !important')
   end
 
+  it 'supports mobile padding' do
+    Inkcite::Renderer.render('{div mobile-padding="15px 10px"}{/div}', @view).must_equal('<div class="m1"></div>')
+    @view.media_query.find_by_klass('m1').declarations.must_match('padding:15px 10px')
+  end
+
+  it 'supports directional mobile padding' do
+    Inkcite::Renderer.render('{div mobile-padding-top=15}{/div}', @view).must_equal('<div class="m1"></div>')
+    @view.media_query.find_by_klass('m1').declarations.must_match('padding-top:15px')
+  end
+
+  it 'supports directional mobile padding override' do
+    Inkcite::Renderer.render('{div mobile-padding=30px mobile-padding-top=15}{/div}', @view).must_equal('<div class="m1"></div>')
+    @view.media_query.find_by_klass('m1').declarations.must_match('padding:30px;padding-top:15px')
+  end
+
 end

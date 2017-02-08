@@ -30,7 +30,6 @@ module Inkcite
       # Other mobile-specific properties
       MOBILE_PADDING = :'mobile-padding'
 
-
       class Rule
 
         attr_reader :declarations
@@ -239,6 +238,17 @@ module Inkcite
       def mix_margins element, opt, ctx
         super
         mix_directional element, element.mobile_style, opt, ctx, MOBILE_MARGIN, :margin, true
+      end
+
+      def mix_mobile_padding element, opt, ctx
+
+        # Supports custom padding on mobile - e.g. mobile-padding="15px 5px"
+        mobile_padding = opt[MOBILE_PADDING]
+        element.mobile_style[:padding] = px(mobile_padding) unless none?(mobile_padding)
+
+        # Supports custom directional padding - e.g. mobile-padding-top=20
+        mix_directional element, element.mobile_style, opt, ctx, MOBILE_PADDING, :padding, true
+
       end
 
       def mix_responsive element, opt, ctx, klass=nil
