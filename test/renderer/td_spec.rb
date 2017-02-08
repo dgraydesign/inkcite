@@ -22,6 +22,11 @@ describe Inkcite::Renderer::Td do
     @view.media_query.find_by_klass('m1').to_css.must_equal('td.m1 { padding-top:15px }')
   end
 
+  it 'supports mobile text alignment' do
+    Inkcite::Renderer.render('{td mobile-text-align="center"}{/td}', @view).must_equal('<td class="m1"></td>')
+    @view.media_query.find_by_klass('m1').declarations.must_match('text-align:center')
+  end
+
   it 'reuses a style that matches mobile padding' do
     Inkcite::Renderer.render('{table mobile-padding=15}{td}{table mobile-padding=15}{td}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0><tr><td class="m1"><table border=0 cellpadding=0 cellspacing=0><tr><td class="m1">')
     @view.media_query.find_by_klass('m1').to_css.must_equal('td.m1 { padding:15px }')

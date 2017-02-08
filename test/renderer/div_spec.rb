@@ -132,4 +132,14 @@ describe Inkcite::Renderer::Div do
     @view.media_query.find_by_klass('m1').declarations.must_match('padding:30px;padding-top:15px')
   end
 
+  it 'supports mobile text alignment' do
+    Inkcite::Renderer.render('{div mobile-text-align="center"}{/div}', @view).must_equal('<div class="m1"></div>')
+    @view.media_query.find_by_klass('m1').declarations.must_match('text-align:center')
+  end
+
+  it 'supports mobile text alignment override' do
+    Inkcite::Renderer.render('{div text-align="right" mobile-text-align="center"}{/div}', @view).must_equal('<div class="m1" style="text-align:right"></div>')
+    @view.media_query.find_by_klass('m1').declarations.must_match('text-align:center !important')
+  end
+
 end

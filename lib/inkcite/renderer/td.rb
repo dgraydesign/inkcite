@@ -149,6 +149,9 @@ module Inkcite
 
           end
 
+          # Support custom alignment on mobile devices
+          mix_mobile_text_align td, opt, ctx
+
           rowspan = opt[:rowspan].to_i
           td[:rowspan] = rowspan if rowspan > 0
 

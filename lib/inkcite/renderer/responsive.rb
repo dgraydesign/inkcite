@@ -251,7 +251,20 @@ module Inkcite
 
       end
 
+      # A separate method for mixing in text alignment because the table cell
+      # helper handles alignment different from normal container elements.
+      def mix_mobile_text_align element, opt, ctx
+
+        # Support for mobile-text-align
+        align = opt[MOBILE_TEXT_ALIGN]
+        element.mobile_style[TEXT_ALIGN] = align unless none?(align)
+
+      end
+
       def mix_responsive element, opt, ctx, klass=nil
+
+        mobile_style = opt[MOBILE_STYLE]
+        ctx.error 'mobile-style is no longer supported', { :element => element.to_s, MOBILE_STYLE => mobile_style } unless mobile_style.blank?
 
         # Apply the "mobile" attribute or use the override if one was provided.
         mix_responsive_klass element, opt, ctx, klass || opt[:mobile]
@@ -408,6 +421,11 @@ module Inkcite
 
       end
 
+      def mix_text_align element, opt, ctx
+        super
+        mix_mobile_text_align element, opt, ctx
+      end
+
       def unique_klass ctx
         'm%1d' % ctx.unique_id(:m)
       end
@@ -418,6 +436,7 @@ module Inkcite
       MOBILE_BORDER = :'mobile-border'
       MOBILE_MARGIN = :'mobile-margin'
       MOBILE_STYLE = :'mobile-style'
+      MOBILE_TEXT_ALIGN = :'mobile-text-align'
       MOBILE_WIDTH = :'mobile-width'
 
       # Universal CSS selector.
