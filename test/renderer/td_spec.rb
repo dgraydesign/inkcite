@@ -158,4 +158,9 @@ describe Inkcite::Renderer::Td do
     Inkcite::Renderer.render('{td nowrap}', @view).must_equal('<td nowrap>')
   end
 
+  it 'supports mobile width override' do
+    Inkcite::Renderer.render('{td width=30 mobile-width=15}', @view).must_equal('<td class="m1" width=30>')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('td.m1 { width:15px }')
+  end
+
 end
