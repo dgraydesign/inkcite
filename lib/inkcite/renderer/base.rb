@@ -168,7 +168,7 @@ module Inkcite
           dir_opt_key = add_directional_suffix(opt_key, dir)
           dir_css_key = add_directional_suffix(css_key, dir)
           value = opt[dir_opt_key]
-          next if none?(value)
+          next if value.blank?
 
           value = px(value) if as_px
           into[dir_css_key] = value

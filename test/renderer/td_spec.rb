@@ -168,4 +168,9 @@ describe Inkcite::Renderer::Td do
     @view.media_query.find_by_klass('m1').to_css.must_equal('td.m1 { height:15px }')
   end
 
+  it 'supports multiple mobile override attributes' do
+    Inkcite::Renderer.render('{td width=15 border-left="1px dotted #cccccc" mobile-display="block" mobile-width="100%" mobile-border-left="none" mobile-border-top="1px dotted #ccc"}', @view).must_equal('<td class="m1" style="border-left:1px dotted #cccccc" width=15>')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('td.m1 { border-left:none !important;border-top:1px dotted #ccc;display:block;width:100% }')
+  end
+
 end
