@@ -78,6 +78,9 @@ module Inkcite
         height = opt[:height].to_i
         element[:height] = height if height > 0
 
+        mobile_height = opt[MOBILE_HEIGHT]
+        element.mobile_style[:height] = px(mobile_height) unless none?(mobile_height)
+
       end
 
       private

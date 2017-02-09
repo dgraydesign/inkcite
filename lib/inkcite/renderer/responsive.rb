@@ -28,6 +28,7 @@ module Inkcite
       MOBILE_SRC = :'mobile-src'
 
       # Other mobile-specific properties
+      MOBILE_HEIGHT = :'mobile-height'
       MOBILE_PADDING = :'mobile-padding'
       MOBILE_WIDTH = :'mobile-width'
 
@@ -260,6 +261,9 @@ module Inkcite
         mobile_style = opt[MOBILE_STYLE]
         ctx.error 'mobile-style is no longer supported', { :element => element.to_s, MOBILE_STYLE => mobile_style } unless mobile_style.blank?
 
+        mobile_display = opt[MOBILE_DISPLAY]
+        element.mobile_style[:display] = mobile_display unless none?(mobile_display)
+
         # Apply the "mobile" attribute or use the override if one was provided.
         mix_responsive_klass element, opt, ctx, klass || opt[:mobile]
 
@@ -428,10 +432,10 @@ module Inkcite
 
       # Attribute used to declare custom mobile styles for an element.
       MOBILE_BORDER = :'mobile-border'
+      MOBILE_DISPLAY = :'mobile-display'
       MOBILE_MARGIN = :'mobile-margin'
       MOBILE_STYLE = :'mobile-style'
       MOBILE_TEXT_ALIGN = :'mobile-text-align'
-      MOBILE_WIDTH = :'mobile-width'
 
       # Universal CSS selector.
       UNIVERSAL = '*'

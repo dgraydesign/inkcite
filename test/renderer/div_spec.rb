@@ -142,4 +142,9 @@ describe Inkcite::Renderer::Div do
     @view.media_query.find_by_klass('m1').declarations.must_match('text-align:center !important')
   end
 
+  it 'supports mobile display override' do
+    Inkcite::Renderer.render('{div mobile-display="block"}{/div}', @view).must_equal('<div class="m1"></div>')
+    @view.media_query.find_by_klass('m1').declarations.must_match('display:block')
+  end
+
 end

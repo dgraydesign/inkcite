@@ -163,4 +163,9 @@ describe Inkcite::Renderer::Td do
     @view.media_query.find_by_klass('m1').to_css.must_equal('td.m1 { width:15px }')
   end
 
+  it 'supports mobile height override' do
+    Inkcite::Renderer.render('{td height=30 mobile-height=15}', @view).must_equal('<td class="m1" height=30>')
+    @view.media_query.find_by_klass('m1').to_css.must_equal('td.m1 { height:15px }')
+  end
+
 end
