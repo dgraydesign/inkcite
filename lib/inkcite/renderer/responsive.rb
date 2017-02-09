@@ -29,6 +29,7 @@ module Inkcite
 
       # Other mobile-specific properties
       MOBILE_PADDING = :'mobile-padding'
+      MOBILE_WIDTH = :'mobile-width'
 
       class Rule
 
