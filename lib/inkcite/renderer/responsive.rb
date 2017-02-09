@@ -241,14 +241,7 @@ module Inkcite
       end
 
       def mix_mobile_padding element, opt, ctx
-
-        # Supports custom padding on mobile - e.g. mobile-padding="15px 5px"
-        mobile_padding = opt[MOBILE_PADDING]
-        element.mobile_style[:padding] = px(mobile_padding) unless none?(mobile_padding)
-
-        # Supports custom directional padding - e.g. mobile-padding-top=20
         mix_directional element, element.mobile_style, opt, ctx, MOBILE_PADDING, :padding, true
-
       end
 
       # A separate method for mixing in text alignment because the table cell
