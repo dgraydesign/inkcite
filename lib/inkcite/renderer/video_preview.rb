@@ -24,6 +24,11 @@ module Inkcite
         # image name is frozen to ensure it isn't modified later.
         src = opt[:src].freeze
 
+        # This will hold the names of each of the frames, sans any full
+        # URL qualification (e.g. images/)  These are interpolated to
+        # include the index
+        frame_srcs = []
+
         # This will hold all frame source file names interpolated to include
         # index (e.g. %1 being replaced with the frame number, if present).
         frames = []
@@ -40,6 +45,7 @@ module Inkcite
         # this loop also verifies that the referenced image exists.
         frame_count.times do |n|
           frame_src = src.gsub('%1', "#{n + 1}")
+          frame_srcs << frame_src
           frames << image_url(frame_src, opt, ctx, false, false)
         end
 
@@ -91,7 +97,7 @@ module Inkcite
         html << Element.new('a', { :id => id, :href => quote(href), :class => hover_klass, :bgcolor => bgcolor, :bggradient => gradient, :block => true }).to_helper
 
         table = Element.new('table', {
-                :width => '100%', :background => first_frame, BACKGROUND_SIZE => 'cover',
+                :width => '100%', :background => frame_srcs[0], BACKGROUND_SIZE => 'cover',
                 Table::TR_TRANSITION => %q("all .5s cubic-bezier(0.075, 0.82, 0.165, 1)")
             })
 
