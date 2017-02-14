@@ -86,6 +86,7 @@ module Inkcite
 
       # Initializing to prevent a ruby verbose warning.
       @footnotes = nil
+      @substitutions = nil
 
     end
 
@@ -384,6 +385,9 @@ module Inkcite
       # <!-- commented out --> to ensure the email is as small as possible.
       source = Minifier.remove_comments(source, self)
 
+      # Perform global substitution of characters - e.g. ’ into ' if that's
+      substitution_map.each_pair { |orig, replace| source.gsub!(orig, replace) }
+
       # Protect against unsupported characters
       source = Renderer.fix_illegal_characters(source, self)
 
@@ -517,6 +521,32 @@ module Inkcite
       @subject ||= Renderer.render((self[:subject] || self[:title] || UNTITLED_EMAIL), self)
     end
 
+    # Returns a map where the strings are an original string
+    # and the value is what should replace it - used for
+    # automating common replacements - e.g. trademark symbols
+    # or apostrophes going in the wrong direction
+    def substitution_map
+
+      if @substitutions.nil?
+
+        # Initialize the substitutions map which will be populated
+        # if the local file exists.
+        @substitutions = {}
+
+        # Preload the array of footnotes if they exist
+        substitutions_tsv_file = @email.project_file(SUBSTITUTIONS_TSV_FILE)
+        if File.exist?(substitutions_tsv_file)
+          CSV.foreach(substitutions_tsv_file, { :col_sep => "\t" }) do |fn|
+            original = fn[0]
+            @substitutions[original] = fn[1].to_s unless original.blank?
+          end
+        end
+
+      end
+
+      @substitutions
+    end
+
     def tag_stack tag
       @tag_stack ||= Hash.new()
       @tag_stack[tag] ||= TagStack.new(tag, self)
@@ -630,6 +660,9 @@ module Inkcite
 
     # Tab-separated file containing footnote declarations.
     FOOTNOTES_TSV_FILE = 'footnotes.tsv'
+
+    # Tab-separated file containing global substitution values.
+    SUBSTITUTIONS_TSV_FILE = 'substitutions.tsv'
 
     def assert_in_browser msg
       raise msg if email? && !development?
