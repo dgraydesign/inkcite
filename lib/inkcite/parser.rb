@@ -22,7 +22,7 @@ module Inkcite
         # Provide the block with the area that was matched, sans wrapper brackets.
         # Replace the brackets and original value with the block's results.
         result = yield(match[1].to_s) || EMPTY_STRING
-        str[offset.first, offset.last - offset.first] = result
+        str[offset.first, offset.last - offset.first] = result.to_s
 
         # Ensure we don't infinite loop.
         failsafe += 1
