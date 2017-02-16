@@ -2,7 +2,7 @@ module Inkcite
   class Minifier
 
     # Directory of optimized images
-    IMAGE_CACHE = "images-optim"
+    IMAGE_CACHE = 'images-optim'
 
     # Maximum line length for CSS and HTML - lines exceeding this length cause
     # problems in certain email clients.
@@ -107,14 +107,70 @@ module Inkcite
 
     end
 
+    def self.image email, img_name, force=false
+
+      # Original, unoptimized source image
+      source_img = File.join(email.image_dir, img_name)
+
+      # Cached, optimized path for this image.
+      cache_path = email.project_file(IMAGE_CACHE)
+      cached_img = File.join(cache_path, File.basename(img_name))
+
+      # Full path to the local project's kraken config if it exists
+      kraken_config_path = email.project_file(KRAKEN_CONFIG_YML)
+
+      # This is the array of config files that will be searched to
+      # determine which algorithm to use to compress the images.
+      config_paths = [
+          kraken_config_path,
+          email.project_file(IMAGE_OPTIM_CONFIG_YML),
+          File.join(Inkcite.asset_path, 'init', IMAGE_OPTIM_CONFIG_YML)
+      ]
+
+      # Grab the first file that exists for this project.
+      config_path = config_paths.detect { |p| File.exist?(p) }
+
+      unless force
+
+        # Get the last-modified date of the image optimization config
+        # file - if that file is newer than the image, re-optimization
+        # is necessary because the settings have changed.
+        config_last_modified = Util.last_modified(config_path)
+
+        # Get the last-modified date of the actual image.  If the source
+        # image is newer than the cached version, we'll need to run it
+        # through optimization again, too.
+        cache_last_modified = Util.last_modified(cached_img)
+        source_last_modified = Util.last_modified(source_img)
+
+        # Nothing to do unless the image in the cache is older than the
+        # source or the config file.
+        return unless config_last_modified > cache_last_modified || source_last_modified > cache_last_modified
+
+      end
+
+      # Make sure the image cache directory exists
+      FileUtils.mkpath(cache_path)
+
+      # Read the image compression configuration settings
+      config = Util::read_yml(config_path, :fail_if_not_exists => false)
+
+      if config_path == kraken_config_path
+        minify_with_kraken_io email, config, source_img, cached_img
+
+      else
+
+        # Default image optimization uses built-in ImageOptim
+        minify_with_image_optim email, config, source_img, cached_img
+
+      end
+
+    end
+
     def self.images email, force=false
 
       images_path = email.image_dir
       cache_path = email.project_file(IMAGE_CACHE)
-
-      # Check to see if there is an image optim configuration file.
-      config_path = email.project_file(IMAGE_OPTIM_CONFIG_YML)
-      config_last_modified = Util.last_modified(config_path)
 
       # If the image cache exists, we need to check to see if any images have been
       # removed since the last build.
@@ -134,47 +190,9 @@ module Inkcite
 
       end
 
-      # Check to see if there are new or updated images that need to be re-optimized.
-      # Compare existing images against both the most recently cached version and
-      # the timestamp of the config file.
-      updated_images = Dir.glob(File.join(images_path, '*.*')).select do |img|
-        cached_img = File.join(cache_path, File.basename(img))
-        cache_last_modified = Util.last_modified(cached_img)
-        force || config_last_modified > cache_last_modified || Util.last_modified(img) > cache_last_modified
-      end
-
-      # Return unless there is something to compress
-      return if updated_images.blank?
-
-      FileUtils.mkpath(cache_path)
-
-      # Check to see if there is an image_optim.yml file in this directory that
-      # overrides the default settings.
-      image_optim_opts = if config_last_modified > 0
-        {
-            :config_paths => [IMAGE_OPTIM_CONFIG_YML]
-        }
-      else
-        {
-            :allow_lossy => true,
-            :gifsicle => { :level => 3 },
-            :jpegoptim => { :max_quality => 50 },
-            :jpegrecompress => { :quality => 1 },
-            :pngout => false,
-            :svgo => false
-        }
-      end
-
-      image_optim = ImageOptim.new(image_optim_opts)
-
-      # Copy all of the images that need updating into the temporary directory.
-      # Specifically joining the images_path to the image to avoid Email's
-      # image_path which may change it's directory if optimization is enabled.
-      updated_images.each do |img|
-        cached_img = File.join(cache_path, File.basename(img))
-        FileUtils.cp(img, cached_img)
-        image_optim.optimize_image!(cached_img)
-      end
+      # Iterate through all of the images in the project and optimize them
+      # if necessary.
+      Dir.glob(File.join(images_path, '*.*')).each { |img| self.image(email, File.basename(img), force) }
 
     end
 
@@ -188,10 +206,81 @@ module Inkcite
 
     private
 
+    def self.minify_with_image_optim email, config, source_img, cached_img
+
+      # Copy the image into the destination directory and then use Image Optim
+      # to optimize it in place.
+      FileUtils.cp(source_img, cached_img)
+      ImageOptim.new(config).optimize_image!(cached_img)
+
+    end
+
+    def self.minify_with_kraken_io email, config, source_img, cached_img
+
+      require 'kraken-io'
+      require 'open-uri'
+
+      # Get the file format (e.g. gif) of the file being optimized.
+      source_fmt = File.extname(source_img).delete('.')
+
+      # True if the configuration file does not specifically exclude
+      # this format from being processed.
+      compress_this_fmt = config[source_fmt.to_sym] != false
+
+      # If this format
+      if compress_this_fmt
+
+        # Initialize the Kraken API using the API key and secret defined in the
+        # config.yml file.
+        kraken = Kraken::API.new(
+            :api_key => config[:api_key],
+            :api_secret => config[:api_secret]
+        )
+
+        # As you might expect, Outlook doesn't support webp so it needs to be
+        # disabled by default.  Otherwise, Kraken always compresses with webp.
+        kraken_opts = { :webp => false }
+
+        # Typically, we're going to want lossy compression to minify the file
+        # but if the user has put lossy: false specifically in their config
+        # file, we'll disable that feature in Kraken too.  Defaults to true.
+        kraken_opts[:lossy] = config[:lossy] != false
+
+        # Send the quality metric to Kraken only if specified.  Per their
+        # documentation, Kraken will attempt to guess the best quality to
+        # use but in my experience it errs on the side of higher quality
+        # whereas setting a quality factor around 50 produces a good
+        # balance of image detail and file size.
+        quality = config[:quality].to_i
+        kraken_opts[:quality] = quality if quality > 0 and quality <= 100
+
+        # Upload the image to Kraken which blocks by default until the image
+        # has been optimized.
+        data = kraken.upload(source_img, kraken_opts)
+        if data.success
+          File.write(cached_img, open(data.kraked_url).read, { :mode => 'wb' })
+        else
+          puts "Failed to optimize #{img_name}: #{data.message}"
+        end
+
+      end
+
+      # If a compressed version of the image wasn't created in the cache
+      # directory, copy it now.  This also handles the use case where the
+      # format isn't being minified.
+      FileUtils.cp(source_img, cached_img) unless File.exist?(cached_img)
+
+    end
+
     # Name of the Image Optim configuration yml file that can be
     # put in the project directory to explicitly control the image
     # optimization process.
     IMAGE_OPTIM_CONFIG_YML = 'image_optim.yml'
+
+    # Name of the Kraken configuration yml that, when present in
+    # the project directory and populated with an API key and secret
+    # causes Kraken.io paid image optimization service to be used.
+    KRAKEN_CONFIG_YML = 'kraken.yml'
 
     NEW_LINE = "\n"
 
