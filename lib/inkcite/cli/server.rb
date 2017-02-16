@@ -53,7 +53,8 @@ module Inkcite
         # InkciteApp to server the email as the root index page.
         app = Rack::Builder.new do
           use Rack::LiveReload
-          use Rack::Static, :urls => %w( /images /images-optim ), :root => '.'
+          use Rack::Static, :urls => %w( /images/ ), :root => '.'
+          use OptimizedImage, :email => email, :urls => %w( /images-optim/ ), :root => '.'
           run InkciteApp.new(email, opts)
         end
 
@@ -87,6 +88,35 @@ module Inkcite
       end
 
       private
+
+      # Extends Rack::Static to provide dynamic image
+      # minification on demand.  When an image is requested
+      # from the images-optim directory, compression is
+      # performed on the desired image if necessary and then
+      # the optimized image is returned.
+      class OptimizedImage < Rack::Static
+
+        def initialize app, opts
+          @email = opts[:email]
+          super
+        end
+
+        def call env
+
+          # e.g. images-optim/my-image.jpg
+          path = env['PATH_INFO']
+
+          # Minify the image if the source version in images/ is newer
+          # or if the configuration file controlling optimization has
+          # been updated since the last time the image was requested.
+          Minifier.image(@email, File.basename(path), false) if can_serve(path)
+
+          # Let the super method handle the actual serving of the image.
+          super
+
+        end
+
+      end
 
       class InkciteApp
 
@@ -122,11 +152,6 @@ module Inkcite
 
             puts ''
             puts "#{ts} Rendering your email [environment=#{environment}, format=#{format}, version=#{version || 'default'}]"
-
-            # Before the rendering takes place, trigger image optimization of any
-            # new or updated images.  The {image} tag takes care of injecting the
-            # right path (optimized or not) depending on which version is needed.
-            @email.optimize_images
 
             view = @email.view(environment, format, version)
 
