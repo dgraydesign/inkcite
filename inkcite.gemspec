@@ -33,6 +33,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'htmlbeautifier'
   spec.add_dependency 'image_optim'
   spec.add_dependency 'image_optim_pack'
+  spec.add_dependency 'kraken-io'
   spec.add_dependency 'listen'
   spec.add_dependency 'litmus'
   spec.add_dependency 'mail'
