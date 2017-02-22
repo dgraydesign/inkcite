@@ -112,7 +112,7 @@ developer questions in a timely manner.
 
 ## License
 
-Copyright (c) 2014-2015 Jeffrey D. Hoffman. MIT Licensed, see [LICENSE] for
+Copyright (c) 2014-2017 Jeffrey D. Hoffman. MIT Licensed, see [LICENSE] for
 details.
 
 [Middleman]: http://middlemanapp.com
