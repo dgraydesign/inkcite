@@ -40,14 +40,31 @@ module Inkcite
         # a semicolon or close bracket.
         if ctx.email? && code.length > MAXIMUM_LINE_LENGTH
 
-          # Position at which a line break will be inserted at.
-          break_at = 0
+          # Last position at which a line break was be inserted at.
+          last_break_at = 0
 
           # Work through the code injecting line breaks until either no further
           # breakable characters are found or we've reached the end of the code.
-          while break_at < code.length
-            break_at = code.rindex(/[;}]/, break_at + MAXIMUM_LINE_LENGTH) + 1
-            code.insert(break_at, "\n") if break_at && break_at < code.length
+          while last_break_at < code.length
+            break_at = code.rindex(/[ ,;{}]/, last_break_at + MAXIMUM_LINE_LENGTH)
+
+            # No further characters match (unlikely) or an unbroken string since
+            # the last time a break was injected.  Either way, let's get out.
+            break if break_at.nil? || break_at <= last_break_at
+
+            # If we've found a space we can break at, do a direct replacement of the
+            # space with a new line.  Otherwise, inject a new line one spot after
+            # the matching character.
+            if code[break_at] == ' '
+              code[break_at] = NEW_LINE
+
+            else
+              break_at += 1
+              code.insert(break_at, NEW_LINE)
+              break_at += 1
+            end
+
+            last_break_at = break_at
           end
 
         end
@@ -165,30 +182,16 @@ module Inkcite
 
       end
 
+      original_size = File.size(source_img)
+      compressed_size = File.size(cached_img)
+      percent_compressed = ((1.0 - (compressed_size / original_size.to_f)) * 100).round(1)
+      puts "Compressed #{img_name} #{percent_compressed}%"
+
     end
 
     def self.images email, force=false
 
       images_path = email.image_dir
-      cache_path = email.project_file(IMAGE_CACHE)
-
-      # If the image cache exists, we need to check to see if any images have been
-      # removed since the last build.
-      if File.exist?(cache_path)
-
-        # Get a list of the files in the cache that do not also exist in the
-        # project's images/ directory.
-        removed_images = Dir.entries(cache_path) - Dir.entries(images_path)
-        unless removed_images.blank?
-
-          # Convert the images to fully-qualified paths and then remove
-          # those files from the cache
-          removed_images = removed_images.collect { |img| File.join(cache_path, img) }
-          FileUtils.rm(removed_images)
-
-        end
-
-      end
 
       # Iterate through all of the images in the project and optimize them
       # if necessary.
@@ -220,6 +223,17 @@ module Inkcite
       require 'kraken-io'
       require 'open-uri'
 
+      # Initialize the Kraken API using the API key and secret defined in the
+      # config.yml file.
+      kraken = Kraken::API.new(
+          :api_key => config[:api_key],
+          :api_secret => config[:api_secret]
+      )
+
+      # As you might expect, Outlook doesn't support webp so it needs to be
+      # disabled by default.  Otherwise, Kraken always compresses with webp.
+      kraken_opts = { :webp => false }
+
       # Get the file format (e.g. gif) of the file being optimized.
       source_fmt = File.extname(source_img).delete('.')
 
@@ -227,48 +241,29 @@ module Inkcite
       # this format from being processed.
       compress_this_fmt = config[source_fmt.to_sym] != false
 
-      # If this format
+      # Typically, we're going to want lossy compression to minify the file
+      # but if the user has put lossy: false specifically in their config
+      # file, we'll disable that feature in Kraken too.  Defaults to true.
+      kraken_opts[:lossy] = compress_this_fmt
+
+      # Send the quality metric to Kraken only if specified.  Per their
+      # documentation, Kraken will attempt to guess the best quality to
+      # use but in my experience it errs on the side of higher quality
+      # whereas setting a quality factor around 50 produces a good
+      # balance of image detail and file size.
       if compress_this_fmt
-
-        # Initialize the Kraken API using the API key and secret defined in the
-        # config.yml file.
-        kraken = Kraken::API.new(
-            :api_key => config[:api_key],
-            :api_secret => config[:api_secret]
-        )
-
-        # As you might expect, Outlook doesn't support webp so it needs to be
-        # disabled by default.  Otherwise, Kraken always compresses with webp.
-        kraken_opts = { :webp => false }
-
-        # Typically, we're going to want lossy compression to minify the file
-        # but if the user has put lossy: false specifically in their config
-        # file, we'll disable that feature in Kraken too.  Defaults to true.
-        kraken_opts[:lossy] = config[:lossy] != false
-
-        # Send the quality metric to Kraken only if specified.  Per their
-        # documentation, Kraken will attempt to guess the best quality to
-        # use but in my experience it errs on the side of higher quality
-        # whereas setting a quality factor around 50 produces a good
-        # balance of image detail and file size.
         quality = config[:quality].to_i
         kraken_opts[:quality] = quality if quality > 0 and quality <= 100
-
-        # Upload the image to Kraken which blocks by default until the image
-        # has been optimized.
-        data = kraken.upload(source_img, kraken_opts)
-        if data.success
-          File.write(cached_img, open(data.kraked_url).read, { :mode => 'wb' })
-        else
-          puts "Failed to optimize #{img_name}: #{data.message}"
-        end
-
       end
 
-      # If a compressed version of the image wasn't created in the cache
-      # directory, copy it now.  This also handles the use case where the
-      # format isn't being minified.
-      FileUtils.cp(source_img, cached_img) unless File.exist?(cached_img)
+      # Upload the image to Kraken which blocks by default until the image
+      # has been optimized.
+      data = kraken.upload(source_img, kraken_opts)
+      if data.success
+        File.write(cached_img, open(data.kraked_url).read, { :mode => 'wb' })
+      else
+        puts "Failed to optimize #{img_name}: #{data.message}"
+      end
 
     end
 
