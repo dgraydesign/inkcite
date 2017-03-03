@@ -68,16 +68,16 @@ module Inkcite
           @opt[:count].to_i
         end
 
-        def equal_distribution qty
+        def equal_distribution range, qty
 
           # Space the children generally equally across the width of the
           # container div.  Random distribution sometimes ends up with
           # children clumped at one edge or the other.
-          spacing = POSITION_CEIL / qty.to_f
+          spacing = (range.last - range.first) / qty.to_f
 
           # Now build up a pool of equally-spaced starting positions.
           # TODO: This is probably a perfect spot to use inject()
-          start_left = spacing / 2.0
+          start_left = range.first + (spacing / 2.0)
 
           # This array will hold all of the positions
           positions = [start_left]
@@ -86,11 +86,15 @@ module Inkcite
           # spacing and push onto the list.
           (qty - 1).times { |f| positions << start_left += spacing }
 
-          positions
+          positions.collect { |p| p.round(0) }
         end
 
         def height
           @opt[:height].to_i
+        end
+
+        def insets
+          @opt[:insets].to_i
         end
 
         def max_opacity
@@ -175,18 +179,24 @@ module Inkcite
           @src
         end
 
+        def position_range
+          min = POSITION_FLOOR + insets
+          max = POSITION_CEIL - insets
+          (min..max)
+        end
+
         # Creates a permanent list of positions (as percentages of the wrap container's
         # total width) which can be used for starting or ending position to equally
         # space animated elements.
         def positions_x
-          @positions_x ||= equal_distribution(count)
+          @positions_x ||= equal_distribution(position_range, count)
         end
 
         # Creates a permanent list of positions (as percentages of the wrap container's
         # total height) which can be used for starting or ending position to equally
         # space animated elements.
         def positions_y
-          @positions_y ||= equal_distribution(count)
+          @positions_y ||= equal_distribution(position_range, count)
         end
 
         def start_time child_index

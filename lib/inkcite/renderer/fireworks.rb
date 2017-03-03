@@ -12,8 +12,7 @@ module Inkcite
       TOTAL_POSITIONS = 5
 
       # The number of hue degrees to randomly alter the hue of each spark
-      HUE_RANGE = 45
-      HUE_RANGE_2X = HUE_RANGE * 2
+      HUE_RANGE = :'hue-range'
 
       # Names of the attributes controlling min and max explosion size.
       RADIUS_MIN = :'min-radius'
@@ -22,6 +21,24 @@ module Inkcite
       # Attributes used for color generation
       SATURATION = 100
       LUMINANCE = 50
+
+      def config_effect_context sfx
+
+        count = sfx.count
+
+        # Total number of firework instances multiplied by the number
+        # of positions each firework will cycle through.
+        position_count = TOTAL_POSITIONS * count
+        positions = sfx.equal_distribution(sfx.position_range, position_count)
+
+        sfx[:x_positions] = positions
+        sfx[:y_positions] = positions.dup
+
+        # Equal distribution of hues based on the number of fireworks
+        # if the rainbow option is selected
+        sfx[:hues] = sfx.equal_distribution(0..360, count)
+
+      end
 
       def create_explosion_animation n, hue, duration, delay, sfx
 
@@ -32,6 +49,9 @@ module Inkcite
         radius = rand(radius_range).round(0)
         half_radius = radius / 2.0
 
+        hue_range = (sfx[HUE_RANGE] || 40).to_i
+        hue_range_2x = hue_range * 2
+
         sparks = sfx[:sparks].to_i
 
         box_shadow = sparks.times.collect do |n|
@@ -41,7 +61,7 @@ module Inkcite
           y = (rand(radius) - half_radius).round(0)
 
           # Randomly pick a slightly different hue for this spark
-          _hue = hue + HUE_RANGE - rand(HUE_RANGE_2X)
+          _hue = hue + hue_range - rand(hue_range_2x)
           color = Inkcite::Util::hsl_to_color(_hue, SATURATION, LUMINANCE)
 
           "#{px(x)} #{px(y)} #{color}"
@@ -80,21 +100,20 @@ module Inkcite
         # be spent in each position.
         keyframe_duration = (100 / TOTAL_POSITIONS.to_f)
 
-        # This is the total number of random spots in the container that
-        # could have a firework.
-        position_count = TOTAL_POSITIONS * sfx.count
-        positions = sfx.equal_distribution(position_count).shuffle
-
         anim = Inkcite::Animation.new(sfx.animation_class_name(n, 'position'), sfx.ctx)
         anim.duration = duration
         anim.delay = delay if delay > 0
         anim.timing_function = Inkcite::Animation::LINEAR
 
+        x_positions = sfx[:x_positions]
+        y_positions = sfx[:y_positions]
+
         percent = 0
         TOTAL_POSITIONS.times do |n|
 
-          top = positions[rand(position_count)]
-          left = positions[rand(position_count)]
+          # Pick a random position for this firework
+          top = y_positions.delete_at(rand(y_positions.length))
+          left = x_positions.delete_at(rand(x_positions.length))
 
           keyframe = anim.add_keyframe(percent, { :top => pct(top), :left => pct(left) })
           keyframe.duration = keyframe_duration - 0.1
@@ -148,9 +167,12 @@ module Inkcite
           style[:height] = px(size)
         end
 
+        # If rainbow is specified, choose the next color in the array - otherwise
+        # choose a random hue unless a specific one has been specified.
+        hue = sfx[:rainbow] ? sfx[:hues][n] : (sfx[:hue] || rand(360)).to_i
+
         # Randomly pick a color for this explosion by choosing a
         # random hue and then converting it to a hex color
-        hue = (sfx[:hue] || rand(360)).to_i
         color = Inkcite::Util::hsl_to_color(hue, 100, 50)
         style[BACKGROUND_COLOR] = color
 
