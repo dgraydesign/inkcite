@@ -3,10 +3,20 @@
 # documentation available here:
 # https://github.com/toy/image_optim
 
-allow_lossy: true       # Small images through lossy compression
-verbose: false 			# Verbose output
+# Small images through lossy compression, specified by format.
+jpg: true
+gif: false
+png: false
 
-# Worker/optimizer-specific configurations follow
+# Verbose output
+verbose: false
+
+# Worker/optimizer-specific configurations follow.  Set the top
+# level to 'false' to disable any of these processors - e.g.
+#
+# advpng: false
+#
+# Will disable the advpng optimizer.
 
 advpng:
   level: 4       		# Compression level: 0 - don't compress, 1 - fast, 2 - normal, 3 - extra, 4 - extreme

@@ -172,20 +172,31 @@ module Inkcite
       # Read the image compression configuration settings
       config = Util::read_yml(config_path, :fail_if_not_exists => false)
 
+      # Get the file format (e.g. gif) of the file being optimized.
+      source_ext = File.extname(source_img).delete('.')
+
+      # True if the configuration file does not specifically exclude
+      # this format from being processed.
+      lossy = !!config[source_ext.to_sym]
+
       if config_path == kraken_config_path
-        minify_with_kraken_io email, config, source_img, cached_img
+        minify_with_kraken_io email, config, source_img, cached_img, lossy
 
       else
 
         # Default image optimization uses built-in ImageOptim
-        minify_with_image_optim email, config, source_img, cached_img
+        minify_with_image_optim email, config, source_img, cached_img, lossy
 
       end
 
       original_size = File.size(source_img)
       compressed_size = File.size(cached_img)
       percent_compressed = ((1.0 - (compressed_size / original_size.to_f)) * 100).round(1)
-      puts "Compressed #{img_name} #{percent_compressed}%"
+
+      # Log the compression
+      msg = "Compressed #{img_name} #{original_size}b -> #{compressed_size}b (#{percent_compressed}%)"
+      msg << ' (Lossy)' if lossy
+      puts msg
 
     end
 
@@ -209,16 +220,29 @@ module Inkcite
 
     private
 
-    def self.minify_with_image_optim email, config, source_img, cached_img
+    def self.minify_with_image_optim email, config, source_img, cached_img, lossy=false
+
+      _config = config.dup
+
+      # Need to remove the extensions from the config because
+      # ImageOptim doesn't like it when there are unexpected
+      # keys in the map it receives.
+      _config.delete(:jpg)
+      _config.delete(:gif)
+      _config.delete(:png)
+
+      # Enable lossy compression if allowed for this
+      # file extension type.
+      _config[:allow_lossy] = lossy
 
       # Copy the image into the destination directory and then use Image Optim
       # to optimize it in place.
       FileUtils.cp(source_img, cached_img)
-      ImageOptim.new(config).optimize_image!(cached_img)
+      ImageOptim.new(_config).optimize_image!(cached_img)
 
     end
 
-    def self.minify_with_kraken_io email, config, source_img, cached_img
+    def self.minify_with_kraken_io email, config, source_img, cached_img, lossy=false
 
       require 'kraken-io'
       require 'open-uri'
@@ -234,17 +258,10 @@ module Inkcite
       # disabled by default.  Otherwise, Kraken always compresses with webp.
       kraken_opts = { :webp => false }
 
-      # Get the file format (e.g. gif) of the file being optimized.
-      source_fmt = File.extname(source_img).delete('.')
-
-      # True if the configuration file does not specifically exclude
-      # this format from being processed.
-      compress_this_fmt = config[source_fmt.to_sym] != false
-
       # Typically, we're going to want lossy compression to minify the file
       # but if the user has put lossy: false specifically in their config
       # file, we'll disable that feature in Kraken too.  Defaults to true.
-      kraken_opts[:lossy] = compress_this_fmt
+      kraken_opts[:lossy] = lossy
 
       # Send the quality metric to Kraken only if specified.  Per their
       # documentation, Kraken will attempt to guess the best quality to
