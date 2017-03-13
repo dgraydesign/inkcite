@@ -456,7 +456,13 @@ module Inkcite
         # Intentionally not setting the link colors because those should be entirely
         # controlled by the styles and attributes of the links themselves.  By not
         # setting it, links created sans-helper should be visually distinct.
-        html << '<body style="width: 100% !important; min-width: 100% !important; margin: 0 !important; padding: 0; -webkit-text-size-adjust: none; -ms-text-size-adjust: none;'
+        html << '<body'
+
+        # The body class is used to fix the width problem in new Gmail iOS.
+        # https://litmus.com/community/discussions/5913-new-gmail-app-not-respect-full-width
+        html << ' class="body"' if email?
+
+        html << ' style="width: 100% !important; min-width: 100% !important; margin: 0 !important; padding: 0; -webkit-text-size-adjust: none; -ms-text-size-adjust: none;'
 
         # A pleasing but obvious background exposed in development mode to alert
         # the designer that they have exposed the body background - which means
@@ -859,6 +865,11 @@ module Inkcite
         # Remove extraneous left-margins on Android 4.4
         # https://litmus.com/community/code/4194-why-is-email-not-centered-on-android-4-4#comment-5727
         reset << 'div[style*="margin: 16px 0"] { margin:0 !important; }'
+
+        # Remove extraneous right-margin on Gmail by applying this to the
+        # body via a class selector.
+        # https://litmus.com/community/discussions/5913-new-gmail-app-not-respect-full-width
+        reset << '.body { min-width: 100vw; }'
 
       end
 
