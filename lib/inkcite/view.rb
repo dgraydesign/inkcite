@@ -37,6 +37,10 @@ module Inkcite
     # after a rendering is complete.
     attr_accessor :js_compressor
 
+    # Array of post-processors that can modify the HTML of the email
+    # after it is rendered but before it is saved.
+    attr_accessor :post_processors
+
     def initialize email, environment, format, version
       @email = email
       @environment = environment
@@ -87,6 +91,9 @@ module Inkcite
       # Initializing to prevent a ruby verbose warning.
       @footnotes = nil
       @substitutions = nil
+
+      # Will hold any post processors installed during rendering.
+      @post_processors = []
 
     end
 
@@ -488,6 +495,10 @@ module Inkcite
         html.select { |l| !l.blank? }.join(NEW_LINE)
 
       end
+
+      # Provide each post processor (if any were installed during the rendering
+      # process) with a chance to operate on the final HTML.
+      @content = PostProcessor.run_all(@content, self)
 
       # Ensure that all failsafes pass
       assert_failsafes

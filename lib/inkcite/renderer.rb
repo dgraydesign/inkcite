@@ -32,6 +32,7 @@ require_relative 'renderer/span'
 require_relative 'renderer/sparkle'
 require_relative 'renderer/table'
 require_relative 'renderer/td'
+require_relative 'renderer/topic'
 require_relative 'renderer/video_preview'
 
 module Inkcite
@@ -195,6 +196,8 @@ module Inkcite
           :sparkle            => Sparkle.new,
           :table              => Table.new,
           :td                 => Td.new,
+          :'topic'            => Topic.new,
+          :'topic-list'       => TopicList.new,
           :twitter            => Social::Twitter.new,
           :'video-preview'    => VideoPreview.new
       }

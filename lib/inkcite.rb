@@ -29,6 +29,7 @@ require 'inkcite/util'
 require 'inkcite/view'
 require 'inkcite/minifier'
 require 'inkcite/parser'
+require 'inkcite/post_processor'
 require 'inkcite/renderer'
 
 module Inkcite
