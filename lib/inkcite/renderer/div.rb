@@ -9,9 +9,7 @@ module Inkcite
         div = Element.new('div')
 
         mix_width div, opt, ctx
-
-        height = opt[:height].to_i
-        div.style[:height] = px(height) if height > 0
+        mix_height div, opt, ctx
 
         mix_all div, opt, ctx
       end

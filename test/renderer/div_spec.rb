@@ -147,4 +147,15 @@ describe Inkcite::Renderer::Div do
     @view.media_query.find_by_klass('m1').declarations.must_match('display:block')
   end
 
+  it 'supports mobile height' do
+    Inkcite::Renderer.render('{div mobile-height=215}{/div}', @view).must_equal('<div class="m1"></div>')
+    @view.media_query.find_by_klass('m1').declarations.must_match('height:215px')
+  end
+
+
+  it 'supports mobile height override' do
+    Inkcite::Renderer.render('{div height=63 mobile-height=182}{/div}', @view).must_equal('<div class="m1" style="height:63px"></div>')
+    @view.media_query.find_by_klass('m1').declarations.must_match('height:182px !important')
+  end
+
 end

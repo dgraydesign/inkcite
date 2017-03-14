@@ -37,6 +37,16 @@ module Inkcite
         element.to_s
       end
 
+      def mix_height element, opt, ctx
+
+        height = opt[:height].to_i
+        element.style[:height] = px(height) if height > 0
+
+        mobile_height = opt[MOBILE_HEIGHT].to_i
+        element.mobile_style[:height] = px(mobile_height) if mobile_height > 0
+
+      end
+
       def mix_width element, opt, ctx
 
         width = opt[:width]
