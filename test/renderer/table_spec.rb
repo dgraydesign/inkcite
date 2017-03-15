@@ -82,4 +82,8 @@ describe Inkcite::Renderer::Table do
     Inkcite::Renderer.render('{table tr-transition="all .5s cubic-bezier(0.075, 0.82, 0.165, 1)"}', @view).must_equal('<table border=0 cellpadding=0 cellspacing=0><tr style="transition:all .5s cubic-bezier(0.075, 0.82, 0.165, 1)">')
   end
 
+  it 'supports background gradients' do
+    Inkcite::Renderer.render('{table bgcolor=#f00 bggradient=#00f}', @view).must_equal('<table bgcolor=#ff0000 border=0 cellpadding=0 cellspacing=0 style="background-image:radial-gradient(circle at center, #ff0000, #0000ff)"><tr>')
+  end
+
 end

@@ -122,25 +122,33 @@ module Inkcite
         # Set the background color if the element has one.
         element.style[BACKGROUND_COLOR] = bgcolor if bgcolor
 
+        # Automatically include background gradient support when
+        # mixing in background color.
+        mix_background_gradient element, opt, ctx
+
+      end
+
+      def mix_background_gradient element, opt, ctx
+
         # Background gradient support
         bggradient = detect_bggradient(opt)
-        unless none?(bggradient)
+        return if none?(bggradient)
 
-          # As a shortcut a gradient can be specified simply by designating
-          # both a bgcolor and the gradient color - this will insert a radial
-          # gradient automatically.
-          if bggradient.start_with?('#')
+        # As a shortcut a gradient can be specified simply by designating
+        # both a bgcolor and the gradient color - this will insert a radial
+        # gradient automatically.
+        if bggradient.start_with?('#')
 
-            # If a bgcolor is provided, the gradient goes bgcolor -> bggradient.
-            # Otherwise, it goes bggradient->darker(bggradient)
-            center_color = bgcolor ? bgcolor : bggradient
-            outer_color = bgcolor ? bggradient : Util.darken(bggradient)
+          # If a bgcolor is provided, the gradient goes bgcolor -> bggradient.
+          # Otherwise, it goes bggradient->darker(bggradient)
+          bgcolor = detect_bgcolor(opt)
+          center_color = bgcolor ? bgcolor : bggradient
+          outer_color = bgcolor ? bggradient : Util.darken(bggradient)
 
-            bggradient = %Q(radial-gradient(circle at center, #{center_color}, #{outer_color}))
-          end
-
-          element.style[BACKGROUND_IMAGE] = bggradient
+          bggradient = %Q(radial-gradient(circle at center, #{center_color}, #{outer_color}))
         end
+
+        element.style[BACKGROUND_IMAGE] = bggradient
 
       end
 

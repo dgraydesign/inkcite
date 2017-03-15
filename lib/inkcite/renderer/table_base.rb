@@ -28,6 +28,9 @@ module Inkcite
         # css isn't supported.
         element[:bgcolor] = bgcolor unless bgcolor.nil?
 
+        # Allow background gradients on tables and tds.
+        mix_background_gradient element, opt, ctx
+
         bgimage    = opt[:background]
         bgposition = opt[BACKGROUND_POSITION]
         bgrepeat   = opt[BACKGROUND_REPEAT]
