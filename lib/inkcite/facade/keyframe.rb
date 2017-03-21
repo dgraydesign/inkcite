@@ -9,11 +9,15 @@ module Inkcite
       # of 19.9% would render as 25%, 39.9% { ... }
       attr_accessor :duration
 
+      # Alternative to duration, the ending percentage
+      attr_accessor :end_percent
+
       def initialize percent, ctx, styles={}
 
         # Animation percents are always rounded to the nearest whole number.
-        @percent = percent.round(0)
-        @duration = 0
+        @percent = percent
+        @end_percent = nil
+        @duration = nil
 
         # Instantiate a new Style for this percentage.
         @style = Inkcite::Renderer::Style.new(nil, ctx, styles)
@@ -55,7 +59,10 @@ module Inkcite
 
       def to_css prefix
         css = "#{@percent}%"
-        css << ", #{@percent + @duration.to_f}%" if @duration > 0
+
+        ends_at = calc_ends_at
+        css << ", #{ends_at}%" if ends_at
+
         css << ' { '
         css << @style.to_inline_css(prefix)
         css << ' }'
@@ -63,6 +70,22 @@ module Inkcite
       end
 
       private
+
+      # Returns the percent at which the animation keyframe ends
+      # based on either end_percent (preferred) or duration (deprecated)
+      # being set.  Will return nil if neither is present.
+      def calc_ends_at
+        ends_at = if @end_percent
+          @end_percent
+        elsif @duration
+          (@percent + @duration).round(1)
+        end
+
+        # Ensure that the ending percentage never exceeds 100%
+        ends_at = 100 if ends_at && ends_at >= 100.0
+
+        ends_at
+      end
 
       # Creates a copy of the array of styles with the appropriate
       # properties (e.g. transform) prefixed.

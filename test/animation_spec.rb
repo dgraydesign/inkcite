@@ -48,6 +48,13 @@ describe Inkcite::Animation do
     keyframe.to_css('').must_equal('25%, 40.9% { top:-15% }')
   end
 
+  it 'supports keyframe end percent' do
+    keyframe = Inkcite::Animation::Keyframe.new(38.3, @view)
+    keyframe.end_percent = 42.3
+    keyframe[:top] = '-15%'
+    keyframe.to_css('').must_equal('38.3%, 42.3% { top:-15% }')
+  end
+
   it 'reports when an animation is blank' do
     anim = Inkcite::Animation.new('snowflake7', @view)
     anim.blank?.must_equal(true)
