@@ -304,9 +304,8 @@ module Inkcite
       OPACITY_MAX = :'max-opacity'
       OPACITY_CEIL = 1.0
 
-      # Static constants for animation-specific CSS
-      ANIMATION_DELAY = :'animation-delay'
-      ANIMATION_DURATION = :'animation-duration'
+      # For converting degrees to radians and back
+      PI_OVER_180 = Math::PI / 180.0
 
       # The extending class can override this method to perform any
       # additional configuration on the style that affects all
