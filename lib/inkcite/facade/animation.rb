@@ -36,6 +36,10 @@ module Inkcite
     EASE_IN_OUT = 'ease-in-out'
     EASE_OUT = 'ease-out'
 
+    # Advanced easing functions courtesy of https://matthewlein.com/ceaser/
+    EASE_IN_CUBIC = 'cubic-bezier(0.550, 0.055, 0.675, 0.190)'
+    EASE_OUT_QUART = 'cubic-bezier(0.165, 0.840, 0.440, 1.000)'
+
     # Animation name, view context and array of keyframes
     attr_reader :name, :ctx
 
