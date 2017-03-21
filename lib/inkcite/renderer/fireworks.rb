@@ -7,16 +7,12 @@ module Inkcite
 
       private
 
-      # Each firework will move this many positions during the
-      # entire animation.
-      TOTAL_POSITIONS = 5
-
       # The number of hue degrees to randomly alter the hue of each spark
       HUE_RANGE = :'hue-range'
 
       # Names of the attributes controlling min and max explosion size.
-      RADIUS_MIN = :'min-radius'
-      RADIUS_MAX = :'max-radius'
+      DIAMETER_MIN = :'min-diameter'
+      DIAMETER_MAX = :'max-diameter'
 
       # Attributes used for color generation
       SATURATION = 100
@@ -26,9 +22,13 @@ module Inkcite
 
         count = sfx.count
 
+        # Make sure the total number of stops (formerly TOTAL_POSITIONS)
+        # is specified as an integer.
+        sfx[:stops] = sfx[:stops].to_i
+
         # Total number of firework instances multiplied by the number
         # of positions each firework will cycle through.
-        position_count = TOTAL_POSITIONS * count
+        position_count = sfx[:stops] * count
         positions = sfx.equal_distribution(sfx.position_range, position_count)
 
         sfx[:x_positions] = positions
@@ -43,22 +43,30 @@ module Inkcite
       def create_explosion_animation n, hue, duration, delay, sfx
 
         # Calculate the radius size for this explosion
-        min_radius = sfx[RADIUS_MIN].to_i
-        max_radius = sfx[RADIUS_MAX].to_i
-        radius_range = (min_radius..max_radius)
-        radius = rand(radius_range).round(0)
-        half_radius = radius / 2.0
+        min_diameter = sfx[DIAMETER_MIN].to_i
+        max_diameter = sfx[DIAMETER_MAX].to_i
+        diameter_range = (min_diameter..max_diameter)
 
         hue_range = (sfx[HUE_RANGE] || 40).to_i
         hue_range_2x = hue_range * 2
 
         sparks = sfx[:sparks].to_i
 
+        angle = 0
+        angle_step = 360 / sparks.to_f
+
         box_shadow = sparks.times.collect do |n|
 
+          # Pick a random angle.
+          angle_radians = angle * PI_OVER_180
+          angle += angle_step
+
+          # Pick a random radius
+          radius = rand(diameter_range) / 2.0
+
           # Pick a random position for this spark to move to
-          x = (rand(radius) - half_radius).round(0)
-          y = (rand(radius) - half_radius).round(0)
+          x = (radius * Math::cos(angle_radians)).round(0)
+          y = (radius * Math::sin(angle_radians)).round(0)
 
           # Randomly pick a slightly different hue for this spark
           _hue = hue + hue_range - rand(hue_range_2x)
@@ -70,7 +78,7 @@ module Inkcite
         anim = Inkcite::Animation.new(sfx.animation_class_name(n, 'bang'), sfx.ctx)
         anim.duration = duration
         anim.delay = delay if delay > 0
-        anim.timing_function = Inkcite::Animation::EASE_OUT
+        anim.timing_function = Inkcite::Animation::EASE_OUT_QUART
         anim.add_keyframe 100, { BOX_SHADOW => box_shadow.join(', ') }
 
         sfx.animations << anim
@@ -78,11 +86,11 @@ module Inkcite
         anim
       end
 
-      def create_gravity_animation sfx
+      def create_decay_animation sfx
 
-        anim = Animation.new('gravity', sfx.ctx)
+        anim = Animation.new(DECAY_ANIMATION_NAME, sfx.ctx)
 
-        # All fireworks fade to zero opacity and size by the end of the gravity cycle.
+        # All fireworks fade to zero opacity and size by the end of the decay cycle.
         keyframe = anim.add_keyframe 100, { :opacity => 0, :width => 0, :height => 0 }
 
         # Check to see if gravity has been specified for the fireworks.  If so
@@ -96,9 +104,7 @@ module Inkcite
 
       def create_position_animation n, duration, delay, sfx
 
-        # This is the percentage amount of the total animation that will
-        # be spent in each position.
-        keyframe_duration = (100 / TOTAL_POSITIONS.to_f)
+        stops = sfx[:stops]
 
         anim = Inkcite::Animation.new(sfx.animation_class_name(n, 'position'), sfx.ctx)
         anim.duration = duration
@@ -108,17 +114,27 @@ module Inkcite
         x_positions = sfx[:x_positions]
         y_positions = sfx[:y_positions]
 
+        # This is the percentage amount of the total animation that will
+        # be spent in each position.
+        keyframe_duration = 100.0 / stops.to_f
+
         percent = 0
-        TOTAL_POSITIONS.times do |n|
+        stops.times do |n|
 
           # Pick a random position for this firework
           top = y_positions.delete_at(rand(y_positions.length))
           left = x_positions.delete_at(rand(x_positions.length))
 
-          keyframe = anim.add_keyframe(percent, { :top => pct(top), :left => pct(left) })
-          keyframe.duration = keyframe_duration - 0.1
+          # Calculate when the next keyframe will trigger.
+          next_keyframe = percent + keyframe_duration
 
-          percent += keyframe_duration
+          # Calculate when this frame should end
+          end_percent = n < stops - 1 ? (next_keyframe - 0.1).round(1) : 100
+
+          keyframe = anim.add_keyframe(percent.round(1), { :top => pct(top), :left => pct(left) })
+          keyframe.end_percent = end_percent
+
+          percent = next_keyframe
         end
 
         sfx.animations << anim
@@ -150,10 +166,10 @@ module Inkcite
         box_shadow = sparks.times.collect { |n| '0 0 #fff' }
         style[BOX_SHADOW] = box_shadow.join(', ')
 
-        # Create the global gravity animation that is consistent for all fireworks.
+        # Create the global decay animation that is consistent for all fireworks.
         # There is no variance in this animation so it is created and added to the
         # context only once.
-        create_gravity_animation(sfx)
+        create_decay_animation(sfx)
 
       end
 
@@ -185,15 +201,15 @@ module Inkcite
         # move through each of its positions.
         position_speed = sfx.rand_speed
 
-        # This is the speed the firework animates it's explosion and gravity
+        # This is the speed the firework animates it's explosion and decay
         # components - which need to repeat n-number of times based on the
         # total number of positions.
-        explosion_speed = (position_speed / TOTAL_POSITIONS.to_f).round(2)
+        explosion_speed = (position_speed / sfx[:stops].to_f).round(2)
 
-        gravity_animation = Inkcite::Animation.new('gravity', sfx.ctx)
+        gravity_animation = Inkcite::Animation.new(DECAY_ANIMATION_NAME, sfx.ctx)
         gravity_animation.duration = explosion_speed
         gravity_animation.delay = delay if n > 0
-        gravity_animation.timing_function = Inkcite::Animation::EASE_IN
+        gravity_animation.timing_function = Inkcite::Animation::EASE_IN_CUBIC
 
         composite_animation = Inkcite::Animation::Composite.new
         composite_animation << create_explosion_animation(n, hue, explosion_speed, delay, sfx)
@@ -201,13 +217,6 @@ module Inkcite
         composite_animation << create_position_animation(n, position_speed, delay, sfx)
 
         style[:animation] = composite_animation
-
-        # # Each firework consists of three separate animations - one to animate
-        # # the explosion, one to fade out/apply gravity and one to move the
-        # # firework through it's fixed positions.
-        # style[:animation] = "1s bang ease-out infinite, 1s gravity ease-in infinite, #{TOTAL_POSITIONS}s position linear infinite"
-
-        # style[ANIMATION_DURATION] = "#{explosion_speed}s, #{explosion_speed}s, #{position_speed}s"
 
       end
 
@@ -217,14 +226,19 @@ module Inkcite
             :sparks => 50,
             :count => 2,
             :gravity => 200,
-            RADIUS_MIN => 150,
-            RADIUS_MAX => 400,
+            DIAMETER_MIN => 25,
+            DIAMETER_MAX => 200,
             SIZE_MIN => 10,
             SIZE_MAX => 10,
             SPEED_MIN => 5,
             SPEED_MAX => 10,
+            :stops => 5,
         }
       end
+
+      private
+
+      DECAY_ANIMATION_NAME = 'decay'
 
     end
   end
