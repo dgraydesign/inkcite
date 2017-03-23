@@ -24,7 +24,11 @@ module Inkcite
     end
 
     def config
-      Util.read_yml(File.join(path, 'config.yml'), :fail_if_not_exists => true)
+      Util.read_yml(config_file, :fail_if_not_exists => true)
+    end
+
+    def config_file
+      File.join(path, 'config.yml')
     end
 
     def formats env=nil
@@ -72,7 +76,7 @@ module Inkcite
     # Returns the directory that optimized, compressed images
     # have been saved to.
     def optimized_image_dir
-      File.join(path, optimize_images?? Minifier::IMAGE_CACHE : IMAGES)
+      File.join(path, optimize_images?? Image::ImageMinifier::IMAGE_CACHE : IMAGES)
     end
 
     def project_file file
