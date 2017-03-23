@@ -242,9 +242,10 @@ module Inkcite
           frames.each do |f|
             this_frame_url = "url(#{f})"
 
-            animation.add_keyframe(percent, { BACKGROUND_IMAGE => this_frame_url })
+            keyframe = animation.add_keyframe(percent.round(0), { BACKGROUND_IMAGE => this_frame_url })
             percent += percent_per_frame
-            animation.add_keyframe(percent, { BACKGROUND_IMAGE => this_frame_url })
+            keyframe.end_percent = percent.round(0)
+
             percent += percent_per_transition
 
           end
