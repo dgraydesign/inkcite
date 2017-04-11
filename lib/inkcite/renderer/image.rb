@@ -11,6 +11,7 @@ module Inkcite
 
         mix_background img, opt, ctx
         mix_border img, opt, ctx
+        mix_margins img, opt, ctx
 
         # Check to see if there is alt text specified for this image.  We are
         # testing against nil because sometimes the author desires an empty

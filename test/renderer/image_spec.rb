@@ -111,4 +111,9 @@ describe Inkcite::Renderer::Image do
     Inkcite::Renderer.render(%q({img src=animated.gif outlook-src=static.jpg height=150 width=100 alt="Don't repeat yourself"}), @view).must_equal(%q(<!--[if mso]><img alt="Don't repeat yourself" border=0 height=150 src="images/static.jpg" style="display:block" width=100><![endif]--><!--[if !mso]><!-- --><img alt="Don't repeat yourself" border=0 height=150 src="images/animated.gif" style="display:block" width=100><!--<![endif]-->))
   end
 
+  it 'supports mobile margins' do
+    Inkcite::Renderer.render(%q({img src=logo.jpg height=75 width=75 mobile-margin-bottom=15}), @view).must_equal(%q(<img border=0 class="m1" height=75 src="images/logo.jpg" style="display:block" width=75>))
+    @view.media_query.find_by_klass('m1').to_css.must_equal('img.m1 { margin-bottom:15px }')
+  end
+
 end
