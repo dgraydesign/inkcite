@@ -73,6 +73,12 @@ module Inkcite
         valign = opt[:valign] || ('middle' if inline)
         img.style[VERTICAL_ALIGN] = valign unless valign.blank?
 
+        # Fix for unexpected whitespace underneath images when emails
+        # are viewed in Outlook.com.  Thanks to @HTeuMeuLeu
+        # https://emails.hteumeuleu.com/outlook-coms-latest-bug-and-how-to-fix-gaps-under-images-ee1816671461
+        id = ctx.unique_id :img
+        img[:id] = quote("OWATemporaryImageDivContainer#{id}")
+
         html = ''
 
         # Check to see if an outlook-specific image source has been
