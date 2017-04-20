@@ -15,6 +15,10 @@ module Inkcite
         # Make sure we're converting any embedded values in the host URL
         url = Renderer.render(url, browser_view)
 
+        # Cache-bust the URL to ensure recipients see the most recent version of
+        # the uploaded HTML
+        Util::add_query_param(url, Time.now.to_i) if !ctx.production? && ctx.is_enabled?(Email::CACHE_BUST)
+
         # Optional link override color.
         color = opt[:color]
 
