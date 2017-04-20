@@ -29,6 +29,7 @@ module Inkcite
 
       # Other mobile-specific properties
       MOBILE_HEIGHT = :'mobile-height'
+      MOBILE_MAX_WIDTH = :'mobile-max-width'
       MOBILE_PADDING = :'mobile-padding'
       MOBILE_WIDTH = :'mobile-width'
 
@@ -207,6 +208,13 @@ module Inkcite
       def mix_border element, opt, ctx
         super
         mix_directional element, element.mobile_style, opt, ctx, MOBILE_BORDER, :border
+      end
+
+      def mix_dimensions element, opt, ctx
+
+        max_width = opt[MOBILE_MAX_WIDTH]
+        element.mobile_style[MAX_WIDTH] = px(max_width) unless max_width.blank?
+
       end
 
       def mix_font element, opt, ctx, parent=nil

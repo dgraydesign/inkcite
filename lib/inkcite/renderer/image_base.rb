@@ -100,6 +100,7 @@ module Inkcite
       end
 
       def mix_dimensions img, opt, ctx
+        super
         DIMENSIONS.each { |dim| img[dim] = opt[dim].to_i }
       end
 

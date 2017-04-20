@@ -116,4 +116,14 @@ describe Inkcite::Renderer::Image do
     @view.media_query.find_by_klass('m1').to_css.must_equal('img.m1 { margin-bottom:15px }')
   end
 
+  it 'supports mobile-max-width in pixels' do
+    Inkcite::Renderer.render(%q({img src=logo.jpg height=75 width=75 mobile="fill" mobile-max-width=150}), @view).must_equal(%q(<img border=0 class="fill m1" height=75 id="OWATemporaryImageDivContainer1" src="images/logo.jpg" style="display:block" width=75>))
+    @view.media_query.find_by_klass('m1').to_css.must_equal('img.m1 { max-width:150px }')
+  end
+
+  it 'supports mobile-max-width as a percent' do
+      Inkcite::Renderer.render(%q({img src=logo.jpg height=75 width=75 mobile="fill" mobile-max-width=80%}), @view).must_equal(%q(<img border=0 class="fill m1" height=75 id="OWATemporaryImageDivContainer1" src="images/logo.jpg" style="display:block" width=75>))
+      @view.media_query.find_by_klass('m1').to_css.must_equal('img.m1 { max-width:80% }')
+    end
+
 end
