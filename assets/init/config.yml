@@ -17,6 +17,8 @@ minify: true
 # https://inkcite.readme.io/v1.0/docs/image-optimization
 optimize-images: true
 
+jpg-quality: 90
+
 # When empty links are found in content, this is the URL that will be
 # included instead - so that clients understand this link is missing
 # and needs to be provided.

@@ -45,6 +45,12 @@ module Inkcite
 
         css = []
         css << "@media only screen and (max-width: #{Inkcite::Renderer::px(@max_width)}) {"
+
+        # Remove extraneous right-margin on Gmail by applying this to the
+        # body via a class selector.
+        # https://litmus.com/community/discussions/5913-new-gmail-app-not-respect-full-width
+        css << 'u + .body { min-width: 100vw; }'
+
         css += active_styles.collect(&:to_css)
         css << '}'
 

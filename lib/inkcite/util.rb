@@ -38,6 +38,10 @@ module Inkcite
       opts.detect { |o| !o.blank? }
     end
 
+    def self.dir_size path
+      Dir.glob(File.join(path, '*.*')).inject(0) { |size, file| size + File.size(file) }
+    end
+
     # Centralizing the URL/CGI encoding for all HREF processing because
     # URI.escape/encode is obsolete.
     def self.encode *arg
@@ -50,6 +54,15 @@ module Inkcite
       silence_warnings do
         URI.escape(*arg)
       end
+    end
+
+    def self.exec command
+      command = command.join(' ') if command.is_a?(Array)
+      `#{command} 2>&1`
+    end
+
+    def self.file_extension path_to_file
+      File.extname(path_to_file).delete('.').downcase
     end
 
     # Conversion of HSL to RGB color courtesy of
@@ -100,6 +113,40 @@ module Inkcite
       return q if (t < 0.5)
       return (p + (q - p) * (2/3.0 - t) * 6) if (t < 2/3.0)
       p
+    end
+
+    def self.log message, meta=nil
+
+      msg = "#{Time.now.strftime(DATE_FORMAT)} - INFO - #{message}"
+      unless meta.blank?
+        msg << '['
+        msg << Renderer.join_hash(meta, '=', ', ')
+        msg << ']'
+      end
+
+      puts msg
+    end
+
+    def self.pretty_file_size size
+
+      size = size.to_f
+      decimals = 2
+      ext = 'b'
+
+      if size > KB
+        size = size / KB
+        if size > KB
+          size = size / KB
+          ext = 'MB'
+        else
+          ext = 'Kb'
+        end
+      else
+        round = 0
+        "#{size}b"
+      end
+
+      "#{size.round(decimals)}#{ext}"
     end
 
     # RGB to hex courtesy of
@@ -165,6 +212,10 @@ module Inkcite
 
     BLACK = '#000000'
     WHITE = '#111111'
+
+    DATE_FORMAT = '%H:%M:%S'
+
+    KB = 1024
 
     # Recursive key symbolization for the provided Hash.
     def self.symbolize_keys hash

@@ -257,7 +257,7 @@ module Inkcite
         # Prepend the image host onto the src if one is specified in the properties.
         # During local development, images are always expected in an images/ subdirectory.
         image_host = if development?
-          (@email.optimize_images?? Minifier::IMAGE_CACHE : Email::IMAGES) + '/'
+          (@email.optimize_images?? Image::ImageMinifier::IMAGE_CACHE : Email::IMAGES) + '/'
         else
 
           # Use the image host defined in config.yml or, out-of-the-box refer to images/
@@ -460,25 +460,7 @@ module Inkcite
         html << inline_styles
         html << '</head>'
 
-        # Intentionally not setting the link colors because those should be entirely
-        # controlled by the styles and attributes of the links themselves.  By not
-        # setting it, links created sans-helper should be visually distinct.
-        html << '<body'
-
-        # The body class is used to fix the width problem in new Gmail iOS.
-        # https://litmus.com/community/discussions/5913-new-gmail-app-not-respect-full-width
-        html << ' class="body"' if email?
-
-        html << ' style="width: 100% !important; min-width: 100% !important; margin: 0 !important; padding: 0; -webkit-text-size-adjust: none; -ms-text-size-adjust: none;'
-
-        # A pleasing but obvious background exposed in development mode to alert
-        # the designer that they have exposed the body background - which means
-        # unpredictable results if sent.
-        if development?
-          html << " background: #ccc url('data:image/png;base64,#{Inkcite.blueprint_image64}');"
-        end
-
-        html << %q(">)
+        html << body_declaration
 
         html << minified
 
@@ -713,6 +695,31 @@ module Inkcite
       passes
     end
 
+    def body_declaration
+
+      # Intentionally not setting the link colors because those should be entirely
+      # controlled by the styles and attributes of the links themselves.  By not
+      # setting it, links created sans-helper should be visually distinct.
+      body = '<body'
+
+      # The body class is used to fix the width problem in new Gmail iOS.
+      # https://litmus.com/community/discussions/5913-new-gmail-app-not-respect-full-width
+      body << ' class="body"' if email?
+
+      body << ' style="margin: 0; padding: 0; -webkit-text-size-adjust: none; -ms-text-size-adjust: none;'
+
+      # A pleasing but obvious background exposed in development mode to alert
+      # the designer that they have exposed the body background - which means
+      # unpredictable results if sent.
+      if development?
+        body << %Q( background: #ccc url('data:image/png;base64,#{Inkcite.blueprint_image64}');)
+      end
+
+      body << '">'
+
+      body
+    end
+
     # Returns true if the content in this email either matches the
     # regular expression provided or if it includes the exact string
     # that is provided.
@@ -877,11 +884,6 @@ module Inkcite
         # https://litmus.com/community/code/4194-why-is-email-not-centered-on-android-4-4#comment-5727
         reset << 'div[style*="margin: 16px 0"] { margin:0 !important; }'
 
-        # Remove extraneous right-margin on Gmail by applying this to the
-        # body via a class selector.
-        # https://litmus.com/community/discussions/5913-new-gmail-app-not-respect-full-width
-        reset << '.body { min-width: 100vw; }'
-
       end
 
       # Reset the font on every cell to the default family.
@@ -1017,9 +1019,30 @@ module Inkcite
       # on its version - e.g. difference colors in the "no orders for 30 days" email.
       load_helper_file File.join(path, "helpers-#{@version}.tsv"), _helpers, false
 
+      project_path = File.basename(@email.path)
+
+      # If the project directory name is all numbers and is either six or eight
+      # characters in length, assume it is a date - e.g. 201706 or 20170513.
+      # Automatically extract the year, month and day (optional).
+      if project_path.to_i.to_s == project_path
+        path_length = project_path.length
+        if path_length >= 4 && path_length <= 8
+
+          # These substrings need to remain strings so that properties can be
+          # cloned when a view is instanted.
+          _helpers[:yyyy] = project_path[0..3]
+          _helpers[:mm] = project_path[4..5] if path_length >= 6
+          _helpers[:dd] = project_path[6..7] if path_length == 8
+
+        end
+      end
+
       # As a convenience pre-populate the month name of the email.
       mm = _helpers[:mm].to_i
-      _helpers[:month] = Date::MONTHNAMES[mm] if mm > 0
+      if mm > 0
+        _helpers[:month] = Date::MONTHNAMES[mm]
+        _helpers[:MONTH] = _helpers[:month].upcase
+      end
 
       _helpers
     end
