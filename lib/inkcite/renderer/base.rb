@@ -28,6 +28,7 @@ module Inkcite
       MARGIN_LEFT = :'margin-left'
       MARGIN_RIGHT = :'margin-right'
       MARGIN_TOP = :'margin-top'
+      MAX_HEIGHT = :'max-height'
       MAX_WIDTH = :'max-width'
       PADDING_X = :'padding-x'
       PADDING_Y = :'padding-y'
@@ -221,10 +222,10 @@ module Inkcite
         font
       end
 
-      def mix_margins element, opt, ctx
+      def mix_margins element, opt, ctx, outlookCompatible=true
 
         # Outlook supports Margin, not margin.
-        mix_directional element, element.style, opt, ctx, :margin, :Margin, true
+        mix_directional element, element.style, opt, ctx, :margin, outlookCompatible ? :Margin : :margin, true
 
       end
 

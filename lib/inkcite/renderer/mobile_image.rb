@@ -16,7 +16,7 @@ module Inkcite
 
         mix_background img, opt, ctx
 
-        mix_margins img, opt, ctx
+        mix_margins img, opt, ctx, false
 
         display = opt[:display]
         img.style[:display] = "#{display}" if display && display != BLOCK && display != DEFAULT

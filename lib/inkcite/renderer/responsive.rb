@@ -245,7 +245,7 @@ module Inkcite
         font
       end
 
-      def mix_margins element, opt, ctx
+      def mix_margins element, opt, ctx, outlookCompatible=true
         super
         mix_directional element, element.mobile_style, opt, ctx, MOBILE_MARGIN, :margin, true
       end
