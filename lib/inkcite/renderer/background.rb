@@ -14,8 +14,19 @@ module Inkcite
 
         html = ''
 
+
+        tag_stack = ctx.tag_stack(:background)
+
         if tag == '/background'
 
+          opening = tag_stack.pop
+          padding = opening[:padding].to_i
+
+          html << vs(padding) if padding > 0
+          html << '{/td}'
+          html << hs(padding) if padding > 0
+
+          html << '{/table}'
           html << '</div>'
 
           # If VML is enabled, then close the textbox and rect that were created
@@ -31,6 +42,8 @@ module Inkcite
           html << '{/table}'
 
         else
+
+          tag_stack << opt
 
           # Primary background image
           src = opt[:src]
@@ -55,7 +68,7 @@ module Inkcite
           # might interfere with the display of the background (e.g. padding)
           TABLE_PASSTHRU_OPS.each do |key|
             val = opt[key]
-            table[key] = quote(val) unless none?(val)
+            table[key] = quote(val) unless val.blank?
           end
 
           # Determine if a fallback background color has been defined.
@@ -117,16 +130,31 @@ module Inkcite
 
           end
 
-          div = Element.new('div')
+          html << '<div>'
+
+          html << '{table width=100%}'
+
+          padding = opt[:padding].to_i
+
+          html << hs(padding) if padding > 0
+
+          td = Element.new('td')
+
+          TD_PASSTHRU_OPS.each do |key|
+            val = opt[key]
+            td[key] = quote(val) unless val.blank?
+          end
 
           # Font family and other attributes get reset within the v:textbox so allow
           # the font series of attributes to be applied.
-          mix_font div, opt, ctx
+          mix_font td, opt, ctx
 
           # Text alignment within the div.
-          mix_text_align div, opt, ctx
+          mix_text_align td, opt, ctx
 
-          html << div.to_s
+          html << td.to_helper
+
+          html << vs(padding) if padding > 0
 
         end
 
@@ -135,8 +163,13 @@ module Inkcite
 
       private
 
-      # The custom
-      MOBILE_SRC = :'mobile-src'
+      def hs padding
+        Element.new('td', :width => padding, :mobile => 'hide').to_helper + '&nbsp;{/td}'
+      end
+
+      def vs padding
+        Element.new('div', :height => padding, LINE_HEIGHT => padding, FONT_SIZE => padding, :mobile => 'hide').to_helper + '&nbsp;{/div}'
+      end
 
       # These are the parameters that are passed directly from
       # the provided opt to the {table} rendered within the
@@ -146,6 +179,11 @@ module Inkcite
           BORDER_SPACING, BORDER_TOP, :mobile, MOBILE_BGCOLOR, MOBILE_BACKGROUND, MOBILE_BACKGROUND_COLOR,
           MOBILE_BACKGROUND_IMAGE, MOBILE_BACKGROUND_REPEAT, MOBILE_BACKGROUND_POSITION, MOBILE_PADDING,
           MOBILE_SRC, MOBILE_BACKGROUND_SIZE, MOBILE_WIDTH
+      ]
+
+      TD_PASSTHRU_OPS = [
+          :align, :color, :font, FONT_FAMILY, FONT_SIZE, FONT_WEIGHT, LETTER_SPACING, LINE_HEIGHT,
+          MOBILE_TEXT_ALIGN, :shadow, TEXT_ALIGN, TEXT_SHADOW, TEXT_SHADOW_BLUR, TEXT_SHADOW_OFFSET
       ]
 
     end
