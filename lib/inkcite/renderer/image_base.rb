@@ -4,10 +4,6 @@ module Inkcite
 
       protected
 
-      # Name of the property that allows an outlook-specific src to be specified
-      # for an image.
-      OUTLOOK_SRC = :'outlook-src'
-
       # Display mode constants
       BLOCK = 'block'
       DEFAULT = 'default'

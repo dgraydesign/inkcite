@@ -11,6 +11,7 @@ module Inkcite
       BACKGROUND_SIZE = :'background-size'
       BORDER_BOTTOM = :'border-bottom'
       BORDER_COLLAPSE = :'border-collapse'
+      BORDER_COLOR = :'border-color'
       BORDER_LEFT = :'border-left'
       BORDER_RADIUS = :'border-radius'
       BORDER_RIGHT = :'border-right'
@@ -40,6 +41,10 @@ module Inkcite
       VERTICAL_ALIGN = :'vertical-align'
       WEBKIT_ANIMATION = :'-webkit-animation'
       WHITE_SPACE = :'white-space'
+
+      # Name of the property that allows an outlook-specific src to be specified
+      # for an image.
+      OUTLOOK_SRC = :'outlook-src'
 
       # CSS direction suffixes including nil/empty for convenience.
       DIRECTIONS = [ nil, :top, :right, :bottom, :left]
