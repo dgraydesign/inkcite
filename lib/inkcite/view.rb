@@ -234,6 +234,21 @@ module Inkcite
       fn
     end
 
+      # Defines a new helper, which allows designers to keep helper
+      # markup alongside the usage of it inside of partial.  Helps keep
+      # code clean and prevents helper.tsv pollution for one-offs
+      def helper tag, open, close=nil
+
+      tag = tag.to_sym
+
+      # Warn the user if the helper is already defined.
+      view.error("Helper '#{tag}' already defined", :open => open, :close => close) unless @config[tag].nil?
+
+      @config[tag] = open.to_s
+      @config[:"/#{tag}"] = close.to_s
+
+    end
+
     # Returns the fully-qualified URL to the designated image (e.g. logo.gif)
     # appropriate for the current rendering environment.  In development
     # mode, local will have either images/ or images-optim/ prepended on them
@@ -458,6 +473,9 @@ module Inkcite
         html += external_styles
 
         html << inline_styles
+
+        html << outlook_styles
+
         html << '</head>'
 
         html << body_declaration
@@ -889,12 +907,6 @@ module Inkcite
       # Reset the font on every cell to the default family.
       reset << "td { font-family: #{self[Renderer::Base::FONT_FAMILY]}; }"
 
-      # VML-specific CSS needed only if VML was used in the email.
-      if vml_used?
-        reset << 'v\:* { behavior: url(#default#VML); display: inline-block; }'
-        reset << 'o\:* { behavior: url(#default#VML); display: inline-block; }'
-      end
-
       reset.join(NEW_LINE)
     end
 
@@ -939,6 +951,24 @@ module Inkcite
       style_blocks.each do |s|
         html << '<style>'
         html << s
+        html << '</style>'
+      end
+
+      html.join(NEW_LINE)
+    end
+
+    def outlook_styles
+
+      html = []
+
+      # VML-specific CSS needed only if VML was used in the email.
+      if vml_used?
+        html << '<style>'
+
+        %w(v o).each do |l|
+          html << Inkcite::Renderer::Style.new("#{l}\:*", self, { :behavior => 'url(#default#VML)', :display => 'inline-block' }).to_s
+        end
+
         html << '</style>'
       end
 

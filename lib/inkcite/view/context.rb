@@ -5,28 +5,10 @@ module Inkcite
     # engine without exposing all of the view's attributes.
     class Context
 
-      delegate :browser?, :development?, :email?, :environment, :format, :production?, :preview?, :version, :to => :view
+      delegate :browser?, :development?, :email?, :environment, :format, :helper, :production?, :preview?, :version, :to => :view
 
       def initialize view
         @view = view
-      end
-
-      # Defines a new helper via ERB, which allows designers to keep helper
-      # markup alongside the usage of it inside of partial.  Helps keep
-      # code clean and prevents helper.tsv pollution for one-offs
-      def helper tag, open, close=nil
-
-        tag = tag.to_sym
-
-        # The config object holds the defined helpers
-        config = @view.config
-
-        # Warn the user if the helper is already defined.
-        view.error("Helper '#{tag}' already defined", :open => open, :close => close) unless config[tag].nil?
-
-        config[tag] = open.to_s
-        config[:"/#{tag}"] = close.to_s
-
       end
 
       def once? key
