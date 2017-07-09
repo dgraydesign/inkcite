@@ -76,8 +76,8 @@ describe Inkcite::Renderer::Image do
 
     html = Inkcite::Renderer.render('{img src=inkcite.jpg}', @view)
 
-    html[0,83].must_equal('<img border=0 height=0 id="OWATemporaryImageDivContainer1" src="images/inkcite.jpg?')
-    html[83,10].must_match(/[0-9]{10,}/)
+    html[0, 83].must_equal('<img border=0 height=0 id="OWATemporaryImageDivContainer1" src="images/inkcite.jpg?')
+    html[83, 10].must_match(/[0-9]{10,}/)
     html[93..-1].must_equal('" style="display:block" width=0>')
   end
 
@@ -122,8 +122,16 @@ describe Inkcite::Renderer::Image do
   end
 
   it 'supports mobile-max-width as a percent' do
-      Inkcite::Renderer.render(%q({img src=logo.jpg height=75 width=75 mobile="fill" mobile-max-width=80%}), @view).must_equal(%q(<img border=0 class="fill m1" height=75 id="OWATemporaryImageDivContainer1" src="images/logo.jpg" style="display:block" width=75>))
-      @view.media_query.find_by_klass('m1').to_css.must_equal('img.m1 { max-width:80% }')
-    end
+    Inkcite::Renderer.render(%q({img src=logo.jpg height=75 width=75 mobile="fill" mobile-max-width=80%}), @view).must_equal(%q(<img border=0 class="fill m1" height=75 id="OWATemporaryImageDivContainer1" src="images/logo.jpg" style="display:block" width=75>))
+    @view.media_query.find_by_klass('m1').to_css.must_equal('img.m1 { max-width:80% }')
+  end
+
+  it 'supports max-height' do
+    Inkcite::Renderer.render(%q({img src=logo.jpg height=75 width=75 max-height=150}), @view).must_equal(%q(<img border=0 height=75 id="OWATemporaryImageDivContainer1" src="images/logo.jpg" style="display:block;max-height:150px" width=75>))
+  end
+
+  it 'supports max-height of zero (needed for carousels)' do
+    Inkcite::Renderer.render(%q({img src=logo.jpg height=75 width=75 max-height=0}), @view).must_equal(%q(<img border=0 height=75 id="OWATemporaryImageDivContainer1" src="images/logo.jpg" style="display:block;max-height:0" width=75>))
+  end
 
 end

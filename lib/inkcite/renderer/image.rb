@@ -67,6 +67,10 @@ module Inkcite
         # vertically aligns the image with the text.
         inline = (display == INLINE)
 
+        # Allow max-height to be specified.
+        max_height = opt[MAX_HEIGHT]
+        img.style[MAX_HEIGHT] = px(max_height) unless max_height.blank?
+
         align = opt[:align] || ('absmiddle' if inline)
         img[:align] = align unless align.blank?
 
