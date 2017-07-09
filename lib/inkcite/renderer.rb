@@ -7,6 +7,7 @@ require_relative 'renderer/table_base'
 
 require_relative 'renderer/background'
 require_relative 'renderer/button'
+require_relative 'renderer/carousel'
 require_relative 'renderer/div'
 require_relative 'renderer/fireworks'
 require_relative 'renderer/footnote'
@@ -172,6 +173,8 @@ module Inkcite
           :a                  => Link.new,
           :background         => Background.new,
           :button             => Button.new,
+          :carousel           => Carousel.new,
+          :'carousel-img'     => Carousel::Image.new,
           :div                => Div.new,
           :facebook           => Social::Facebook.new,
           :fireworks          => Fireworks.new,
