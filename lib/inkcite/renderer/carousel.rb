@@ -158,7 +158,7 @@ module Inkcite
           html << %q(</div></div>)
 
           html << '{/div}'
-          html << '{/td}'
+          html << '</td>'
           html << '{/table}'
 
           styles = []
