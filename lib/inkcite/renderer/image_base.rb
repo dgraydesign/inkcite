@@ -92,12 +92,12 @@ module Inkcite
       end
 
       def missing_dimensions? att
-        DIMENSIONS.any? { |dim| att[dim].to_i <= 0 }
+        DIMENSIONS.any? { |dim| att[dim].blank? }
       end
 
       def mix_dimensions img, opt, ctx
         super
-        DIMENSIONS.each { |dim| img[dim] = opt[dim].to_i }
+        DIMENSIONS.each { |dim| img[dim] = opt[dim] }
       end
 
       private

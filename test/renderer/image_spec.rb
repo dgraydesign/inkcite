@@ -6,12 +6,12 @@ describe Inkcite::Renderer::Image do
 
   it 'warns when an image is missing' do
     Inkcite::Renderer.render('{img src=missing.jpg}', @view)
-    @view.errors.must_include('Missing image (line 0) [src=missing.jpg]')
+    assert_error(@view, 'Missing image', 'src=missing.jpg')
   end
 
   it 'warns when image dimesions are missing' do
     Inkcite::Renderer.render('{img src=inkcite.jpg}', @view)
-    @view.errors.must_include('Missing image dimensions (line 0) [src=inkcite.jpg]')
+    assert_error(@view, 'Missing image dimensions', 'src=inkcite.jpg')
   end
 
   it 'substitutes a placeholder for a missing image of sufficient size' do
@@ -76,9 +76,9 @@ describe Inkcite::Renderer::Image do
 
     html = Inkcite::Renderer.render('{img src=inkcite.jpg}', @view)
 
-    html[0, 83].must_equal('<img border=0 height=0 id="OWATemporaryImageDivContainer1" src="images/inkcite.jpg?')
-    html[83, 10].must_match(/[0-9]{10,}/)
-    html[93..-1].must_equal('" style="display:block" width=0>')
+    html[0, 74].must_equal('<img border=0 id="OWATemporaryImageDivContainer1" src="images/inkcite.jpg?')
+    html[74, 10].must_match(/[0-9]{10,}/)
+    html[84..-1].must_equal('" style="display:block">')
   end
 
   it 'can substitute a different image on mobile' do
