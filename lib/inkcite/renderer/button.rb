@@ -148,7 +148,7 @@ module Inkcite
           html << %Q( mobile="fill"}\n)
           html << "{td align=center"
           html << " height=#{cfg.height} valign=middle" if cfg.height > 0
-          html << " font=\"#{cfg.font}\""
+          html << %Q( font="#{cfg.font}" color="none")
           html << " line-height=#{cfg.line_height}" unless cfg.line_height.blank?
           html << %Q( font-size="#{cfg.font_size}") if cfg.font_size > 0
           html << %Q( font-weight="#{cfg.font_weight}") unless cfg.font_weight.blank?
