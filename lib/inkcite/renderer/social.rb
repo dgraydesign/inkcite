@@ -43,7 +43,35 @@ module Inkcite
         protected
 
         def get_share_href url, text, opts, ctx
-          %Q(https://twitter.com/share?url=#{url}&text=#{text})
+
+          params = {}
+          params[:url] = url unless url.blank?
+          params[:text] = text
+          params[:hashtags] = opts[:hashtags]
+
+          val = "https://twitter.com/intent/tweet?"
+          val << Renderer.join_hash(params, '=', '&')
+          val
+        end
+
+      end
+
+      class Instagram < Social
+
+        def initialize
+          super(:src => 'instagram.png', :alt => 'Instagram', :cta => 'Post')
+        end
+
+        protected
+
+        def get_share_href url, text, opts, ctx
+
+          val = "https://www.instagram.com"
+
+          username = opts[:username]
+          val << "/#{username}" unless username.blank?
+
+          val
         end
 
       end
@@ -62,10 +90,10 @@ module Inkcite
         id = opts[:id]
 
         share_url = opts.delete(:href).to_s
-        ctx.error("Social sharing 'href' attribute can't be blank", :tag => tag, :id => id) if share_url.blank?
+        #ctx.error("Social sharing 'href' attribute can't be blank", :tag => tag, :id => id) if share_url.blank?
 
         share_text = opts.delete(:text).to_s
-        ctx.error("Social sharing 'text' attribute can't be blank", :tag => tag, :id => id, :href => share_url) if share_text.blank?
+        #ctx.error("Social sharing 'text' attribute can't be blank", :tag => tag, :id => id, :href => share_url) if share_text.blank?
 
         # Let the extending class format the fully-qualified URL to the sharing service.
         service_href = get_share_href Util.escape(share_url), Util.escape(share_text), opts, ctx
