@@ -117,11 +117,11 @@ module Inkcite
             html << %q({/a}) unless href.blank?
 
             unless caption.blank?
-              caption_div = Element.new('div', :class => 'crsl-caption')
+              caption_div = Element.new('div', :class => 'crsl-caption', :style => { :padding => '5px 0 10px' })
               mix_font caption_div, open_opt, ctx
               html << caption_div.to_s
               html << caption
-              html << "</div>"
+              html << '</div>'
             end
 
             html << %q(</div>)
@@ -154,7 +154,7 @@ module Inkcite
           fallback_src = open_opt[OUTLOOK_SRC] || fallback_frame_opt[:src]
 
           html << %q(<div class="fallback"><div class="crsl-content">)
-          html << %Q({a id="#{carousel_id}" href="#{fallback_href}"}{img src="#{fallback_src}" width=#{width} height=#{height} alt="#{open_opt[:alt]}" mobile="fill"}{/a})
+          html << %Q({a id="#{carousel_id}" href="#{fallback_href}"}{img src="#{fallback_src}" width=#{width} height=#{height} alt="#{fallback_frame_opt[:caption]}" mobile="fill"}{/a})
           html << %q(</div></div>)
 
           html << '{/div}'
