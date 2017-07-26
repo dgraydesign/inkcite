@@ -58,7 +58,6 @@ module Inkcite
           fill_width = width.nil? || width == 'fill' || width == '100%' || width.to_i <= 0
 
           table = Element.new('table')
-          table[:height] = height if height > 0
           table[:width] = (fill_width ? '100%' : width)
           table[:background] = quote(src) unless none?(src)
 
@@ -79,13 +78,8 @@ module Inkcite
           bggradient = detect_bggradient(opt)
           table[:bggradient] = quote(bggradient) unless none?(bggradient)
 
-          td = Element.new('td')
-
-          valign = opt[:valign]
-          td[:valign] = valign unless valign.blank?
-
           html << table.to_helper
-          html << td.to_helper
+          html << '{td}'
 
           # VML is only added if it is enabled for the project.
           if ctx.vml_enabled?
@@ -138,21 +132,28 @@ module Inkcite
 
           html << hs(padding) if padding > 0
 
-          td = Element.new('td')
+          inner_td = Element.new('td')
+
+          # Height needs to be set on the inner TD to ensure that valign works
+          # in Outlook - which doesn't honor table height but will honor td height.
+          inner_td[:height] = height if height > 0
+
+          valign = opt[:valign]
+          inner_td[:valign] = valign unless valign.blank?
 
           TD_PASSTHRU_OPS.each do |key|
             val = opt[key]
-            td[key] = quote(val) unless val.blank?
+            inner_td[key] = quote(val) unless val.blank?
           end
 
           # Font family and other attributes get reset within the v:textbox so allow
           # the font series of attributes to be applied.
-          mix_font td, opt, ctx
+          mix_font inner_td, opt, ctx
 
           # Text alignment within the div.
-          mix_text_align td, opt, ctx
+          mix_text_align inner_td, opt, ctx
 
-          html << td.to_helper
+          html << inner_td.to_helper
 
           html << vs(padding) if padding > 0
 

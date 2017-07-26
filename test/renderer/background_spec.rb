@@ -6,12 +6,12 @@ describe Inkcite::Renderer::Background do
 
   it 'warns when an image is missing' do
     Inkcite::Renderer.render('{background src=missing.jpg}', @view)
-    @view.errors.must_include('Missing image (line 0) [src=missing.jpg]')
+    assert_error @view, 'Missing image', 'src=missing.jpg'
   end
 
   it 'warns when an outlook-specific image is missing' do
     Inkcite::Renderer.render('{background outlook-src=also-missing.jpg}', @view)
-    @view.errors.must_include('Missing image (line 0) [src=also-missing.jpg]')
+    assert_error @view, 'Missing image', 'src=also-missing.jpg'
   end
 
   it 'defaults to filling the available horizontal space' do
@@ -31,7 +31,7 @@ describe Inkcite::Renderer::Background do
   end
 
   it 'supports an optional height in pixels' do
-    Inkcite::Renderer.render('{background src=https://i.imgur.com/YJOX1PC.png bgcolor=#7bceeb height=92 width=120}{/background}', @view).must_equal('<table bgcolor=#7bceeb border=0 cellpadding=0 cellspacing=0 height=92 style="background:#7bceeb url(https://i.imgur.com/YJOX1PC.png)" width=120><tr><td><!--[if mso]><v:rect fill="t" stroke="f" style="height:92px;width:120px" xmlns:v="urn:schemas-microsoft-com:vml"><v:fill color="#7bceeb" src="https://i.imgur.com/YJOX1PC.png" type="tile" /><v:textbox inset="0,0,0,0"><![endif]--><div><table border=0 cellpadding=0 cellspacing=0 width=100%><tr><td></td></tr></table></div><!--[if mso]></v:textbox></v:rect><![endif]--></td></tr></table>')
+    Inkcite::Renderer.render('{background src=https://i.imgur.com/YJOX1PC.png bgcolor=#7bceeb height=92 width=120}{/background}', @view).must_equal('<table bgcolor=#7bceeb border=0 cellpadding=0 cellspacing=0 style="background:#7bceeb url(https://i.imgur.com/YJOX1PC.png)" width=120><tr><td><!--[if mso]><v:rect fill="t" stroke="f" style="height:92px;width:120px" xmlns:v="urn:schemas-microsoft-com:vml"><v:fill color="#7bceeb" src="https://i.imgur.com/YJOX1PC.png" type="tile" /><v:textbox inset="0,0,0,0"><![endif]--><div><table border=0 cellpadding=0 cellspacing=0 width=100%><tr><td height=92></td></tr></table></div><!--[if mso]></v:textbox></v:rect><![endif]--></td></tr></table>')
   end
 
   it 'supports an optional background color' do
