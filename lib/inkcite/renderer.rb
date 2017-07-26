@@ -130,6 +130,10 @@ module Inkcite
 
       Parser.each(str) do |tag|
 
+        # Record to the context the most recent tag being processed in case
+        # there are errors associated with it.
+        context.last_rendered_markup = tag
+
         # Split the string into the tag and it's attributes.
         name, opts = tag.split(SPACE, 2)
 
@@ -184,6 +188,7 @@ module Inkcite
           :img                => Image.new,
           :'in-browser'       => InBrowser.new,
           :include            => Partial.new,
+          :instagram          => Social::Instagram.new,
           :like               => Like.new,
           :litmus             => LitmusAnalytics.new,
           :lorem              => Lorem.new,

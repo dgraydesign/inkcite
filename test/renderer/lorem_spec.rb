@@ -10,12 +10,12 @@ describe Inkcite::Renderer::Lorem do
 
   it 'triggers an error when included' do
     Inkcite::Renderer.render('{lorem}', @view)
-    @view.errors.must_include('Email contains Lorem Ipsum (line 0)')
+    assert_error @view, 'Email contains Lorem Ipsum [markup={lorem}]'
   end
 
   it 'does not trigger an error when included and forced' do
     Inkcite::Renderer.render('{lorem force}', @view)
-    @view.errors.must_be_nil
+    assert_no_errors @view
   end
 
 end

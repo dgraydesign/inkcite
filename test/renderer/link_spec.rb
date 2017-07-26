@@ -40,7 +40,7 @@ describe Inkcite::Renderer::Link do
 
   it 'raises a warning and generates an ID if one is not present' do
     Inkcite::Renderer.render('{a href="http://inkceptional.com"}Click Here{/a}', @view).must_equal('<a href="http://inkceptional.com" style="color:#0099cc;text-decoration:none" target=_blank>Click Here</a>')
-    @view.errors.must_include('Link missing ID (line 0) [href=http://inkceptional.com]')
+    assert_error @view, 'Link missing ID', 'href="http://inkceptional.com"'
   end
 
   it 'increments its automatically generated link ID' do
@@ -87,12 +87,12 @@ describe Inkcite::Renderer::Link do
 
   it 'detects invalid URLs' do
     Inkcite::Renderer.render(%Q({a id="oops" href="http://ink\nceptional.com"}), @view)
-    @view.errors.must_include(%Q(Link href appears to be invalid (line 0) [id=oops, href=http://ink\nceptional.com]))
+    assert_error(@view, 'Link href appears to be invalid', 'id=oops', "href=http://ink\nceptional.com")
   end
 
   it 'accepts invalid URLs if forced' do
     Inkcite::Renderer.render(%Q({a id="oops" href="http://ink\nceptional.com" force}), @view)
-    @view.errors.must_be_nil
+    assert_no_errors @view
   end
 
   it 'supports the block attribute' do

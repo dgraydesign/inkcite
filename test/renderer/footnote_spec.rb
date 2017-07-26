@@ -6,7 +6,7 @@ describe Inkcite::Renderer::Footnote do
 
   it 'requires text' do
     Inkcite::Renderer.render('({footnote symbol="†"})', @view)
-    @view.errors.must_include('Footnote requires text attribute (line 0) [id=, symbol=†]')
+    assert_error @view, 'Footnote requires text attribute', 'symbol=†'
   end
 
   it 'can have a custom symbol' do

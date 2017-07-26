@@ -6,18 +6,18 @@ describe Inkcite::Renderer::MobileStyle do
 
   it 'requires a class name' do
     Inkcite::Renderer.render('{mobile-style}', @view).must_equal('')
-    @view.errors.must_include('Declaring a mobile style requires a name attribute (line 0)')
+    assert_error(@view, 'Declaring a mobile style requires a name attribute')
   end
 
   it 'requires a style declaration' do
     Inkcite::Renderer.render('{mobile-style name="slider"}', @view).must_equal('')
-    @view.errors.must_include('Declaring a mobile style requires a style attribute (line 0) [name=slider]')
+    assert_error(@view, 'Declaring a mobile style requires a style attribute', 'name=slider')
   end
 
   it 'raises a warning if the class name is not unique' do
     Inkcite::Renderer.render('{mobile-style name="outlined" style="border: 1px solid #f00"}', @view).must_equal('')
     Inkcite::Renderer.render('{mobile-style name="outlined" style="border: 1px solid #0f0"}', @view).must_equal('')
-    @view.errors.must_include('A mobile style was already defined with that class name (line 0) [name=outlined, style=border: 1px solid #0f0]')
+    assert_error(@view, 'A mobile style was already defined with that class name', 'name=outlined', 'style=border: 1px solid #0f0')
   end
 
   it 'adds an inactive responsive style to the context' do

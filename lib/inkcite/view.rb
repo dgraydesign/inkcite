@@ -23,9 +23,6 @@ module Inkcite
     # Manages the Responsive::Rules applied to this email view.
     attr_reader :media_query
 
-    # Line number of the email file being processed
-    attr_accessor :line_number
-
     # The configuration hash for the view
     attr_accessor :config
 
@@ -40,6 +37,10 @@ module Inkcite
     # Array of post-processors that can modify the HTML of the email
     # after it is rendered but before it is saved.
     attr_accessor :post_processors
+
+    # The most recently processed tag populated from the renderer and
+    # used when reporting errors.
+    attr_accessor :last_rendered_markup
 
     def initialize email, environment, format, version
       @email = email
@@ -80,10 +81,6 @@ module Inkcite
       # Set the version index based on the position of this
       # version in the list of those defined.
       @config[:'version-index'] = (email.versions.index(version) + 1).to_s
-
-      # Tracks the line number and is recorded when errors are encountered
-      # while rendering said line.
-      @line_number = 0
 
       # True if VML is used during the preparation of this email.
       @vml_used = false
@@ -156,9 +153,10 @@ module Inkcite
     end
 
     # Records an error message on the currently processing line of the source.
-    def error message, obj=nil
+    def error message, obj={}
 
-      message << " (line #{self.line_number.to_i})"
+      obj[:markup] = %Q({#{self.last_rendered_markup}})
+
       unless obj.blank?
         message << ' ['
         message << obj.collect { |k, v| "#{k}=#{v}" }.join(', ')
@@ -1110,9 +1108,6 @@ module Inkcite
       lines = []
 
       filtered.split("\n").each do |line|
-
-        # Increment the line number as we read the file.
-        @line_number += 1
 
         begin
           line = Renderer.render(line, self)

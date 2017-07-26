@@ -6,7 +6,7 @@ describe Inkcite::Renderer::Topic do
 
   it 'requires a name' do
     Inkcite::Renderer.render('{topic}{topic name="Ipsum"}', @view)
-    @view.errors.must_include('Every topic must have a name (line 0)')
+    assert_error @view, 'Every topic must have a name'
   end
 
   it 'renders a list of topics' do
@@ -22,7 +22,7 @@ describe Inkcite::Renderer::Topic do
   it 'warns if no topics are defined' do
     html = Inkcite::Renderer.render('{topic-list}', @view)
     Inkcite::PostProcessor.run_all(html, @view)
-    @view.errors.must_include('{topic-list} included but no topics defined (line 0)')
+    assert_error @view, '{topic-list} included but no topics defined'
   end
 
 end
