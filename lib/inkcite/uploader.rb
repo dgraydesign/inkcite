@@ -8,9 +8,8 @@ module Inkcite
 
       times = []
 
-      ['source.html', 'source.txt', 'helpers.tsv'].each do |file|
-        file = email.project_file(file)
-        times << File.mtime(file).to_i if File.exist?(file)
+      Dir.glob(File.join(email.path, '*.{html,tsv,txt,yml}')).each do |file|
+        times << File.mtime(file).to_i
       end
 
       local_images = email.image_dir
