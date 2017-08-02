@@ -350,6 +350,22 @@ module Inkcite
       md.nil?? nil : md[key]
     end
 
+    # Returns true if the specified key has been queried once and
+    # only once.  Any additional queries will return false
+    def once? key
+
+      # Initialize the 'once' data hash which maps
+      data[:once] ||= {}
+
+      key = key.to_sym
+
+      # True if this is the first time we've encountered this key.
+      first_time = data[:once][key].nil?
+      data[:once][key] = true if first_time
+
+      first_time
+    end
+
     # Returns the opts for the parent matching the designated
     # tag, if any are presently open.
     def parent_opts tag

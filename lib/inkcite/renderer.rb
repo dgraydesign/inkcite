@@ -31,9 +31,11 @@ require_relative 'renderer/snow'
 require_relative 'renderer/social'
 require_relative 'renderer/span'
 require_relative 'renderer/sparkle'
+require_relative 'renderer/sup'
 require_relative 'renderer/table'
 require_relative 'renderer/td'
 require_relative 'renderer/topic'
+require_relative 'renderer/trademark'
 require_relative 'renderer/video_preview'
 
 module Inkcite
@@ -198,12 +200,15 @@ module Inkcite
           :'mobile-toggle-on' => MobileToggleOn.new,
           :pintrest           => Social::Pintrest.new,
           :preheader          => Preheader.new,
+          :r                  => Trademark.new('&reg;'),
           :redacted           => Redacted.new,
           :snow               => Snow.new,
           :span               => Span.new,
           :sparkle            => Sparkle.new,
+          :sup                => Sup.new,
           :table              => Table.new,
           :td                 => Td.new,
+          :tm                 => Trademark.new('&trade;'),
           :'topic'            => Topic.new,
           :'topic-list'       => TopicList.new,
           :twitter            => Social::Twitter.new,
