@@ -12,7 +12,7 @@ module Inkcite
         # If so, it only needs to appear once.
         id = opt[:id]
 
-        id.blank? || ctx.once?(id) ? "{sup}#{@sym}{/sup}" : ''
+        id.blank? || ctx.once?("#{id}-trademark") ? "{sup}#{@sym}{/sup}" : ''
       end
 
     end
