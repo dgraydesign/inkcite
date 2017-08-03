@@ -4,36 +4,26 @@ module Inkcite
   module Cli
     class Preview
 
-      def self.invoke email, to, opt
+      def self.invoke email, list, opt
 
         # Push the browser preview(s) up to the server to ensure that the
         # latest images and "view in browser" versions are available.
         email.upload unless opt[:'no-upload']
 
-        also = opt[:also]
-        unless also.blank?
+        # Ensure we're dealing with a symbol rather than string.
+        list = list.to_sym
 
-          # Sometimes people use commas to separate the --also addresses so
-          # explode those into an array for convenience. Email is already
-          # hard enough.
-          if also.any? { |a| a.match(',') }
-            also = also.collect { |a| a.split(',') }.flatten
+        preview_opt = {}
 
-            # Since opt is frozen by Thor we need to make a copy of it in order
-            # to inject the new array of recipients back into it.
-            opt = opt.dup
-            opt[:also] = also
-
-          end
-        end
-
-        case to.to_sym
+        case list
           when :client
-            Inkcite::Mailer.client(email, opt)
+            preview_opt[:tag] = 'Preview'
+            preview_opt[:bcc] = true
           when :internal
-            Inkcite::Mailer.internal(email, opt)
+            preview_opt[:tag] = 'Internal Preview'
+            preview_opt[:bcc] = true
           when :developer
-            Inkcite::Mailer.developer(email, opt)
+            preview_opt[:tag] = 'Developer Test'
           else
             abort <<-USAGE.strip_heredoc
 
@@ -43,7 +33,11 @@ module Inkcite
                 inkcite preview internal
 
             USAGE
+
+            return
         end
+
+        Mailer.send_to_list email, list, opt.merge(preview_opt)
 
       end
 

@@ -33,7 +33,7 @@ module Inkcite
         # that the latest images are available.
         email.upload unless opts[:'no-upload']
 
-        Inkcite::Mailer.send(email, opts.merge({ :to => send_to }))
+        Inkcite::Mailer.send_test(email, send_to, opts)
 
         true
       end
