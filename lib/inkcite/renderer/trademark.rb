@@ -12,7 +12,12 @@ module Inkcite
         # If so, it only needs to appear once.
         id = opt[:id]
 
-        id.blank? || ctx.once?("#{id}-trademark") ? "{sup}#{@sym}{/sup}" : ''
+        if id.blank?
+          ctx.error('Missing id on trademark/registered symbol')
+          id = "tm#{ctx.unique_id(:trademark)}"
+        end
+
+        ctx.once?("#{id}-trademark") ? "{sup}#{@sym}{/sup}" : ''
       end
 
     end

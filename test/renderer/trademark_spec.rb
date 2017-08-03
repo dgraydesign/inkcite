@@ -4,6 +4,11 @@ describe Inkcite::Renderer::Trademark do
     @view = Inkcite::Email.new('test/project/').view(:development, :email)
   end
 
+  it 'warns if an id is not provided' do
+    Inkcite::Renderer.render('{tm}', @view)
+    assert_error @view, 'Missing id on trademark/registered symbol'
+  end
+
   it 'renders a ™ symbol' do
     Inkcite::Renderer.render('{tm}', @view).must_equal('<sup style="font-size:10px;line-height:10px;vertical-align:top">&trade;</sup>')
   end
