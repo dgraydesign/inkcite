@@ -37,4 +37,8 @@ describe Inkcite::View do
     Inkcite::Renderer.render('{not-vml}All except VML-aware clients{/not-vml}', @view).must_equal('<!--[if !vml]><!-- -->All except VML-aware clients<!--<![endif]-->')
   end
 
+  it 'removes invisible line separator unicode characters' do
+    Inkcite::Renderer.fix_illegal_characters("\u2028".encode('utf-8'), @view).must_equal('')
+  end
+
 end

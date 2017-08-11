@@ -68,6 +68,9 @@ module Inkcite
 
       end
 
+      # Remove unicode line break characters
+      value.gsub!(/\u2028/, '')
+
       value
     end
 
