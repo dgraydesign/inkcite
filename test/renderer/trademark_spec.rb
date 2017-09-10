@@ -29,4 +29,12 @@ describe Inkcite::Renderer::Trademark do
     Inkcite::Renderer.render('{r id="aha"}{tm id="pandora"}', @view).must_equal('<sup style="font-size:10px;line-height:10px;vertical-align:top">&reg;</sup><sup style="font-size:10px;line-height:10px;vertical-align:top">&trade;</sup>')
   end
 
+  it 'allows superscripting to be disabled with the no-sup attribute' do
+    Inkcite::Renderer.render('{r id="aha" no-sup}', @view).must_equal('&reg;')
+  end
+
+  it 'supports an associated footnote' do
+    Inkcite::Renderer.render('{r id="leatherman" footnote="Leatherman is a trademark of Leatherman Tool Group, inc."}', @view).must_equal('<sup style="font-size:10px;line-height:10px;vertical-align:top">&reg;1</sup>')
+  end
+
 end
