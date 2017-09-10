@@ -165,18 +165,17 @@ module Inkcite
           (min_speed..max_speed)
         end
 
+        # An array of source images to be applied to the children or
+        # an empty array if there are none.
         def src
-          return @src if defined?(@src)
+          @src ||= begin
 
-          # Check to see if a source image has been specified for the snowflakes.
-          @src = @opt[:src]
+            # Check to see if a source image has been specified for the snowflakes.
+            # Split on a comma to treat the source listing as an array. Then verify
+            # that each of the referenced images exists
+            @opt[:src].to_s.split(',').select { |img| @ctx.assert_image_exists(img) }
 
-          # Release the image name if one has been provided but doesn't exist in
-          # the project - this will cause the special effect to default to the
-          # non-image default behavior.
-          @src = nil if @src && !@ctx.assert_image_exists(@src)
-
-          @src
+          end
         end
 
         def position_range
@@ -360,7 +359,7 @@ module Inkcite
           color = sfx.color
           style[BACKGROUND_COLOR] = color unless none?(color)
         else
-          style[BACKGROUND_IMAGE] = "url(#{sfx.ctx.image_url(src)})"
+          style[BACKGROUND_IMAGE] = "url(#{sfx.ctx.image_url(src.first)})" unless src.length > 1
           style[BACKGROUND_SIZE] = '100%'
         end
 
@@ -376,6 +375,10 @@ module Inkcite
       # CSS classes to them allowing each to be sized, animated uniquely.
       def create_child_elements html, styles, sfx
 
+        # Get a local handle on the src array in case we need to apply
+        # a random one to each child (because there are multiple)
+        src = sfx.src
+
         sfx.count.times do |n|
 
           child_class_name = sfx.child_class_name(n)
@@ -385,6 +388,13 @@ module Inkcite
 
           # This is the custom style to be applied to the child.
           style = Inkcite::Renderer::Style.new(".#{child_class_name}", sfx.ctx)
+
+          # If there are multiple images, apply the next image based on the
+          # child's index.
+          if src.length > 1
+            src_index = n % src.length
+            style[BACKGROUND_IMAGE] = "url(#{sfx.ctx.image_url(src[src_index])})"
+          end
 
           # This is the animation declaration (timing, duration, etc.) for this child.
           animation = Inkcite::Animation.new(sfx.animation_class_name(n), sfx.ctx)
