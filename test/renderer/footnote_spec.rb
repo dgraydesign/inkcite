@@ -54,4 +54,8 @@ describe Inkcite::Renderer::Footnote do
     Inkcite::Renderer.render('({footnote text="EPA-estimated fuel economy."}) {footnotes tmpl="[$symbol$] $text$\n\n"}', text_view).must_equal("(1) [1] EPA-estimated fuel economy.\n\n")
   end
 
+  it 'supports the once attribute' do
+    Inkcite::Renderer.render('({footnote id="leatherman" text="Leatherman is a trademark of Leatherman Tool Group, inc." once})({footnote id="leatherman" once})', @view).must_equal("(1)()")
+  end
+
 end

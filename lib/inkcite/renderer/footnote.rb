@@ -104,9 +104,29 @@ module Inkcite
         # appear in the {footnotes} rendering.
         instance.active = true
 
+        unless id.blank?
+
+          # Check to see if the once flag is enabled.  If enabled, check to see if
+          # this footnote has appeared before.
+          once = opt[:once]
+          return '' if once && !ctx.once?("#{id}-footnote")
+
+        end
+
         # Allow footnotes to be defined without showing a symbol
         hidden = opt[:hidden] || (opt[:hidden] == '1')
-        "#{instance.symbol}" unless hidden
+        return '' if hidden
+
+        # Check to see if the footnote should be automatically surrounded
+        # by the superscript helper.
+        sup = opt[:sup] && !ctx.text?
+
+        html = ''
+        html << '{sup}' if sup
+        html << instance.symbol
+        html << '{/sup}' if sup
+
+        html
       end
 
     end
@@ -125,7 +145,7 @@ module Inkcite
         # on the format of the email.
         tmpl = opt[:tmpl] || opt[:template]
         if tmpl.blank?
-          tmpl = ctx.text? ? "($symbol$) $text$\n\n" : "<sup>$symbol$</sup> $text$<br><br>"
+          tmpl = ctx.text? ? '($symbol$) $text$\n\n' : '<sup>$symbol$</sup> $text$<br><br>'
 
         elsif ctx.text?
 
