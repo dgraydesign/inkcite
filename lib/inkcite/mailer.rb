@@ -192,8 +192,10 @@ module Inkcite
 
           case list
             when :client
-              recipients[:to] << (recipient_yml[FIRST_PREVIEW] if count == 1) || recipient_yml[:clients] || recipient_yml[:client]
-              recipients[:cc] << recipient_yml[:internal]
+              first_preview = count == 1 ? recipient_yml[FIRST_PREVIEW] : nil
+              clients = recipient_yml[:clients] || recipient_yml[:client]
+              recipients[:to] = first_preview || clients
+              recipients[:cc] = recipient_yml[:internal]
             when :internal
               recipients[:to] = recipient_yml[:internal]
             when :developer
@@ -212,7 +214,7 @@ module Inkcite
     end
 
     def self.increment email, sym
-      email.set_meta sym, get_count(email, sym)
+      email.set_meta sym, get_count(email, sym, {})
     end
 
     # Abstract base class for the workhorses of the Mailer class.
