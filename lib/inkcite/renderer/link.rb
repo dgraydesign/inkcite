@@ -189,7 +189,7 @@ module Inkcite
 
         end
 
-        [ id, href, target_blank ]
+        [id, href, target_blank]
       end
 
       private
@@ -220,15 +220,37 @@ module Inkcite
       def self.add_tagging id, href, ctx
 
         # Check to see if we're tagging links.
-        tag = ctx[TAG_LINKS]
-        unless tag.blank?
+        tag_map = ctx[TAG_LINKS]
+        unless tag_map.blank?
 
-          # Blank tag domain means tag all the links - otherwise, make sure the
-          # href matches the desired domain name.
-          tag_domain = ctx[TAG_LINKS_DOMAIN]
-          if tag_domain.blank? || href =~ /^https?:\/\/[^\/]*#{tag_domain}/
-            Util::add_query_param(href, replace_tag(tag, id, ctx))
+          # This is the tag to be applied.
+          tag = nil
+
+          # Support for a map of tags where the matching domain is
+          # the key and the value is the tagging.
+          if tag_map.is_a?(Hash)
+            longest_domain = ''
+
+            tag_map.each do |domain, _tag|
+              if href =~ /^https?:\/\/[^\/]*#{domain}/
+                if domain.length > longest_domain.length
+                  longest_domain = domain
+                  tag = _tag
+                end
+              end
+            end
+
+          else
+
+            # Blank tag domain means tag all the links - otherwise, make sure the
+            # href matches the desired domain name.
+            tag_domain = ctx[TAG_LINKS_DOMAIN]
+            tag = tag_map if tag_domain.blank? || href =~ /^https?:\/\/[^\/]*#{tag_domain}/
+
           end
+
+          # If a tag was identified then apply it to the href.
+          href = Util::add_query_param(href, replace_tag(tag, id, ctx)) unless tag.blank?
 
         end
 

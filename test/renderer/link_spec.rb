@@ -20,6 +20,13 @@ describe Inkcite::Renderer::Link do
     Inkcite::Renderer.render('{a id="litmus" href="http://litmus.com"}Test Emails Here{/a}', @view).must_equal('<a href="http://litmus.com" style="color:#0099cc;text-decoration:none" target=_blank>Test Emails Here</a>')
   end
 
+  it 'can be configured to tag links to at different domains' do
+    @view.config[:'tag-links'] = { 'inkceptional.com' => 'tag=inkcite|{id}', 'blog.inkceptional.com' => 'campaign=blog'}
+    Inkcite::Renderer.render('{a id="blog" href="http://blog.inkceptional.com"}Our blog{/a}', @view).must_equal('<a href="http://blog.inkceptional.com?campaign=blog" style="color:#0099cc;text-decoration:none" target=_blank>Our blog</a>')
+    Inkcite::Renderer.render('{a id="litmus" href="http://litmus.com"}Test Emails Here{/a}', @view).must_equal('<a href="http://litmus.com" style="color:#0099cc;text-decoration:none" target=_blank>Test Emails Here</a>')
+    Inkcite::Renderer.render('{a id="cp" href="http://client-preview.inkceptional.com"}Client Previews{/a}', @view).must_equal('<a href="http://client-preview.inkceptional.com?tag=inkcite|cp" style="color:#0099cc;text-decoration:none" target=_blank>Client Previews</a>')
+  end
+
   it 'will not tag mailto: links' do
     @view.config[:'tag-links'] = "tag=inkcite|{id}"
     Inkcite::Renderer.render('{a id="contact-us" href="mailto:some.email@some.where"}Contact Us{/a}', @view).must_equal('<a href="mailto:some.email@some.where" style="color:#0099cc;text-decoration:none">Contact Us</a>')
