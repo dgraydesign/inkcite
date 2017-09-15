@@ -211,12 +211,12 @@ module Inkcite
         # Default naming based on the number of versions - only the format if there is
         # a single version or version and format when there are multiple versions.
         fn = if email.versions.length > 1
-               '{version}-{format}'
-             elsif text?
-               'email'
-             else
-               '{format}'
-             end
+          '{version}-{format}'
+        elsif text?
+          'email'
+        else
+          '{format}'
+        end
 
       end
 
@@ -226,16 +226,16 @@ module Inkcite
 
       # Sanity check to ensure there is an appropriate extension on the
       # file name.
-      ext ||= (text?? TXT_EXTENSION : HTML_EXTENSION)
+      ext ||= (text? ? TXT_EXTENSION : HTML_EXTENSION)
       fn << ext unless File.extname(fn) == ext
 
       fn
     end
 
-      # Defines a new helper, which allows designers to keep helper
-      # markup alongside the usage of it inside of partial.  Helps keep
-      # code clean and prevents helper.tsv pollution for one-offs
-      def helper tag, open, close=nil
+    # Defines a new helper, which allows designers to keep helper
+    # markup alongside the usage of it inside of partial.  Helps keep
+    # code clean and prevents helper.tsv pollution for one-offs
+    def helper tag, open, close=nil
 
       tag = tag.to_sym
 
@@ -270,7 +270,7 @@ module Inkcite
         # Prepend the image host onto the src if one is specified in the properties.
         # During local development, images are always expected in an images/ subdirectory.
         image_host = if development?
-          (@email.optimize_images?? Image::ImageMinifier::IMAGE_CACHE : Email::IMAGES) + '/'
+          (@email.optimize_images? ? Image::ImageMinifier::IMAGE_CACHE : Email::IMAGES) + '/'
         else
 
           # Use the image host defined in config.yml or, out-of-the-box refer to images/
@@ -347,7 +347,7 @@ module Inkcite
 
     def meta key
       md = meta_data
-      md.nil?? nil : md[key]
+      md.nil? ? nil : md[key]
     end
 
     # Returns true if the specified key has been queried once and
@@ -375,7 +375,7 @@ module Inkcite
     # Returns the array of browser prefixes that need to be included in
     # CSS styles based on which version of the email this is.
     def prefixes
-      _prefixes = [ '' ]
+      _prefixes = ['']
 
       # In development mode, include all prefixes for maximum compatibility.
       _prefixes += %w(-moz- -ms- -o-) if development?
@@ -401,7 +401,7 @@ module Inkcite
 
       # Will be used to assemble the parameters passed to File.open.
       # First, always open the file in read mode.
-      mode = [ 'r' ]
+      mode = ['r']
 
       # Detect abnormal file encoding and construct the string to
       # convert such encoding to UTF-8 if specified.
@@ -434,7 +434,7 @@ module Inkcite
       raise "Already rendered" unless @content.blank?
 
       source_file = 'source'
-      source_file << (text?? TXT_EXTENSION : HTML_EXTENSION)
+      source_file << (text? ? TXT_EXTENSION : HTML_EXTENSION)
 
       # Read the original source which may include embedded Ruby.
       filtered = read_source(@email.project_file(source_file))
@@ -650,17 +650,17 @@ module Inkcite
 
     private
 
-    ASSETS          = 'assets'
-    FILE_SCHEME     = 'file'
-    FILE_NAME       = :'file-name'
-    HTML_EXTENSION  = '.html'
+    ASSETS = 'assets'
+    FILE_SCHEME = 'file'
+    FILE_NAME = :'file-name'
+    HTML_EXTENSION = '.html'
     LINKS_EXTENSION = '-links.csv'
-    NEW_LINE        = "\n"
-    REGEX_SLASH     = '/'
+    NEW_LINE = "\n"
+    REGEX_SLASH = '/'
     SOURCE_ENCODING = :'source-encoding'
-    TAB             = "\t"
-    TXT_EXTENSION   = '.txt'
-    UTF_8           = 'utf-8'
+    TAB = "\t"
+    TXT_EXTENSION = '.txt'
+    UTF_8 = 'utf-8'
 
     # Empty hash used when there is no environment or format-specific configuration
     EMPTY_HASH = {}
@@ -957,7 +957,7 @@ module Inkcite
 
       # Join all of the style blocks into a single block if this
       # is not an email - otherwise, keep them separate.
-      style_blocks = [ style_blocks.join(NEW_LINE) ] unless email?
+      style_blocks = [style_blocks.join(NEW_LINE)] unless email?
 
       html = []
 
@@ -1041,7 +1041,7 @@ module Inkcite
     def load_helpers
 
       _helpers = {
-        :n => NEW_LINE
+          :n => NEW_LINE
       }
 
       # Get the project path from which most helpers will be loaded.
