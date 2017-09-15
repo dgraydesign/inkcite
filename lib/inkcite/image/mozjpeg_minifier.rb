@@ -38,7 +38,8 @@ module Inkcite
         # Produce progressive JPEGs
         cmd << '-progressive'
 
-        cmd << '-sample 1x1'
+        subsampling = (config[MOZJPEG_SUBSAMPLING] || DEFAULT_SUBSAMPLING).to_i
+        cmd << "-sample #{subsampling}x#{subsampling}"
 
         # Reduces posterization in lower-quality JPEGs
         # https://calendar.perfplanet.com/2014/mozjpeg-3-0/
@@ -64,10 +65,14 @@ module Inkcite
       MOZJPEG_LUMINANCE_QUALITY = :'mozjpeg-luminance-quality'
       MOZJPEG_CHROMINANCE_QUALITY = :'mozjpeg-chrominance-quality'
       MOZJPEG_QUANT_TABLE = :'mozjpeg-quant-table'
+      MOZJPEG_SUBSAMPLING = :'mozjpeg-subsampling'
 
       # Default compression quality for images unless specified in the
       # configuration file under 'mozjpeg-quality'
       DEFAULT_QUALITY = 85
+
+      # Default subsampling
+      DEFAULT_SUBSAMPLING = 1
 
       # Quality limits
       MIN_QUALITY = 0
