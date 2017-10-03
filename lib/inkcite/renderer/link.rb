@@ -41,7 +41,12 @@ module Inkcite
         # including font, background color, border, etc.
         mix_all a, opt, ctx
 
-        id, href, target_blank = Link.process(opt[:id], opt[:href], opt[:force], ctx)
+        # If no-tag is specified, override the default tagging
+        # behavior.  Useful when the tagging interferes with
+        # behavior on dynamic pages.
+        add_tag = opt[:'no-tag'] != true
+
+        id, href, target_blank = Link.process(opt[:id], opt[:href], opt[:force], ctx, add_tag)
 
         a[:target] = BLANK if target_blank
 
@@ -100,7 +105,7 @@ module Inkcite
         html
       end
 
-      def self.process id, href, force, ctx
+      def self.process id, href, force, ctx, add_tag=true
 
         # Initially assume a blank target isn't needed
         target_blank = false
@@ -163,7 +168,7 @@ module Inkcite
             ctx.error('Link href appears to be invalid', { :id => id, :href => href }) unless force || valid?(href)
 
             # Optionally tag the link's query string for post-send log analytics.
-            href = add_tagging(id, href, ctx)
+            href = add_tagging(id, href, ctx) if add_tag
 
             if last_href.blank?
 
